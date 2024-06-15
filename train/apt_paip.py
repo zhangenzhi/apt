@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model.apt import APT
+from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
 
 # Define the Dice Loss
@@ -52,14 +53,14 @@ class DiceBCELoss(nn.Module):
     
 def main(datapath, resolution, epoch, batch_size, savefile):
     # Create an instance of the U-Net model and other necessary components
-    # unet_model = Unet(n_class=1)
-    model = APT(qdt_shape=(8, 385*8),
-            input_dim=3, 
-            output_dim=1, 
-            embed_dim=768,
-            patch_size=8,
-            num_heads=12, 
-            dropout=0.1)
+    model = Unet(n_class=1)
+    # model = APT(qdt_shape=(8, 385*8),
+    #         input_dim=3, 
+    #         output_dim=1, 
+    #         embed_dim=768,
+    #         patch_size=8,
+    #         num_heads=12, 
+    #         dropout=0.1)
     criterion = DiceBCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
