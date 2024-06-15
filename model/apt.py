@@ -180,16 +180,16 @@ class Transformer(nn.Module):
             self.layer.append(copy.deepcopy(layer))
 
     def forward(self, x):
-        extract_layers = []
+        # extract_layers = []
         hidden_states = self.embeddings(x)
 
         for depth, layer_block in enumerate(self.layer):
             hidden_states, _ = layer_block(hidden_states)
-            if depth + 1 in self.extract_layers:
-                extract_layers.append(hidden_states)
+            # if depth + 1 in self.extract_layers:
+            #     extract_layers.append(hidden_states)
 
-        return extract_layers[-1]
-
+        # return extract_layers[-1]
+        return hidden_states
 
 class APT(nn.Module):
     def __init__(self, qdt_shape=(8, 3080), input_dim=3, output_dim=1, embed_dim=768, patch_size=16, num_heads=12, dropout=0.1):
@@ -203,7 +203,7 @@ class APT(nn.Module):
         self.num_heads = num_heads
         self.dropout = dropout
         self.num_layers = 12
-        # self.ext_layers = [3, 6, 9, 12]
+        self.ext_layers = [3, 6, 9, 12]
 
 
         # Transformer Encoder
