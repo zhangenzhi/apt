@@ -217,11 +217,11 @@ if __name__ == '__main__':
                         help='resolution of img.')
     parser.add_argument('--fixed_length', default=512, type=int,
                         help='length of sequence.')
-    parser.add_argument('--epoch', default=10, type=int,
+    parser.add_argument('--epoch', default=100, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=2, type=int,
+    parser.add_argument('--batch_size', default=4, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./vitunet_visual",
+    parser.add_argument('--savefile', default="./apt",
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
