@@ -21,7 +21,7 @@ module load rocm/5.7.0
 
 # exec
 srun python ./train/apt_paip.py \
-        --data_dir=./dataset/paip/output_images_and_masks \
+        --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --fixed_length=385 \
         --epoch=100 \
