@@ -224,7 +224,7 @@ class APT(nn.Module):
                 nn.Unflatten(1, torch.Size([3, 16, 16*385])),
                 nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=2, padding=1),
                 nn.GELU(),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1),
+                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
                 nn.GELU(),
                 SingleConv2DBlock(64, output_dim, 1)
             )
