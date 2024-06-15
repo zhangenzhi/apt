@@ -4,7 +4,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+class LayerNorm2d(nn.Module):
+    def __init__(self, num_channels: int, eps: float = 1e-6) -> None:
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(num_channels))
+        self.bias = nn.Parameter(torch.zeros(num_channels))
+        self.eps = eps
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        u = x.mean(1, keepdim=True)
+        s = (x - u).pow(2).mean(1, keepdim=True)
+        x = (x - u) / torch.sqrt(s + self.eps)
+        x = self.weight[:, None, None] * x + self.bias[:, None, None]
+        return x
+    
 class SingleDeconv2DBlock(nn.Module):
     def __init__(self, in_planes, out_planes):
         super().__init__()
@@ -220,9 +233,11 @@ class APT(nn.Module):
             )
         self.decoder0_header = \
             nn.Sequential(
-                nn.Flatten(1, 2),
-                nn.Unflatten(1, torch.Size([3, 16, 16*385])),
+                nn.Unflatten(2, torch.Size([3, 16, 16])),
+                nn.Flatten(1, 3),
+                nn.Unflatten(1, torch.Size([3, 16*385])),
                 nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=2, padding=1),
+                LayerNorm2d(64),
                 nn.GELU(),
                 nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
                 nn.GELU(),
