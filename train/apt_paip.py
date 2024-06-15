@@ -61,7 +61,7 @@ def main(datapath, resolution, epoch, batch_size, savefile):
             num_heads=12, 
             dropout=0.1)
     criterion = DiceBCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     
     # Move the model to GPU
@@ -217,7 +217,7 @@ if __name__ == '__main__':
                         help='resolution of img.')
     parser.add_argument('--fixed_length', default=512, type=int,
                         help='length of sequence.')
-    parser.add_argument('--epoch', default=100, type=int,
+    parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
                         help='Batch_size for training')
