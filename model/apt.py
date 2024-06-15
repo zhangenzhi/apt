@@ -203,9 +203,8 @@ class APT(nn.Module):
         self.num_heads = num_heads
         self.dropout = dropout
         self.num_layers = 12
-        self.ext_layers = [3, 6, 9, 12]
+        # self.ext_layers = [3, 6, 9, 12]
 
-        self.patch_dim = [int(math.sqrt(self.tokens)), int(math.sqrt(self.tokens))]
 
         # Transformer Encoder
         self.transformer = \
@@ -224,9 +223,11 @@ class APT(nn.Module):
                 nn.Flatten(1, 2),
                 nn.Unflatten(1, torch.Size([3, 16, 16*385])),
                 nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=2, padding=1),
+                nn.GELU(),
+                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1),
+                nn.GELU(),
                 SingleConv2DBlock(64, output_dim, 1)
             )
-        # self.upsampling = nn.Upsample(size=self.img_shape, mode='bilinear', align_corners=True)
 
     def forward(self, qdt):
         z = self.transformer(qdt)
