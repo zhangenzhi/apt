@@ -74,7 +74,7 @@ class ImageEncoderViT(nn.Module):
                 input_size=(img_size[0] // patch_size, img_size[1] // patch_size),
             )
             self.blocks.append(block)
-        self.blocks = torch.load("./vit_blocks.pth")
+        self.blocks = torch.load("./model/vit_blocks.pth")
 
         self.neck = nn.Sequential(
             nn.Conv2d(
