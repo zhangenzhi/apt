@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+from model.sam import build_sam_vit_b
+
 class LayerNorm2d(nn.Module):
     def __init__(self, num_channels: int, eps: float = 1e-6) -> None:
         super().__init__()
@@ -205,7 +207,7 @@ class Transformer(nn.Module):
         return hidden_states
 
 class APT(nn.Module):
-    def __init__(self, qdt_shape=(8, 3080), input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1):
+    def __init__(self, qdt_shape=(8, 3080), input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
         super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -218,35 +220,9 @@ class APT(nn.Module):
         self.num_layers = 12
         self.ext_layers = [3, 6, 9, 12]
 
-        from model.sam import build_sam_vit_b
-        self.transformer = build_sam_vit_b()
-        
-        # # Transformer Encoder
-        # self.transformer = \
-        #     Transformer(
-        #         input_dim,
-        #         embed_dim,
-        #         qdt_shape,
-        #         self.patch_size,
-        #         num_heads,
-        #         self.num_layers,
-        #         dropout,
-        #         self.ext_layers
-        #     )
-        # self.mask_header = \
-        #     nn.Sequential(
-        #         nn.Flatten(1, 2),
-        #         nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
-        #         nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1),
-        #         LayerNorm2d(64),
-        #         nn.GELU(),
-        #         nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
-        #         nn.GELU(),
-        #         nn.ConvTranspose2d(in_channels=64, out_channels=64,  kernel_size=2, stride=2, padding=0),
-        #         nn.GELU(),
-        #         SingleConv2DBlock(64, output_dim, 1)
-        #     )
-        self.mask_header = \
+        if pretrain:
+            self.transformer = build_sam_vit_b()
+            self.mask_header = \
             nn.Sequential(
                 nn.Flatten(1, 2),
                 nn.Unflatten(1, torch.Size([1, 32, 32])),
@@ -258,11 +234,39 @@ class APT(nn.Module):
                 nn.GELU(),
                 SingleConv2DBlock(64, output_dim, 1)
             )
+        else:
+            # Transformer Encoder
+            self.transformer = \
+                Transformer(
+                    input_dim,
+                    embed_dim,
+                    qdt_shape,
+                    self.patch_size,
+                    num_heads,
+                    self.num_layers,
+                    dropout,
+                    self.ext_layers
+                )
+            self.mask_header = \
+                nn.Sequential(
+                    nn.Flatten(1, 2),
+                    nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
+                    nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1),
+                    LayerNorm2d(64),
+                    nn.GELU(),
+                    nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
+                    nn.GELU(),
+                    nn.ConvTranspose2d(in_channels=64, out_channels=64,  kernel_size=2, stride=2, padding=0),
+                    nn.GELU(),
+                    SingleConv2DBlock(64, output_dim, 1)
+                )
+
     def forward(self, qdt):
         z = self.transformer(qdt) # [4,385,768]
-        print(z.shape)
-        output = self.mask_header(z)
-        return output
+        # print("vit shape:",z.shape)
+        z = self.mask_header(z)
+        # print("mask shape:",z.shape)
+        return z
     
 if __name__ == "__main__":
     resolution=512
