@@ -104,12 +104,13 @@ def main(datapath, resolution, epoch, batch_size, savefile):
 
             outputs = model(qdt_img)
             loss = criterion(outputs, qdt_mask)
+            print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
 
             epoch_train_loss += loss.item()
         end_time = time.time()
-        # print("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        print("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
