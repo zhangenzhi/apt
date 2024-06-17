@@ -53,7 +53,9 @@ class DiceBCELoss(nn.Module):
     
 def main(datapath, resolution, epoch, batch_size, savefile):
     # Create an instance of the U-Net model and other necessary components
-    model = APT(qdt_shape=(32, 256*32),
+    patch_size=16
+    fixed_length=1024
+    model = APT(qdt_shape=(patch_size, fixed_length*patch_size),
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -97,8 +99,8 @@ def main(datapath, resolution, epoch, batch_size, savefile):
         start_time = time.time()
         for batch in train_loader:
             images, _, masks, _ = batch
-            images = torch.reshape(images,shape=(-1,3,32,256*32))
-            masks = torch.reshape(masks,shape=(-1,1,32,256*32))
+            images = torch.reshape(images,shape=(-1,3,patch_size,fixed_length*patch_size))
+            masks = torch.reshape(masks,shape=(-1,1,patch_size,fixed_length*patch_size))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             optimizer.zero_grad()
 
@@ -123,8 +125,8 @@ def main(datapath, resolution, epoch, batch_size, savefile):
         with torch.no_grad():
             for batch in val_loader:
                 images, _, masks, _ = batch
-                images = torch.reshape(images,shape=(-1,3,32,256*32))
-                masks = torch.reshape(masks,shape=(-1,1,32,256*32))
+                images = torch.reshape(images,shape=(-1,3,patch_size,fixed_length*patch_size))
+                masks = torch.reshape(masks,shape=(-1,1,patch_size,fixed_length*patch_size))
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
                 loss = criterion(outputs, masks)
@@ -141,8 +143,8 @@ def main(datapath, resolution, epoch, batch_size, savefile):
             with torch.no_grad():
                 sample_images, _, sample_masks,  _= next(iter(val_loader))
                 sample_images, sample_masks = sample_images.to(device), sample_masks.to(device)  # Move data to GPU
-                sample_images = torch.reshape(sample_images,shape=(-1,3,32,256*32))
-                sample_masks = torch.reshape(sample_masks,shape=(-1,1,32,256*32))
+                sample_images = torch.reshape(sample_images,shape=(-1,3,patch_size,fixed_length*patch_size))
+                sample_masks = torch.reshape(sample_masks,shape=(-1,1,patch_size,fixed_length*patch_size))
                 sample_outputs = torch.sigmoid(model(sample_images))
 
                 for i in range(sample_images.size(0)):
@@ -183,8 +185,8 @@ def main(datapath, resolution, epoch, batch_size, savefile):
     with torch.no_grad():
         for batch in test_loader:
             images, _, masks, _ = batch
-            images = torch.reshape(images,shape=(-1,3,32,256*32))
-            masks = torch.reshape(masks,shape=(-1,1,32,256*32))
+            images = torch.reshape(images,shape=(-1,3,patch_size,fixed_length*patch_size))
+            masks = torch.reshape(masks,shape=(-1,1,patch_size,fixed_length*patch_size))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             outputs = model(images)
             loss = criterion(outputs, masks)

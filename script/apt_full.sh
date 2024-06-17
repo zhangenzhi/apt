@@ -27,4 +27,4 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --fixed_length=1024 \
         --epoch=1000 \
         --batch_size=4 \
-        --savefile=./output_apt
+        --savefile=./output_apt-full
