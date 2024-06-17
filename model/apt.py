@@ -236,11 +236,7 @@ class APT(nn.Module):
         self.mask_header = \
             nn.Sequential(
                 nn.Flatten(1, 2),
-                nn.Unflatten(1, torch.Size([3, 16, 16*385])),
-                # nn.Linear(in_features=16*385, out_features=16*385),
-                # nn.GELU(),
-                # nn.Linear(in_features=16*385, out_features=16*385),
-                # nn.GELU(),
+                nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
                 nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=2, padding=1),
                 LayerNorm2d(64),
                 nn.GELU(),
