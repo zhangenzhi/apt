@@ -205,14 +205,14 @@ class Transformer(nn.Module):
         return hidden_states
 
 class APT(nn.Module):
-    def __init__(self, qdt_shape=(8, 3080), input_dim=3, output_dim=1, embed_dim=768, patch_size=8, num_heads=12, dropout=0.1):
+    def __init__(self, qdt_shape=(8, 3080), input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1):
         super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.embed_dim = embed_dim
         self.qdt_shape = qdt_shape
-        self.tokens = int((qdt_shape[0] * qdt_shape[1]) / (patch_size * patch_size))
-        self.patch_size = patch_size
+        self.patch_size = qdt_shape[0]
+        self.tokens = int(qdt_shape[1]/qdt_shape[0])
         self.num_heads = num_heads
         self.dropout = dropout
         self.num_layers = 12

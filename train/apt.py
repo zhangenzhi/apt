@@ -57,7 +57,6 @@ def main(datapath, resolution, epoch, batch_size, savefile):
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
-            patch_size=32,
             num_heads=12, 
             dropout=0.1)
     criterion = DiceBCELoss()
@@ -104,7 +103,7 @@ def main(datapath, resolution, epoch, batch_size, savefile):
             optimizer.zero_grad()
 
             outputs = model(images)
-            loss = criterion(outputs, qdt_mask)
+            loss = criterion(outputs, masks)
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
@@ -183,10 +182,12 @@ def main(datapath, resolution, epoch, batch_size, savefile):
 
     with torch.no_grad():
         for batch in test_loader:
-            images, qdt_img, masks, qdt_mask = batch
-            qdt_img, qdt_mask = qdt_img.to(device), qdt_mask.to(device)  # Move data to GPU
-            outputs = model(qdt_img)
-            loss = criterion(outputs, qdt_mask)
+            images, _, masks, _ = batch
+            images = torch.reshape(images,shape=(-1,3,32,256*32))
+            masks = torch.reshape(masks,shape=(-1,1,32,256*32))
+            images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            outputs = model(images)
+            loss = criterion(outputs, masks)
             test_loss += loss.item()
 
     test_loss /= len(test_loader)
