@@ -7,3 +7,4 @@ visualizations
 *_visual
 *.png
 *.jpg
+*.pyc

@@ -218,46 +218,46 @@ class APT(nn.Module):
         self.num_layers = 12
         self.ext_layers = [3, 6, 9, 12]
 
-        # from model.sam import build_sam_vit_b
-        # self.transformer = build_sam_vit_b()
+        from model.sam import build_sam_vit_b
+        self.transformer = build_sam_vit_b()
         
-        # Transformer Encoder
-        self.transformer = \
-            Transformer(
-                input_dim,
-                embed_dim,
-                qdt_shape,
-                self.patch_size,
-                num_heads,
-                self.num_layers,
-                dropout,
-                self.ext_layers
-            )
-        self.mask_header = \
-            nn.Sequential(
-                nn.Flatten(1, 2),
-                nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
-                nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1),
-                LayerNorm2d(64),
-                nn.GELU(),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
-                nn.GELU(),
-                nn.ConvTranspose2d(in_channels=64, out_channels=64,  kernel_size=2, stride=2, padding=0),
-                nn.GELU(),
-                SingleConv2DBlock(64, output_dim, 1)
-            )
+        # # Transformer Encoder
+        # self.transformer = \
+        #     Transformer(
+        #         input_dim,
+        #         embed_dim,
+        #         qdt_shape,
+        #         self.patch_size,
+        #         num_heads,
+        #         self.num_layers,
+        #         dropout,
+        #         self.ext_layers
+        #     )
         # self.mask_header = \
         #     nn.Sequential(
         #         nn.Flatten(1, 2),
-        #         nn.Unflatten(1, torch.Size([1, 16, 16])),
-        #         nn.Flatten(3, 4),
-        #         nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=2, padding=1),
+        #         nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
+        #         nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1),
         #         LayerNorm2d(64),
         #         nn.GELU(),
         #         nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
         #         nn.GELU(),
+        #         nn.ConvTranspose2d(in_channels=64, out_channels=64,  kernel_size=2, stride=2, padding=0),
+        #         nn.GELU(),
         #         SingleConv2DBlock(64, output_dim, 1)
         #     )
+        self.mask_header = \
+            nn.Sequential(
+                nn.Flatten(1, 2),
+                nn.Unflatten(1, torch.Size([1, 16, 16])),
+                nn.Flatten(3, 4),
+                nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=2, padding=1),
+                LayerNorm2d(64),
+                nn.GELU(),
+                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
+                nn.GELU(),
+                SingleConv2DBlock(64, output_dim, 1)
+            )
     def forward(self, qdt):
         z = self.transformer(qdt) # [4,385,768]
         output = self.mask_header(z)
