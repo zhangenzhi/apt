@@ -266,7 +266,7 @@ class APT(nn.Module):
         z = self.transformer(qdt) 
         print("vit shape:",z.shape)
         z = self.mask_header(z)
-        # print("mask shape:",z.shape)
+        print("mask shape:",z.shape)
         return z
     
 if __name__ == "__main__":
