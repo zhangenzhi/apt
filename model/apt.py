@@ -249,7 +249,7 @@ class APT(nn.Module):
         self.mask_header = \
             nn.Sequential(
                 nn.Flatten(1, 2),
-                nn.Unflatten(1, torch.Size([1, 16, 16])),
+                nn.Unflatten(1, torch.Size([1, 32, 32])),
                 nn.Flatten(3, 4),
                 nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=2, padding=1),
                 LayerNorm2d(64),
@@ -260,6 +260,7 @@ class APT(nn.Module):
             )
     def forward(self, qdt):
         z = self.transformer(qdt) # [4,385,768]
+        print(z.shape)
         output = self.mask_header(z)
         return output
     
