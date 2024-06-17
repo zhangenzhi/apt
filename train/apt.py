@@ -57,7 +57,7 @@ def main(datapath, resolution, epoch, batch_size, savefile):
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
-            patch_size=8,
+            patch_size=32,
             num_heads=12, 
             dropout=0.1)
     criterion = DiceBCELoss()
