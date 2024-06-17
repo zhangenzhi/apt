@@ -263,7 +263,7 @@ class APT(nn.Module):
 
     def forward(self, qdt):
         z = self.transformer(qdt) # [4,385,768]
-        # print("vit shape:",z.shape)
+        print("vit shape:",z.shape)
         z = self.mask_header(z)
         # print("mask shape:",z.shape)
         return z
