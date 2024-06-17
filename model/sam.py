@@ -7,14 +7,14 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(checkpoint=None):
+def build_sam_vit_b( patch_size=8, fixed_length=1024, checkpoint=None):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
         encoder_num_heads=12,
         encoder_global_attn_indexes=[2, 5, 8, 11],
-        patch_size=8,
-        fixed_length=1024,
+        patch_size=patch_size,
+        fixed_length=fixed_length,
         checkpoint=checkpoint,
     )
     
