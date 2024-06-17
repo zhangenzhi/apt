@@ -24,6 +24,6 @@ srun python ./train/apt_paip.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --fixed_length=385 \
-        --epoch=1000 \
+        --epoch=100 \
         --batch_size=4 \
         --savefile=./output_apt
