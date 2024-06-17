@@ -104,7 +104,7 @@ def main(datapath, resolution, epoch, batch_size, savefile):
 
             outputs = model(qdt_img)
             loss = criterion(outputs, qdt_mask)
-            print("train step loss:{}".format(loss))
+            # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
 
