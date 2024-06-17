@@ -224,14 +224,9 @@ class APT(nn.Module):
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
             self.mask_header = \
             nn.Sequential(
-                # nn.Flatten(1, 2),
-                # nn.Unflatten(2, torch.Size([1, 32, 32])),
-                # nn.Flatten(3, 4),
                 nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2, padding=0),
-                # LayerNorm2d(128),
                 nn.GELU(),
                 nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2, padding=0),
-                # LayerNorm2d(128),
                 nn.GELU(),
                 nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
                 nn.GELU(),
