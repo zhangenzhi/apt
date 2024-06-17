@@ -221,7 +221,7 @@ class APT(nn.Module):
         self.ext_layers = [3, 6, 9, 12]
 
         if pretrain:
-            self.transformer = build_sam_vit_b()
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
             self.mask_header = \
             nn.Sequential(
                 # nn.Flatten(1, 2),
