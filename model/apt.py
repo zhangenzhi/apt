@@ -264,13 +264,13 @@ class APT(nn.Module):
                     SingleConv2DBlock(64, output_dim, 1)
                 )
 
-    def forward(self, qdt):
-        print(qdt.shape)
-        z = self.transformer(qdt) 
-        print("vit shape:",z.shape)
-        z = self.mask_header(z)
-        print("mask shape:",z.shape)
-        return z
+    def forward(self, x):
+        # print(qdt.shape)
+        x = self.transformer(x) 
+        # print("vit shape:",z.shape)
+        x = self.mask_header(x)
+        # print("mask shape:",z.shape)
+        return x
     
 if __name__ == "__main__":
     resolution=512
