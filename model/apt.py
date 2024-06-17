@@ -224,13 +224,13 @@ class APT(nn.Module):
             self.transformer = build_sam_vit_b()
             self.mask_header = \
             nn.Sequential(
-                nn.Flatten(1, 2),
-                nn.Unflatten(2, torch.Size([1, 32, 32])),
-                nn.Flatten(3, 4),
-                nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, stride=2, padding=1),
+                # nn.Flatten(1, 2),
+                # nn.Unflatten(2, torch.Size([1, 32, 32])),
+                # nn.Flatten(3, 4),
+                nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
                 LayerNorm2d(64),
                 nn.GELU(),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
+                nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
                 nn.GELU(),
                 SingleConv2DBlock(64, output_dim, 1)
             )
@@ -263,7 +263,7 @@ class APT(nn.Module):
 
     def forward(self, qdt):
         print(qdt.shape)
-        z = self.transformer(qdt) # [4,385,768]
+        z = self.transformer(qdt) 
         print("vit shape:",z.shape)
         z = self.mask_header(z)
         # print("mask shape:",z.shape)
