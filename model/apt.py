@@ -227,7 +227,7 @@ class APT(nn.Module):
                 input_dim,
                 embed_dim,
                 qdt_shape,
-                patch_size,
+                self.patch_size,
                 num_heads,
                 self.num_layers,
                 dropout,
