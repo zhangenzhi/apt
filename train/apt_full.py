@@ -51,10 +51,10 @@ class DiceBCELoss(nn.Module):
         
         return Dice_BCE
     
-def main(datapath, resolution, epoch, batch_size, savefile):
+def main(args):
     # Create an instance of the U-Net model and other necessary components
-    patch_size=16
-    fixed_length=1024
+    patch_size=args.patch_size
+    fixed_length=args.fixed_length
     model = APT(qdt_shape=(patch_size, fixed_length*patch_size),
             input_dim=3, 
             output_dim=1, 
@@ -72,8 +72,8 @@ def main(datapath, resolution, epoch, batch_size, savefile):
     # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
-    data_path = datapath
-    dataset = PAIPQDTDataset(data_path, resolution, normalize=True)
+    data_path = args.data_dir
+    dataset = PAIPQDTDataset(data_path, args.resolution, normalize=True)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
@@ -81,15 +81,15 @@ def main(datapath, resolution, epoch, batch_size, savefile):
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
     # Training loop
-    num_epochs = epoch
+    num_epochs = args.epoch
     train_losses = []
     val_losses = []
-    output_dir = savefile  # Change this to the desired directory
+    output_dir = args.savefile  # Change this to the desired directory
     os.makedirs(output_dir, exist_ok=True)
     import time
     for epoch in range(num_epochs):
@@ -227,6 +227,8 @@ if __name__ == '__main__':
                         help='resolution of img.')
     parser.add_argument('--fixed_length', default=512, type=int,
                         help='length of sequence.')
+    parser.add_argument('--patch_size', default=8, type=int,
+                        help='patch size.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
@@ -235,8 +237,4 @@ if __name__ == '__main__':
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
-    main(datapath=Path(args.data_dir), 
-         resolution=args.resolution,
-         epoch=args.epoch,
-         batch_size=args.batch_size,
-         savefile=args.savefile)
+    main(args)

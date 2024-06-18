@@ -20,7 +20,7 @@ module load gcc/12.2.0
 module load rocm/5.7.0
 
 # exec
-srun python ./train/apt_paip.py \
+srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/apt_paip.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --fixed_length=385 \
