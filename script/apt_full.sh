@@ -24,8 +24,8 @@ module load rocm/5.7.0
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/apt_full.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
-        --fixed_length=4096 \
-        --patch_size=8 \
+        --fixed_length=1026 \
+        --patch_size=16 \
         --epoch=30 \
         --batch_size=1 \
-        --savefile=./output_apt-full-8
+        --savefile=./output_apt-full-16-laynorm
