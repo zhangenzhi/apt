@@ -11,9 +11,9 @@ export HOME="/tmp/srun"
 
 export PATH="/lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/bin:$PATH"
 
-set +x
-source /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/etc/profile.d/conda.sh
-conda activate /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/envs/gvit
+# set +x
+# source /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/etc/profile.d/conda.sh
+# conda activate /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/envs/gvit
 
 module load PrgEnv-gnu
 module load gcc/12.2.0
