@@ -53,8 +53,8 @@ class DiceBCELoss(nn.Module):
     
 def main(datapath, resolution, epoch, batch_size, savefile):
     # Create an instance of the U-Net model and other necessary components
-    patch_size=16
-    fixed_length=1024
+    patch_size=32
+    fixed_length=256
     model = APT(qdt_shape=(patch_size, fixed_length*patch_size),
             input_dim=3, 
             output_dim=1, 
