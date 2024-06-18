@@ -28,4 +28,4 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --patch_size=16 \
         --epoch=100 \
         --batch_size=4 \
-        --savefile=./output_apt-full-16-laynorm
+        --savefile=./output_apt-full-16-laynorm-2
