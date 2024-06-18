@@ -55,7 +55,7 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     fixed_length=args.fixed_length
-    model = APT(qdt_shape=(patch_size, fixed_length*patch_size),
+    model = APT(qdt_shape=(patch_size//2, fixed_length*patch_size//2),
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
