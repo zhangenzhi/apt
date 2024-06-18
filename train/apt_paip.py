@@ -54,7 +54,7 @@ class DiceBCELoss(nn.Module):
 def main(args):
     # Create an instance of the U-Net model and other necessary components
     # model = Unet(n_class=1)
-    model = APT(qdt_shape=(8, args.fixed_length*8),
+    model = APT(qdt_shape=(args.patch_size, args.fixed_length*args.patch_size),
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -214,9 +214,11 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
     parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
                         help='base path of dataset.')
-    parser.add_argument('--resolution', default=1024, type=int,
+    parser.add_argument('--resolution', default=512, type=int,
                         help='resolution of img.')
-    parser.add_argument('--fixed_length', default=512, type=int,
+    parser.add_argument('--patch_size', default=8, type=int,
+                        help='patch size.')
+    parser.add_argument('--fixed_length', default=1024, type=int,
                         help='length of sequence.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')

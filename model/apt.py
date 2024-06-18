@@ -225,8 +225,13 @@ class APT(nn.Module):
             self.mask_header = \
             nn.Sequential(
                 nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(128),
                 nn.GELU(),
                 nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(64),
+                nn.GELU(),
+                nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(64),
                 nn.GELU(),
                 nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
                 nn.GELU(),
@@ -262,11 +267,11 @@ class APT(nn.Module):
                 )
 
     def forward(self, x):
-        # print(qdt.shape)
+        print(x.shape)
         x = self.transformer(x) 
-        # print("vit shape:",z.shape)
+        print("vit shape:",x.shape)
         x = self.mask_header(x)
-        # print("mask shape:",z.shape)
+        print("mask shape:",x.shape)
         return x
     
 if __name__ == "__main__":
