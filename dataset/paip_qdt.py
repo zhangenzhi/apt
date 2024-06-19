@@ -13,7 +13,7 @@ from torchvision import transforms
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class PAIPQDTDataset(Dataset):
-    def __init__(self, data_path, resolution, normalize=False):
+    def __init__(self, data_path, resolution, fixed_length, patch_size, normalize=False):
         self.data_path = data_path
         self.resolution = resolution
 
@@ -26,9 +26,9 @@ class PAIPQDTDataset(Dataset):
             subdir_path = os.path.join(data_path, subdir)
             if os.path.isdir(subdir_path):
                 image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
-                qdt_image =  os.path.join(subdir_path, f"image-{resolution}_qdt.png")
+                qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{patch_size}_qdt.png")
                 mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
-                qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_qdt.png")
+                qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_{fixed_length}_{patch_size}_qdt.png")
 
                 # Ensure the image exist
                 if os.path.exists(image) and os.path.exists(mask):

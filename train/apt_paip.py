@@ -72,7 +72,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = Path(args.data_dir)
-    dataset = PAIPQDTDataset(data_path, args.resolution, normalize=True)
+    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, normalize=True)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
