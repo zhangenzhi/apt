@@ -59,6 +59,7 @@ def main(args):
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
+            pretrain=args.pretrain,
             num_heads=12, 
             dropout=0.1)
     criterion = DiceBCELoss()
@@ -229,6 +230,8 @@ if __name__ == '__main__':
                         help='length of sequence.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')
+    parser.add_argument('--pretrain', default="sam", type=str,
+                        help='Use SAM pretrained weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
