@@ -221,7 +221,7 @@ if __name__ == '__main__':
                         help='patch size.')
     parser.add_argument('--fixed_length', default=1024, type=int,
                         help='length of sequence.')
-    parser.add_argument('--pretrain', default=True, type=bool,
+    parser.add_argument('--pretrain', default="sam", type=str,
                         help='Use SAM pretrained weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')

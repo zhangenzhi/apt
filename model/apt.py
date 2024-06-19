@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
+import sys
+sys.path.append("./")
 
 from model.sam import build_sam_vit_b
 
@@ -216,7 +218,7 @@ class APT(nn.Module):
         self.num_layers = 12
         self.ext_layers = [3, 6, 9, 12]
 
-        if pretrain:
+        if pretrain == "sam":
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
             self.mask_header = \
             nn.Sequential(
@@ -269,26 +271,26 @@ class APT(nn.Module):
         return x
     
 if __name__ == "__main__":
-    resolution=512
-    patch_size = 8
-    tokens = 385
+    resolution = 512
+    patch_size = 4
+    tokens = 1024
     apt = APT(qdt_shape=(patch_size, tokens*patch_size),
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
-            patch_size=patch_size,
             num_heads=12, 
+            pretrain=False,
             dropout=0.1)
 
-    qdt = torch.randn(1, 3, patch_size, tokens*patch_size)
-    x = torch.randn(1, 3, resolution, resolution)
-    output = apt(qdt)
+    # qdt = torch.randn(1, 3, patch_size, tokens*patch_size)
+    # x = torch.randn(1, 3, resolution, resolution)
+    # output = apt(qdt)
     
-    # from calflops import calculate_flops
-    # batch_size = 1
-    # input_shape = (batch_size, 3, patch_size, tokens*patch_size)
-    # flops, macs, params = calculate_flops(model=vitunetr, 
-    #                                     input_shape=input_shape,
-    #                                     output_as_string=True,
-    #                                     output_precision=4)
-    # print("APT FLOPs:%s   MACs:%s   Params:%s \n" %(flops, macs, params))
+    from calflops import calculate_flops
+    batch_size = 2
+    input_shape = (batch_size, 3, patch_size, tokens*patch_size)
+    flops, macs, params = calculate_flops(model=apt, 
+                                        input_shape=input_shape,
+                                        output_as_string=True,
+                                        output_precision=4)
+    print("APT FLOPs:%s   MACs:%s   Params:%s \n" %(flops, macs, params))
