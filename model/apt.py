@@ -195,15 +195,11 @@ class Transformer(nn.Module):
             self.layer.append(copy.deepcopy(layer))
 
     def forward(self, x):
-        # extract_layers = []
         hidden_states = self.embeddings(x)
 
         for depth, layer_block in enumerate(self.layer):
             hidden_states, _ = layer_block(hidden_states)
-            # if depth + 1 in self.extract_layers:
-            #     extract_layers.append(hidden_states)
-
-        # return extract_layers[-1]
+            
         return hidden_states
 
 class APT(nn.Module):
@@ -255,13 +251,11 @@ class APT(nn.Module):
             self.mask_header = \
                 nn.Sequential(
                     nn.Flatten(1, 2),
-                    nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])),
+                    nn.Unflatten(1, torch.Size([3, 16, 16*self.tokens])), # 16*16*3=768
                     nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1),
                     LayerNorm2d(64),
                     nn.GELU(),
                     nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
-                    nn.GELU(),
-                    nn.ConvTranspose2d(in_channels=64, out_channels=64,  kernel_size=2, stride=2, padding=0),
                     nn.GELU(),
                     SingleConv2DBlock(64, output_dim, 1)
                 )
