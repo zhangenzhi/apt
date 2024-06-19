@@ -28,4 +28,4 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --pretrain=sam \
         --epoch=50 \
         --batch_size=2 \
-        --savefile=./apt-test-true-no-pretrain
+        --savefile=./apt-sam-1024-4
