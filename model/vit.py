@@ -45,13 +45,13 @@ class ImageEncoderViT(nn.Module):
         super().__init__()
         self.img_size = img_size
         
-        with torch.no_grad():
-            self.patch_embed = PatchEmbed(
-                kernel_size=(patch_size, patch_size),
-                stride=(patch_size, patch_size),
-                in_chans=in_chans,
-                embed_dim=embed_dim,
-            )
+        # with torch.no_grad():
+        self.patch_embed = PatchEmbed(
+            kernel_size=(patch_size, patch_size),
+            stride=(patch_size, patch_size),
+            in_chans=in_chans,
+            embed_dim=embed_dim,
+        )
 
         self.pos_embed: Optional[nn.Parameter] = None
         if use_abs_pos:
