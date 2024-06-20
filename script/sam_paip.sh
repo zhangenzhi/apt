@@ -27,5 +27,5 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --patch_size=4 \
         --pretrain=sam \
         --epoch=50 \
-        --batch_size=4 \
-        --savefile=./full-sam
+        --batch_size=2 \
+        --savefile=./full-sam-pe
