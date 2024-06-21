@@ -88,8 +88,8 @@ class ImageEncoderViT(nn.Module):
             nn.Conv2d(
                 out_chans,
                 out_chans,
-                kernel_size=3,
-                padding=1,
+                kernel_size=1,
+                # padding=1,
                 bias=False,
             ),
             LayerNorm2d(out_chans),
