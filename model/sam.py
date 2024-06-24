@@ -31,8 +31,8 @@ def _build_sam_vit(
     # image_size = [4, 4*1024]
     # vit_patch_size = 4
     # image_size = [patch_size, patch_size*fixed_length]
-    image_size = [512, 512]
-    vit_patch_size = 8
+    image_size = [64*64, 64*64]
+    vit_patch_size = 64
     # image_embedding_size = image_size // vit_patch_size
     
     image_encoder=ImageEncoderViT(
