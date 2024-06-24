@@ -44,7 +44,8 @@ class ImageEncoderViT(nn.Module):
         """
         super().__init__()
         self.img_size = img_size
-
+        
+        # with torch.no_grad():
         self.patch_embed = PatchEmbed(
             kernel_size=(patch_size, patch_size),
             stride=(patch_size, patch_size),
@@ -56,7 +57,7 @@ class ImageEncoderViT(nn.Module):
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
             self.pos_embed = nn.Parameter(
-                torch.zeros(1, img_size[0] // patch_size , img_size[1] // patch_size, embed_dim)
+                torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
             )
 
         self.blocks = nn.ModuleList()
@@ -70,7 +71,7 @@ class ImageEncoderViT(nn.Module):
                 act_layer=act_layer,
                 use_rel_pos=use_rel_pos,
                 rel_pos_zero_init=rel_pos_zero_init,
-                window_size=window_size if i not in global_attn_indexes else 0,
+                window_size=0,
                 input_size=(img_size[0] // patch_size, img_size[1] // patch_size),
             )
             self.blocks.append(block)
@@ -87,15 +88,18 @@ class ImageEncoderViT(nn.Module):
             nn.Conv2d(
                 out_chans,
                 out_chans,
-                kernel_size=3,
-                padding=1,
+                kernel_size=1,
+                # padding=1,
                 bias=False,
             ),
             LayerNorm2d(out_chans),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.patch_embed(x)
+        # print(x.shape)
+        with torch.no_grad():
+            x = self.patch_embed(x)
+        # print(x.shape)
         if self.pos_embed is not None:
             x = x + self.pos_embed
 
