@@ -85,19 +85,19 @@ class ImageEncoderViT(nn.Module):
                 bias=False,
             ),
             LayerNorm2d(out_chans),
-            # nn.Conv2d(
-            #     out_chans,
-            #     out_chans,
-            #     kernel_size=1,
-            #     # padding=1,
-            #     bias=False,
-            # ),
-            # LayerNorm2d(out_chans),
+            nn.Conv2d(
+                out_chans,
+                out_chans,
+                kernel_size=1,
+                # padding=1,
+                bias=False,
+            ),
+            LayerNorm2d(out_chans),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        with torch.no_grad():
-            x = self.patch_embed(x)
+        # with torch.no_grad():
+        x = self.patch_embed(x)
             
         if self.pos_embed is not None:
             x = x + self.pos_embed
