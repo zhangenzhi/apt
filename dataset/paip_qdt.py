@@ -8,6 +8,7 @@ from PIL import Image, ImageFile
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+from torchvision.transforms import v2
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -48,13 +49,12 @@ class PAIPQDTDataset(Dataset):
         ])
         self.transform_qdt_image= transforms.Compose([
             transforms.ToTensor(),
+            v2.RandomHorizontalFlip()
         ])
         self.transform_mask= transforms.Compose([
             transforms.ToTensor(),
         ])
-        self.transform_qdt_mask= transforms.Compose([
-            transforms.ToTensor(),
-        ])
+        self.transform_qdt_mask= self.transform_qdt_image
 
         if normalize:
             self.transform.transforms.append(transforms.Normalize(mean=self.mean, std=self.std))
