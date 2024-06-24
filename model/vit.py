@@ -96,8 +96,8 @@ class ImageEncoderViT(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # with torch.no_grad():
-        x = self.patch_embed(x)
+        with torch.no_grad():
+            x = self.patch_embed(x)
             
         if self.pos_embed is not None:
             x = x + self.pos_embed
