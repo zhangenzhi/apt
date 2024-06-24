@@ -62,15 +62,15 @@ def main(args):
             pretrain=args.pretrain, 
             dropout=0.1)
     criterion = DiceBCELoss()
-    # optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    optimizer = optim.AdamW(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    # optimizer = optim.AdamW(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     
     # Move the model to GPU
     model.to(device)
     # Define the learning rate scheduler
-    milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+    # milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
+    # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
     data_path = Path(args.data_dir)
@@ -115,7 +115,7 @@ def main(args):
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
-        scheduler.step()
+        # scheduler.step()
 
         # Validation
         model.eval()
