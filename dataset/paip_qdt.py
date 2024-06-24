@@ -49,13 +49,14 @@ class PAIPQDTDataset(Dataset):
         ])
         self.transform_qdt_image= transforms.Compose([
             transforms.ToTensor(),
-            v2.RandomHorizontalFlip()
+            # v2.RandomHorizontalFlip()
         ])
         self.transform_mask= transforms.Compose([
             transforms.ToTensor(),
         ])
-        self.transform_qdt_mask= self.transform_qdt_image
-
+        self.transform_qdt_mask= transforms.Compose([
+            transforms.ToTensor(),
+        ])
         if normalize:
             self.transform.transforms.append(transforms.Normalize(mean=self.mean, std=self.std))
             self.transform_qdt_image.transforms.append(transforms.Normalize(mean=self.tmean, std=self.tstd))
