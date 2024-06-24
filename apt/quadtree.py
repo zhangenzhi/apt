@@ -57,7 +57,8 @@ class FixedQuadTree:
         root = Rect(0,w,0,h)
         self.nodes = [(root, root.contains(self.domain))]
         while len(self.nodes)<self.fixed_length:
-            bbox, value = self.nodes.pop()
+            bbox, value = max(self.nodes, key=lambda x:x[1])
+            idx = self.nodes.index((bbox, value))
         
             x1,x2,y1,y2 = bbox.get_coord()
             lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
@@ -69,8 +70,8 @@ class FixedQuadTree:
             rb = Rect(int((x1+x2)/2), x2, y1, int((y1+y2)/2))
             v4 = rb.contains(self.domain)
             
-            self.nodes += [(lt,v1), (rt,v2), (lb,v3), (rb,v4)]
-            self.nodes = sorted(self.nodes, key=lambda x: x[1])
+            self.nodes = self.nodes[:idx] + [(lt,v1), (rt,v2), (lb,v3), (rb,v4)] +  self.nodes[idx+1:]
+
             # print([v for _,v in self.nodes])
             
     def count_patches(self):
