@@ -24,6 +24,8 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --fixed_length=1024 \
+        --patch_size=4 \
+        --pretrain=sam \
         --epoch=100 \
         --batch_size=4 \
-        --savefile=./output_apt-1024
+        --savefile=./apt-1024
