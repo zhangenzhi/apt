@@ -29,7 +29,7 @@ def _build_sam_vit(
 ):
     prompt_embed_dim = 256
     image_size = [4*32, 4*32]
-    vit_patch_size = 4
+    vit_patch_size = 2
     # image_size = [patch_size, patch_size*fixed_length]
     # image_size = [512, 512]
     # vit_patch_size = 16
@@ -46,7 +46,7 @@ def _build_sam_vit(
             qkv_bias=True,
             use_rel_pos=True,
             global_attn_indexes=encoder_global_attn_indexes,
-            window_size=0,
+            window_size=fixed_length,
             out_chans=prompt_embed_dim,
         )
     

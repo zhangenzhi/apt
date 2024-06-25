@@ -49,7 +49,6 @@ class PAIPQDTDataset(Dataset):
         ])
         self.transform_qdt_image= transforms.Compose([
             transforms.ToTensor(),
-            # v2.RandomHorizontalFlip()
         ])
         self.transform_mask= transforms.Compose([
             transforms.ToTensor(),
