@@ -63,7 +63,7 @@ class SAM(nn.Module):
         self.num_layers = 12
         self.ext_layers = [3, 6, 9, 12]
 
-        self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
+        self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
@@ -99,7 +99,7 @@ class SAMQDT(nn.Module):
         self.num_layers = 12
         self.ext_layers = [3, 6, 9, 12]
 
-        self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
+        self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
