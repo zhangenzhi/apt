@@ -108,17 +108,17 @@ class SAMQDT(nn.Module):
             nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
             LayerNorm2d(64),
             nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU(),
+            # nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+            # LayerNorm2d(64),
+            # nn.GELU(),
             nn.Conv2d(64, output_dim, 1)
         )
     def forward(self, x):
-        # print(x.shape)
+        print(x.shape)
         x = self.transformer(x) 
-        # print("vit shape:",x.shape)
+        print("vit shape:",x.shape)
         x = self.mask_header(x)
-        # print("mask shape:",x.shape)
+        print("mask shape:",x.shape)
         return x
              
 # class MaskDecoder(nn.Module):
