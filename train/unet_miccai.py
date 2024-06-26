@@ -57,7 +57,6 @@ class DiceBCELoss(nn.Module):
 def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
-    fixed_length=args.fixed_length
     model = Unet(n_class=1)
     criterion = DiceBCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
@@ -226,8 +225,6 @@ if __name__ == '__main__':
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=1024, type=int,
                         help='resolution of img.')
-    parser.add_argument('--fixed_length', default=512, type=int,
-                        help='length of sequence.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')
     parser.add_argument('--pretrain', default="sam", type=str,
