@@ -77,9 +77,9 @@ def main(args):
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=16, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size,  num_workers=16, shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size,  num_workers=16, shuffle=False)
 
     # Training loop
     num_epochs = args.epoch
