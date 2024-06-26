@@ -28,7 +28,7 @@ def _build_sam_vit(
     checkpoint=None,
 ):
     prompt_embed_dim = 256
-    image_size = [4*12, 4*12]
+    image_size = [4*32, 4*32]
     vit_patch_size = 4
     # image_size = [patch_size, patch_size*fixed_length]
     # image_size = [512, 512]
