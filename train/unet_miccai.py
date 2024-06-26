@@ -100,7 +100,7 @@ def main(args):
 
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
-            print("train step loss:{}".format(loss))
+            print("train step loss:{}, sec/img:{}".format(loss, (time.time()-start_time)/args.batch_size))
             loss.backward()
             optimizer.step()
 
