@@ -104,7 +104,7 @@ def main(args):
 
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
-            # print("train step loss:{}".format(loss))
+            print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
 
