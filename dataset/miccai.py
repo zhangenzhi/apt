@@ -33,7 +33,7 @@ class MICCAIDataset(Dataset):
                     if os.path.exists(image) and os.path.exists(mask):
                         self.image_filenames.extend([image])
                         self.mask_filenames.extend([mask])
-        print(len(self.image_filenames))
+        print("img tiles: ",len(self.image_filenames))
 
         self.transform= transforms.Compose([
             transforms.ToTensor(),
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Example usage
-    dataset = MICCAIDataset(args.data_dir, args.resolution)
+    dataset = MICCAIDataset(args.data_dir, args.resolution, normalize=False)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
