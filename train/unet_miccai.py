@@ -77,9 +77,9 @@ def main(args):
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=16, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size,  num_workers=16, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size,  num_workers=16, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=16, prefetch_factor=2, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size,  num_workers=16, prefetch_factor=2, shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size,  num_workers=16, prefetch_factor=2, shuffle=False)
 
     # Training loop
     num_epochs = args.epoch
@@ -93,6 +93,7 @@ def main(args):
         epoch_train_loss = 0.0
         
         start_time = time.time()
+        step=1
         for batch in train_loader:
             qimages, qmasks = batch
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -101,8 +102,9 @@ def main(args):
             loss,_ = criterion(outputs, qmasks)
             loss.backward()
             optimizer.step()
-            # print("train step loss:{}, sec/img:{}".format(loss, (time.time()-step_time)/args.batch_size))
+            print("train step loss:{}, sec/img:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
+            step+=1
         end_time = time.time()
         print("epoch cost:{}, sec/img:{}".format(end_time-start_time, (end_time-start_time)/train_size))
 

@@ -24,5 +24,5 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --data_dir=../miccai_patches/ \
         --resolution=512 \
         --epoch=10 \
-        --batch_size=32 \
-        --savefile=./unet_miccai-512-32
+        --batch_size=16 \
+        --savefile=./unet_miccai-16-16
