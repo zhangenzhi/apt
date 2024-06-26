@@ -22,17 +22,18 @@ class MICCAIDataset(Dataset):
 
         for subdir in os.listdir(data_path):
             subdir_path = os.path.join(data_path, subdir)
-            if os.path.isdir(subdir_path):
-                images_path = os.path.join(subdir_path, f"patches-{resolution}/")
-                masks_path = os.path.join(subdir_path, f"masks-{resolution}/")
+            print(subdir_path)
+            # if os.path.isdir(subdir_path):
+            #     images_path = os.path.join(subdir_path, f"patches-{resolution}/")
+            #     masks_path = os.path.join(subdir_path, f"masks-{resolution}/")
 
-                for img_name in os.listdir(images_path):
-                    # Ensure the image exist
-                    image = os.path.join(images_path, img_name)
-                    mask = os.path.join(masks_path, img_name)
-                    if os.path.exists(image) and os.path.exists(mask):
-                        self.image_filenames.extend([image])
-                        self.mask_filenames.extend([mask])
+            #     for img_name in os.listdir(images_path):
+            #         # Ensure the image exist
+            #         image = os.path.join(images_path, img_name)
+            #         mask = os.path.join(masks_path, img_name)
+            #         if os.path.exists(image) and os.path.exists(mask):
+            #             self.image_filenames.extend([image])
+            #             self.mask_filenames.extend([mask])
 
         # Compute mean and std from the dataset (you need to implement this)
         self.mean, self.std = self.compute_img_statistics()
