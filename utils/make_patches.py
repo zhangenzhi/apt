@@ -39,7 +39,8 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
             
 
 def get_tiff_path(datapath):
-    image_files = [], filenames=[]
+    image_files = []
+    filenames = []
     for f in glob.glob(os.path.join(datapath, "/*image.tiff")):
         image_files.append(f)
         filenames.append(f[:10])
