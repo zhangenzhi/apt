@@ -61,11 +61,10 @@ class FixedQuadTree:
             # if sum(bbox.get_size())<4:
             #     bbox, value = max(self.nodes, key=lambda x:sum(x[0].get_size()))
                 
-            # idx = self.nodes.index((bbox, value))
             idx = self.nodes.index([bbox, value])
             if sum(bbox.get_size())<4:
-                self.nodes[idx][1]=0
-                continue
+                break
+
             x1,x2,y1,y2 = bbox.get_coord()
             lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
             v1 = lt.contains(self.domain)
@@ -95,7 +94,9 @@ class FixedQuadTree:
             assert h1==w1, "Need squared input."
             seq_patch[i] = cv.resize(seq_patch[i], (h2, w2), interpolation=cv.INTER_CUBIC)
             assert seq_patch[i].shape == (h2,w2,c2), "Wrong shape {} get, need {}".format(seq_patch[i].shape, (h2,w2,c2))
-            
+        if len(seq_patch)!=self.fixed_length:
+            seq_patch += [np.zeros(size=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
+        assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch
     
     def deserialize(self, seq, mask):
