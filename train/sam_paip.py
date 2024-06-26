@@ -70,7 +70,7 @@ class DiceBCELoss(nn.Module):
 def main(args):
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
-            patch_size=args.patch_size,
+            patch_size=args.patch_size//2,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
