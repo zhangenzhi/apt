@@ -24,8 +24,8 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --fixed_length=1024 \
-        --patch_size=8 \
+        --patch_size=4 \
         --pretrain=sam \
         --epoch=50 \
         --batch_size=4 \
-        --savefile=./sam_mqdt-1024-8
+        --savefile=./sam_qdt-1024-8

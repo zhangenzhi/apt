@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 
 from model.apt import APT
 from model.unet import Unet
-# from dataset.paip_qdt import PAIPQDTDataset
-from dataset.paip_mqdt import PAIPQDTDataset
+from dataset.paip_qdt import PAIPQDTDataset
+# from dataset.paip_mqdt import PAIPQDTDataset
 
 # Define the Dice Loss
 class DiceLoss(nn.Module):
@@ -56,7 +56,7 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     fixed_length=args.fixed_length
-    model = APT(qdt_shape=(patch_size*12, patch_size*12),
+    model = APT(qdt_shape=(patch_size*32, patch_size*32),
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -101,8 +101,8 @@ def main(args):
         start_time = time.time()
         for batch in train_loader:
             _, qimages, _, qmasks = batch
-            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*12, patch_size*12))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*12, patch_size*12))
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
+            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             optimizer.zero_grad()
 
@@ -127,8 +127,8 @@ def main(args):
         with torch.no_grad():
             for batch in val_loader:
                 _, qimages, _, qmasks = batch
-                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*12, patch_size*12))
-                qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*12, patch_size*12))
+                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
+                qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
@@ -145,8 +145,8 @@ def main(args):
             with torch.no_grad():
                 _, qsample_images, _,  qsample_masks= next(iter(val_loader))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-                qsample_images = torch.reshape(qsample_images,shape=(-1,3,patch_size*12, patch_size*12))
-                qsample_masks = torch.reshape(qsample_masks,shape=(-1,1,patch_size*12, patch_size*12))
+                qsample_images = torch.reshape(qsample_images,shape=(-1,3,patch_size*32, patch_size*32))
+                qsample_masks = torch.reshape(qsample_masks,shape=(-1,1,patch_size*32, patch_size*32))
                 qsample_outputs = torch.sigmoid(model(qsample_images))
 
                 for i in range(qsample_images.size(0)):
@@ -187,8 +187,8 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             _, qimages, _, qmasks = batch
-            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*12, patch_size*12))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*12, patch_size*12))
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
+            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
