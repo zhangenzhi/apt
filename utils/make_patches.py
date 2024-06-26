@@ -51,7 +51,7 @@ def get_tiff_path(datapath):
     return filenames
 
 def make_patches(path, save_path="../miccai_patches/"):
-    images, masks =  get_tiff_path(path)
+    files =  get_tiff_path(path)
     os.makedirs(save_path, exist_ok=True)
 
 if __name__ == "__main__":
