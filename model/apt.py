@@ -222,9 +222,12 @@ class APT(nn.Module):
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
             self.mask_header = \
             nn.Sequential(
-                # nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
-                # LayerNorm2d(64),
-                # nn.GELU(),
+                nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(64),
+                nn.GELU(),
+                nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(64),
+                nn.GELU(),
                 # nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
                 # LayerNorm2d(64),
                 # nn.GELU(),
@@ -240,10 +243,7 @@ class APT(nn.Module):
                 # nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
                 # LayerNorm2d(64),
                 # nn.GELU(),
-                # nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
-                # LayerNorm2d(64),
-                # nn.GELU(),
-                SingleConv2DBlock(256, output_dim, 1)
+                SingleConv2DBlock(64, output_dim, 1)
             )
         else:
             # Transformer Encoder
