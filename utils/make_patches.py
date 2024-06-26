@@ -50,10 +50,17 @@ def get_tiff_path(datapath):
     print(filenames)
     return filenames
 
-def make_patches(path, save_path="../miccai_patches/"):
+def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
     files =  get_tiff_path(path)
+    for file in files:
+        wsi_dir = file + "wsi.tiff"
+        mask_dir = file + "mask.tiff"
+        extract_patches(wsi_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/patches-{patch_size}/"))
+        extract_patches(mask_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/masks-{patch_size}/"))
+
     os.makedirs(save_path, exist_ok=True)
 
 if __name__ == "__main__":
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
+                 patch_size=512,
                  save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
