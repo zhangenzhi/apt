@@ -64,7 +64,7 @@ def main(args):
             num_heads=12, 
             dropout=0.1)
     criterion = DiceBCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     
     # Move the model to GPU
