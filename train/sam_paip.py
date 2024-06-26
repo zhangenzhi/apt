@@ -16,11 +16,25 @@ from model.apt import APT
 from model.sam import SAM
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
+from torchmetrics.functional import dice_score
 
 # Define the Dice Loss
 class DiceLoss(nn.Module):
     def __init__(self, smooth=1):
         super(DiceLoss, self).__init__()
+        self.smooth = smooth
+
+    def forward(self, predicted, target):
+        predicted = torch.sigmoid(predicted)
+        intersection = torch.sum(predicted * target)
+        union = torch.sum(predicted) + torch.sum(target) + self.smooth
+        dice_coefficient = (2 * intersection + self.smooth) / union
+        loss = 1.0 - dice_coefficient  # Adjusted to ensure non-negative loss
+        return loss
+
+class DiceScore(nn.Module):
+    def __init__(self, smooth=1):
+        super(DiceScore, self).__init__()
         self.smooth = smooth
 
     def forward(self, predicted, target):
@@ -122,7 +136,8 @@ def main(args):
         # Validation
         model.eval()
         epoch_val_loss = 0.0
-
+        epoch_val_score = 0.0
+        
         with torch.no_grad():
             for batch in val_loader:
                 images, _, masks, _ = batch
@@ -131,12 +146,15 @@ def main(args):
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
                 loss = criterion(outputs, masks)
+                score = dice_score(outputs, masks)
                 epoch_val_loss += loss.item()
+                epoch_val_score += score.item()
 
         epoch_val_loss /= len(val_loader)
+        epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
 
-        print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}")
+        print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
         if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
