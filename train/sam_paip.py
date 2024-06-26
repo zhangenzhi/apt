@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model.apt import APT
+from model.sam import SAM
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
 
@@ -53,9 +54,8 @@ class DiceBCELoss(nn.Module):
     
 def main(args):
     # Create an instance of the U-Net model and other necessary components
-    patch_size=8
-    fixed_length=1
-    model = APT(qdt_shape=(512, 512),
+    model = SAM(image_shape=(args.resolution,  args.resolution),
+            patch_size=args.patch_size,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
