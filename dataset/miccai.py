@@ -132,9 +132,9 @@ def visualize_samples(images, masks, num_samples=4):
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', default="paip", 
+    parser.add_argument('--dataset', default="miccai", 
                         help='base path of dataset.')
-    parser.add_argument('--datapath', default="/Volumes/data/dataset/paip/output_images_and_masks", 
+    parser.add_argument('--data_dir', default="../miccai_patches/", 
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=512, type=int,
                         help='resolution of img.')
@@ -145,9 +145,9 @@ if __name__ == "__main__":
     parser.add_argument('--savefile', default="./vitunet_visual",
                         help='save visualized and loss filename')
     args = parser.parse_args()
-   
+
     # Example usage
-    dataset = PAIPDataset(args.datapath, args.resolution)
+    dataset = MICCAIDataset(args.datapath, args.resolution)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
