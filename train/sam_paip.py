@@ -121,7 +121,7 @@ def main(args):
             optimizer.zero_grad()
 
             outputs = model(images)
-            loss = criterion(outputs, masks)
+            loss,_ = criterion(outputs, masks)
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
@@ -208,7 +208,7 @@ def main(args):
             masks = torch.reshape(masks,shape=(-1,1,512,512))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             outputs = model(images)
-            loss = criterion(outputs, masks)
+            loss,_ = criterion(outputs, masks)
             test_loss += loss.item()
 
     test_loss /= len(test_loader)
