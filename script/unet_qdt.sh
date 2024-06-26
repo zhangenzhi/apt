@@ -21,11 +21,11 @@ module load rocm/5.7.0
 
 # exec
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/unet_qdt.py \
-        --data_dir=../paip/output_images_and_masks \
+        --data_dir=../miccai_patches/ \
         --resolution=512 \
         --fixed_length=1024 \
         --patch_size=4 \
         --pretrain=sam \
         --epoch=100 \
         --batch_size=4 \
-        --savefile=./sam_qdt-1024-4
+        --savefile=./unet_qdt-1024-4
