@@ -271,11 +271,11 @@ class APT(nn.Module):
                 )
 
     def forward(self, x):
-        # print(x.shape)
+        print(x.shape)
         x = self.transformer(x) 
-        # print("vit shape:",x.shape)
+        print("vit shape:",x.shape)
         x = self.mask_header(x)
-        # print("mask shape:",x.shape)
+        print("mask shape:",x.shape)
         return x
     
 if __name__ == "__main__":
