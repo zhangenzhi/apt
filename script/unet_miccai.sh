@@ -23,8 +23,6 @@ module load rocm/5.7.0
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/unet_miccai.py \
         --data_dir=../miccai_patches/ \
         --resolution=512 \
-        --fixed_length=1024 \
-        --patch_size=4 \
         --epoch=10 \
-        --batch_size=32 \
+        --batch_size=8 \
         --savefile=./unet_miccai-512
