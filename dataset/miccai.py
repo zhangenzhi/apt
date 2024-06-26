@@ -147,7 +147,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Example usage
-    dataset = MICCAIDataset(args.datapath, args.resolution)
+    dataset = MICCAIDataset(args.data_dir, args.resolution)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
