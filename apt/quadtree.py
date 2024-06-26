@@ -58,8 +58,10 @@ class FixedQuadTree:
         self.nodes = [(root, root.contains(self.domain))]
         while len(self.nodes)<self.fixed_length:
             bbox, value = max(self.nodes, key=lambda x:x[1])
+            if sum(bbox.get_size())<4:
+                bbox, value = max(self.nodes, key=lambda x:sum(x[0].get_size()))
+                
             idx = self.nodes.index((bbox, value))
-        
             x1,x2,y1,y2 = bbox.get_coord()
             lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
             v1 = lt.contains(self.domain)
