@@ -102,9 +102,9 @@ class SAMQDT(nn.Module):
         self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
         self.mask_header = \
         nn.Sequential(
-            nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU(),
+            # nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
+            # LayerNorm2d(64),
+            # nn.GELU(),
             nn.Conv2d(64, output_dim, 1)
         )
     def forward(self, x):
