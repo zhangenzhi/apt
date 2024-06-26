@@ -96,19 +96,16 @@ class MICCAIDataset(Dataset):
 
     def __getitem__(self, idx):
         img_name = self.image_filenames[idx]
-        timg_name = self.timg_filenames[idx]
         mask_name = self.mask_filenames[idx]
 
         image = Image.open(img_name).convert("RGB")
-        timage = Image.open(timg_name).convert("RGB")
         mask = Image.open(mask_name).convert("L")  # Assuming masks are grayscale
 
         # Apply transformations
         image = self.transform(image)
-        timage = self.transform_timg(timage)
         mask = self.transform_mask(mask)
 
-        return image, timage, mask
+        return image, mask
 
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
@@ -140,7 +137,7 @@ if __name__ == "__main__":
                         help='resolution of img.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=8, type=int,
+    parser.add_argument('--batch_size', default=32, type=int,
                         help='Batch_size for training')
     parser.add_argument('--savefile', default="./vitunet_visual",
                         help='save visualized and loss filename')
@@ -148,7 +145,7 @@ if __name__ == "__main__":
 
     # Example usage
     dataset = MICCAIDataset(args.data_dir, args.resolution, normalize=False)
-    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
