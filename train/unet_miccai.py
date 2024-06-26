@@ -96,7 +96,7 @@ def main(args):
         
         start_time = time.time()
         for batch in train_loader:
-            _, qimages, _, qmasks = batch
+            qimages, qmasks = batch
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -123,7 +123,7 @@ def main(args):
 
         with torch.no_grad():
             for batch in val_loader:
-                _, qimages, _, qmasks = batch
+                qimages, qmasks = batch
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
                 qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -142,7 +142,7 @@ def main(args):
         if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
             model.eval()
             with torch.no_grad():
-                _, qsample_images, _,  qsample_masks= next(iter(val_loader))
+                qsample_images, qsample_masks= next(iter(val_loader))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 qsample_images = torch.reshape(qsample_images,shape=(-1,3,patch_size*32, patch_size*32))
                 qsample_masks = torch.reshape(qsample_masks,shape=(-1,1,patch_size*32, patch_size*32))
@@ -185,7 +185,7 @@ def main(args):
 
     with torch.no_grad():
         for batch in test_loader:
-            _, qimages, _, qmasks = batch
+            qimages, qmasks = batch
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
