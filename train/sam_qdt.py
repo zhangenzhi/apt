@@ -46,12 +46,13 @@ class DiceBCELoss(nn.Module):
         inputs = inputs.view(-1)
         targets = targets.view(-1)
         
-        intersection = (inputs * targets).sum()                            
+        intersection = (inputs * targets).sum()
+        coeff = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)                                        
         dice_loss = 1 - (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         BCE = F.binary_cross_entropy(inputs, targets, reduction='mean')
         Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
-        return Dice_BCE
+        return Dice_BCE, coeff
     
 def main(args):
     # Create an instance of the U-Net model and other necessary components
@@ -110,7 +111,7 @@ def main(args):
             optimizer.zero_grad()
 
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks)
+            loss,_ = criterion(outputs, qmasks)
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
@@ -126,6 +127,7 @@ def main(args):
         # Validation
         model.eval()
         epoch_val_loss = 0.0
+        epoch_val_score = 0.0
 
         with torch.no_grad():
             for batch in val_loader:
@@ -134,10 +136,12 @@ def main(args):
                 qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
-                loss = criterion(outputs, qmasks)
+                loss, score = criterion(outputs, qmasks)
                 epoch_val_loss += loss.item()
+                epoch_val_score += score.item()
 
         epoch_val_loss /= len(val_loader)
+        epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
 
         print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}")
@@ -194,7 +198,7 @@ def main(args):
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks)
+            loss,_ = criterion(outputs, qmasks)
             test_loss += loss.item()
 
     test_loss /= len(test_loader)
