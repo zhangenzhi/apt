@@ -104,7 +104,7 @@ def main(args):
             # print("train step loss:{}, sec/img:{}".format(loss, (time.time()-step_time)/args.batch_size))
             epoch_train_loss += loss.item()
         end_time = time.time()
-        print("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        print("epoch cost:{}, sec/img:{}".format(end_time-start_time, (end_time-start_time)/train_size))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
