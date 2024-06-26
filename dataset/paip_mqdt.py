@@ -48,14 +48,14 @@ class PAIPQDTDataset(Dataset):
             transforms.ToTensor(),
         ])
         self.transform_qdt_image= transforms.Compose([
-            transforms.Resize(4, 4*12*12),
+            transforms.Resize((4, 4*12*12)),
             transforms.ToTensor(),
         ])
         self.transform_mask= transforms.Compose([
             transforms.ToTensor(),
         ])
         self.transform_qdt_mask= transforms.Compose([
-            transforms.Resize(4, 4*12*12),
+            transforms.Resize((4, 4*12*12)),
             transforms.ToTensor(),
         ])
         if normalize:
