@@ -105,7 +105,7 @@ class SAMQDT(nn.Module):
             # nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
             # LayerNorm2d(64),
             # nn.GELU(),
-            nn.Conv2d(64, output_dim, 1)
+            nn.Conv2d(256, output_dim, 1)
         )
     def forward(self, x):
         # print(x.shape)
