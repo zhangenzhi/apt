@@ -30,7 +30,7 @@ class Unet(nn.Module):
         self.base_model = torchvision.models.resnet18(True)
         self.base_layers = list(self.base_model.children())
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), bias=False),
+            nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False),
             self.base_layers[1],
             self.base_layers[2])
         self.layer2 = nn.Sequential(*self.base_layers[3:5])
@@ -42,7 +42,7 @@ class Unet(nn.Module):
         self.decode2 = Decoder(256, 128+64, 128)
         self.decode1 = Decoder(128, 64+64, 64)
         self.decode0 = nn.Sequential(
-            # nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
             nn.Conv2d(64, 32, kernel_size=3, padding=1, bias=False),
             nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False)
         )
