@@ -63,7 +63,7 @@ class FixedQuadTree:
                 
             # idx = self.nodes.index((bbox, value))
             idx = self.nodes.index((bbox, value))
-            if sum(bbox.get_size())<2:
+            if sum(bbox.get_size())<4:
                 self.nodes[idx][1]=0
                 continue
             x1,x2,y1,y2 = bbox.get_coord()
