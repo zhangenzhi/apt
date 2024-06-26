@@ -59,12 +59,13 @@ class DiceBCELoss(nn.Module):
         inputs = inputs.view(-1)
         targets = targets.view(-1)
         
-        intersection = (inputs * targets).sum()                            
+        intersection = (inputs * targets).sum()    
+        coeff = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)                         
         dice_loss = 1 - (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         BCE = F.binary_cross_entropy(inputs, targets, reduction='mean')
         Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
-        return Dice_BCE
+        return Dice_BCE, coeff
     
 def main(args):
     # Create an instance of the U-Net model and other necessary components
@@ -145,8 +146,7 @@ def main(args):
                 masks = torch.reshape(masks,shape=(-1,1,512,512))
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
-                loss = criterion(outputs, masks)
-                score = dice_score(outputs, masks)
+                loss, score = criterion(outputs, masks)
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
 
