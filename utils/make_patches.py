@@ -36,6 +36,7 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
             
             # Save the patch as a PNG file
             patch.save(f"{save_path}/patch_{i}_{j}.png")
+            print(f"{save_path}/patch_{i}_{j}.png")
             
 
 def get_tiff_path(datapath):
@@ -58,7 +59,7 @@ def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
         extract_patches(wsi_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/patches-{patch_size}/"))
         extract_patches(mask_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/masks-{patch_size}/"))
 
-    os.makedirs(save_path, exist_ok=True)
+    print(f"Done! Totoal {len(files)} file.")
 
 if __name__ == "__main__":
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
