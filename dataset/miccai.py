@@ -22,10 +22,10 @@ class MICCAIDataset(Dataset):
 
         for subdir in os.listdir(data_path):
             subdir_path = os.path.join(data_path, subdir)
-            print(subdir_path)
-            # if os.path.isdir(subdir_path):
-            #     images_path = os.path.join(subdir_path, f"patches-{resolution}/")
-            #     masks_path = os.path.join(subdir_path, f"masks-{resolution}/")
+            if os.path.isdir(subdir_path):
+                images_path = os.path.join(subdir_path, f"patches-{resolution}/")
+                masks_path = os.path.join(subdir_path, f"masks-{resolution}/")
+                print(images_path)
 
             #     for img_name in os.listdir(images_path):
             #         # Ensure the image exist
