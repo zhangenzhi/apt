@@ -41,11 +41,11 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
 def get_tiff_path(datapath):
     image_files = []
     filenames = []
-    for f in glob.glob(os.path.join(datapath, "*_image.tiff")):
+    for f in glob.glob(os.path.join(datapath, "*_wsi.tiff")):
         image_files.append(f)
         filenames.append(f[:10])
     mask_files = []
-    for f in glob.glob(os.path.join(datapath, "/*_mask.tiff")):
+    for f in glob.glob(os.path.join(datapath, "*_mask.tiff")):
         mask_files.append(f)
     print(filenames)
     return filenames
