@@ -94,15 +94,16 @@ def main(args):
         
         start_time = time.time()
         for batch in train_loader:
+            step_time = time.time()
             qimages, qmasks = batch
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             optimizer.zero_grad()
 
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
-            print("train step loss:{}, sec/img:{}".format(loss, (time.time()-start_time)/args.batch_size))
             loss.backward()
             optimizer.step()
+            print("train step loss:{}, sec/img:{}".format(loss, (time.time()-step_time)/args.batch_size))
 
             epoch_train_loss += loss.item()
         end_time = time.time()
