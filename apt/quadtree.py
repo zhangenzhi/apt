@@ -62,7 +62,7 @@ class FixedQuadTree:
             #     bbox, value = max(self.nodes, key=lambda x:sum(x[0].get_size()))
                 
             # idx = self.nodes.index((bbox, value))
-            idx = self.nodes.index((bbox, value))
+            idx = self.nodes.index([bbox, value])
             if sum(bbox.get_size())<4:
                 self.nodes[idx][1]=0
                 continue
