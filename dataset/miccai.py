@@ -137,7 +137,7 @@ if __name__ == "__main__":
                         help='resolution of img.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=32, type=int,
+    parser.add_argument('--batch_size', default=128, type=int,
                         help='Batch_size for training')
     parser.add_argument('--savefile', default="./vitunet_visual",
                         help='save visualized and loss filename')
