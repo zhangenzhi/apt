@@ -43,7 +43,7 @@ def get_tiff_path(datapath):
     filenames = []
     for f in glob.glob(os.path.join(datapath, "*_wsi.tiff")):
         image_files.append(f)
-        filenames.append(f[:10])
+        filenames.append(f[:-10])
     mask_files = []
     for f in glob.glob(os.path.join(datapath, "*_mask.tiff")):
         mask_files.append(f)
