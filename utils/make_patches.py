@@ -56,8 +56,10 @@ def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
     for file in files:
         wsi_dir = file + "wsi.tiff"
         mask_dir = file + "mask.tiff"
-        extract_patches(wsi_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/patches-{patch_size}/"))
-        extract_patches(mask_dir, patch_size=patch_size, save_path=os.path.join(save_path, f"{file}/masks-{patch_size}/"))
+        wsi_save_path = os.path.join(save_path, f"{os.path.basename(file)}/patches-{patch_size}")
+        mask_save_path = os.path.join(save_path, f"{os.path.basename(file)}/masks-{patch_size}")
+        extract_patches(wsi_dir, patch_size=patch_size, save_path=wsi_save_path)
+        extract_patches(mask_dir, patch_size=patch_size, save_path=mask_save_path)
 
     print(f"Done! Totoal {len(files)} file.")
 
