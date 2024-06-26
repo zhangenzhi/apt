@@ -60,7 +60,7 @@ def main(args):
     fixed_length=args.fixed_length
     model = SAMQDT(
             image_shape=(patch_size*32, patch_size*32),
-            patch_size=patch_size,
+            patch_size=patch_size//2,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -144,7 +144,7 @@ def main(args):
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
 
-        print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}")
+        print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
         if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
