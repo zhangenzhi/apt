@@ -111,11 +111,11 @@ class SAMQDT(nn.Module):
             nn.Conv2d(64, output_dim, 1)
         )
     def forward(self, x):
-        print(x.shape)
+        # print(x.shape)
         x = self.transformer(x) 
-        print("vit shape:",x.shape)
+        # print("vit shape:",x.shape)
         x = self.mask_header(x)
-        print("mask shape:",x.shape)
+        # print("mask shape:",x.shape)
         return x
              
 # class MaskDecoder(nn.Module):
