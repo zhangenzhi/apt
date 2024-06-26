@@ -16,7 +16,7 @@ from model.apt import APT
 from model.sam import SAM
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
-from torchmetrics.functional import dice_score
+# from torchmetrics.functional import dice_score
 
 # Define the Dice Loss
 class DiceLoss(nn.Module):
