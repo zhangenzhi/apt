@@ -7,14 +7,14 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(patch_size=8, fixed_length=1024, checkpoint=None):
+def build_sam_vit_b(patch_size=8, image_size=[512, 512], checkpoint=None):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
         encoder_num_heads=12,
         encoder_global_attn_indexes=[2, 5, 8, 11],
         patch_size=patch_size,
-        fixed_length=fixed_length,
+        image_size=image_size,
         checkpoint=checkpoint,
     )
     
@@ -24,17 +24,13 @@ def _build_sam_vit(
     encoder_num_heads,
     encoder_global_attn_indexes,
     patch_size,
-    fixed_length,
+    image_size,
     checkpoint=None,
 ):
     prompt_embed_dim = 256
-    # image_size = [patch_size*32, patch_size*32]
-    # vit_patch_size = patch_size
-    # image_size = [patch_size, patch_size*fixed_length]
-    
-    image_size = [512, 512]
+    image_size = image_size
     vit_patch_size = patch_size
-    # image_embedding_size = image_size // vit_patch_size
+    tokens = image_size[0]//patch_size * image_size[0]//patch_size
     
     image_encoder=ImageEncoderViT(
             depth=encoder_depth,
@@ -47,14 +43,14 @@ def _build_sam_vit(
             qkv_bias=True,
             use_rel_pos=True,
             global_attn_indexes=encoder_global_attn_indexes,
-            window_size=fixed_length,
+            window_size=tokens,
             out_chans=prompt_embed_dim,
         )
     
     return image_encoder
 
 class SAM(nn.Module):
-    def __init__(self, image_shape=(512, 512), patch_size=16, input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
+    def __init__(self, image_shape=(512, 512), patch_size=8, input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
         super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -88,7 +84,43 @@ class SAM(nn.Module):
         x = self.mask_header(x)
         # print("mask shape:",x.shape)
         return x
-                
+
+class SAMQDT(nn.Module):
+    def __init__(self, image_shape=(4*32, 4*32), patch_size=4, input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
+        super().__init__()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.embed_dim = embed_dim
+        self.image_shape = image_shape
+        self.patch_size = patch_size
+        self.tokens = int(image_shape[1]/patch_size)*int(image_shape[0]/patch_size)
+        self.num_heads = num_heads
+        self.dropout = dropout
+        self.num_layers = 12
+        self.ext_layers = [3, 6, 9, 12]
+
+        self.transformer = build_sam_vit_b(patch_size=self.patch_size, fixed_length=self.tokens)
+        self.mask_header = \
+        nn.Sequential(
+            nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
+            LayerNorm2d(64),
+            nn.GELU(),
+            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+            LayerNorm2d(64),
+            nn.GELU(),
+            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+            LayerNorm2d(64),
+            nn.GELU(),
+            nn.Conv2d(64, output_dim, 1)
+        )
+    def forward(self, x):
+        # print(x.shape)
+        x = self.transformer(x) 
+        # print("vit shape:",x.shape)
+        x = self.mask_header(x)
+        # print("mask shape:",x.shape)
+        return x
+             
 # class MaskDecoder(nn.Module):
 #     def __init__(
 #         self,

@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model.apt import APT
+from model.sam import SAMQDT
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
 # from dataset.paip_mqdt import PAIPQDTDataset
@@ -56,7 +57,9 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     fixed_length=args.fixed_length
-    model = APT(qdt_shape=(patch_size*32, patch_size*32),
+    model = SAMQDT(
+            image_shape=(patch_size*32, patch_size*32),
+            patch_size=patch_size,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
