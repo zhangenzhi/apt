@@ -13,8 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model.apt import APT
-from model.unet import Unet
+# from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
+# from dataset.paip_mqdt import PAIPQDTDataset
 
 # Define the Dice Loss
 class DiceLoss(nn.Module):
