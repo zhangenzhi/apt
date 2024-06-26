@@ -55,4 +55,5 @@ def make_patches(path, save_path="../miccai_patches/"):
     os.makedirs(save_path, exist_ok=True)
 
 if __name__ == "__main__":
-    make_patches(path="../MICCAI", save_path="../miccai_patches/")
+    make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
+                 save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
