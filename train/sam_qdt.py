@@ -104,7 +104,7 @@ def main(args):
         
         start_time = time.time()
         for batch in train_loader:
-            _, qimages, qmasks, _ = batch
+            _, qimages, _, qmasks = batch
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -131,7 +131,7 @@ def main(args):
 
         with torch.no_grad():
             for batch in val_loader:
-                _, qimages, qmasks, _ = batch
+                _, qimages, _, qmasks = batch
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
                 qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -193,7 +193,7 @@ def main(args):
 
     with torch.no_grad():
         for batch in test_loader:
-            _, qimages, qmasks, _ = batch
+            _, qimages, _, qmasks = batch
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
