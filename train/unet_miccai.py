@@ -102,7 +102,7 @@ def main(args):
             loss,_ = criterion(outputs, qmasks)
             loss.backward()
             optimizer.step()
-            print("train step loss:{}, sec/img:{}".format(loss, (time.time()-start_time)/step))
+            print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
