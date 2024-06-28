@@ -60,7 +60,7 @@ def main(args):
     fixed_length=args.fixed_length
     model = SAMQDT(
             image_shape=(patch_size*32, patch_size*32),
-            patch_size=patch_size,
+            patch_size=patch_size//2,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -203,8 +203,8 @@ def main(args):
             epoch_test_score += score.item()
 
     test_loss /= len(test_loader)
-    test_score /= len(test_loader)
-    print(f"Test Loss: {test_loss:.4f}, Test Score: {test_score:.4f}")
+    epoch_test_score /= len(test_loader)
+    print(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
 def draw_loss(output_dir):
