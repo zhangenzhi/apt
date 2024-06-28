@@ -80,8 +80,8 @@ def paip_patchify(base, fixed_length:int, resolution: int, sth:int=3, to_size:tu
         seq_mask = np.reshape(seq_mask, [to_size[0], -1, to_size[2]])
         
         name = Path(p).parts[-2]
-        cv.imwrite(output_dir+"/{}/image-{}_{}_{}_{}.png".format(name, resolution, fixed_length, to_size[0], "qdt"), seq_img)
-        cv.imwrite(output_dir+"/{}/mask-{}_{}_{}_{}.png".format(name, resolution, fixed_length, to_size[0], "qdt"), seq_mask)
+        cv.imwrite(output_dir+"/{}/image-{}_{}_{}_{}_{}.png".format(name, resolution, fixed_length, sth, to_size[0], "qdt"), seq_img)
+        cv.imwrite(output_dir+"/{}/mask-{}_{}_{}_{}_{}.png".format(name, resolution, fixed_length, sth, to_size[0], "qdt"), seq_mask)
                 
     print("Fixed lenth:{}, resolution:{}, to_size:{}, sth:{}".format(fixed_length, resolution, to_size[0], sth))
         
