@@ -190,7 +190,7 @@ def main(args):
     # Test the model
     model.eval()
     test_loss = 0.0
-
+    epoch_test_score = 0
     with torch.no_grad():
         for batch in test_loader:
             _, qimages, _, qmasks = batch
@@ -198,11 +198,13 @@ def main(args):
             qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
-            loss,_ = criterion(outputs, qmasks)
+            loss,score = criterion(outputs, qmasks)
             test_loss += loss.item()
+            epoch_test_score += score.item()
 
     test_loss /= len(test_loader)
-    print(f"Test Loss: {test_loss:.4f}")
+    test_score /= len(test_loader)
+    print(f"Test Loss: {test_loss:.4f}, Test Score: {test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
 def draw_loss(output_dir):
