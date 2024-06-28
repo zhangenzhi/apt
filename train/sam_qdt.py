@@ -60,7 +60,7 @@ def main(args):
     fixed_length=args.fixed_length
     model = SAMQDT(
             image_shape=(patch_size*32, patch_size*32),
-            patch_size=patch_size//2,
+            patch_size=patch_size,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
