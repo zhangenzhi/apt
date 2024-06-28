@@ -60,7 +60,7 @@ def main(args):
     fixed_length=args.fixed_length
     model = SAMQDT(
             image_shape=(patch_size*32, patch_size*32),
-            patch_size=patch_size//2,
+            patch_size=patch_size,
             input_dim=3, 
             output_dim=1, 
             embed_dim=768,
@@ -84,7 +84,7 @@ def main(args):
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
     test_size = dataset_size - train_size - val_size
-
+    print(train_size)
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
