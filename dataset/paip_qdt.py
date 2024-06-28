@@ -23,21 +23,23 @@ class PAIPQDTDataset(Dataset):
         self.mask_filenames = []
         self.qdt_mask_filenames = []
 
-        for subdir in os.listdir(data_path):
-            subdir_path = os.path.join(data_path, subdir)
-            if os.path.isdir(subdir_path):
-                image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
-                qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{patch_size}_qdt.png")
-                mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
-                qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_{fixed_length}_{patch_size}_qdt.png")
+        sths = [1,3,5]
+        for sth in sths:
+            for subdir in os.listdir(data_path):
+                subdir_path = os.path.join(data_path, subdir)
+                if os.path.isdir(subdir_path):
+                    image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
+                    qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
+                    mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
+                    qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
 
-                # Ensure the image exist
-                if os.path.exists(image) and os.path.exists(mask):
+                    # Ensure the image exist
+                    if os.path.exists(image) and os.path.exists(mask):
 
-                    self.image_filenames.extend([image])
-                    self.qdt_image_filenames.extend([qdt_image])
-                    self.mask_filenames.extend([mask])
-                    self.qdt_mask_filenames.extend([qdt_mask])
+                        self.image_filenames.extend([image])
+                        self.qdt_image_filenames.extend([qdt_image])
+                        self.mask_filenames.extend([mask])
+                        self.qdt_mask_filenames.extend([qdt_mask])
 
         # Compute mean and std from the dataset (you need to implement this)
         self.mean, self.std = self.compute_img_statistics()
