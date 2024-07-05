@@ -109,10 +109,11 @@ class SAM(nn.Module):
 
 class SAMQDT(nn.Module):
     def __init__(self, image_shape=(4*32, 4*32), 
+                 patch_size=4,
                  output_dim=1, 
                  pretrain="sam-b"):
         super().__init__()
-
+        self.patch_size = patch_size
         if pretrain== "sam-b":
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
         elif pretrain== "sam-l":
