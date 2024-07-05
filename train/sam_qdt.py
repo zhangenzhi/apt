@@ -18,6 +18,17 @@ from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
 # from dataset.paip_mqdt import PAIPQDTDataset
 
+import logging
+
+# Configure logging
+def log(args):
+    os.makedirs(args.savefile, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(args.savefile, "out.log"),
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
 # Define the Dice Loss
 class DiceLoss(nn.Module):
     def __init__(self, smooth=1):
@@ -55,6 +66,8 @@ class DiceBCELoss(nn.Module):
         return Dice_BCE, coeff
     
 def main(args):
+    
+    log(args=args)
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     fixed_length=args.fixed_length
@@ -79,7 +92,7 @@ def main(args):
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
     test_size = dataset_size - train_size - val_size
-    print(train_size)
+    logging.info(train_size)
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
@@ -113,7 +126,7 @@ def main(args):
 
             epoch_train_loss += loss.item()
         end_time = time.time()
-        print("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -139,7 +152,7 @@ def main(args):
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
 
-        print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
         if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
@@ -199,7 +212,7 @@ def main(args):
 
     test_loss /= len(test_loader)
     epoch_test_score /= len(test_loader)
-    print(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
+    logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
 def draw_loss(output_dir):
