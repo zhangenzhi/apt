@@ -58,8 +58,8 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     fixed_length=args.fixed_length
-    model = SAMQDT(
-            image_shape=(patch_size*32, patch_size*32),
+    model = SAMQDT(image_shape=(patch_size*32, patch_size*32),
+            patch_size=args.patch_size,
             output_dim=1, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss()
