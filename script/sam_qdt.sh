@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o apt-sam-h.o%J
+#SBATCH -o apt-sam-b.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -19,16 +19,16 @@ module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
 
-# # exec
-# srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
-#         --data_dir=../paip/output_images_and_masks \
-#         --resolution=512 \
-#         --fixed_length=1024 \
-#         --patch_size=4 \
-#         --pretrain=sam-b \
-#         --epoch=100 \
-#         --batch_size=4 \
-#         --savefile=./sam-b_qdt
+# exec
+srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
+        --data_dir=../paip/output_images_and_masks \
+        --resolution=512 \
+        --fixed_length=1024 \
+        --patch_size=4 \
+        --pretrain=sam-b \
+        --epoch=100 \
+        --batch_size=4 \
+        --savefile=./sam-b_qdt
 
 # # exec
 # srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
@@ -41,13 +41,13 @@ module load rocm/5.7.0
 #         --batch_size=4 \
 #         --savefile=./sam-l_qdt
 
-# exec
-srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
-        --data_dir=../paip/output_images_and_masks \
-        --resolution=512 \
-        --fixed_length=1024 \
-        --patch_size=4 \
-        --pretrain=sam-h \
-        --epoch=100 \
-        --batch_size=4 \
-        --savefile=./sam-h_qdt
+# # exec
+# srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
+#         --data_dir=../paip/output_images_and_masks \
+#         --resolution=512 \
+#         --fixed_length=1024 \
+#         --patch_size=4 \
+#         --pretrain=sam-h \
+#         --epoch=100 \
+#         --batch_size=4 \
+#         --savefile=./sam-h_qdt
