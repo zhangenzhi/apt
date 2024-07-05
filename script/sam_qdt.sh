@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o apt-sam-b.o%J
+#SBATCH -o apt-sam-l.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -25,10 +25,10 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --resolution=512 \
         --fixed_length=1024 \
         --patch_size=4 \
-        --pretrain=sam-b \
+        --pretrain=sam-l \
         --epoch=100 \
         --batch_size=4 \
-        --savefile=./sam-b_qdt
+        --savefile=./sam-l_qdt
 
 # # exec
 # srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qdt.py \
