@@ -17,7 +17,30 @@ def build_sam_vit_b(patch_size=8, image_size=[512, 512], checkpoint=None):
         image_size=image_size,
         checkpoint=checkpoint,
     )
+
+def build_sam_vit_l(patch_size=8, image_size=[512, 512], checkpoint=None):
+    return _build_sam_vit(
+        encoder_embed_dim=1024,
+        encoder_depth=24,
+        encoder_num_heads=16,
+        encoder_global_attn_indexes=[5, 11, 17, 23],
+        patch_size=patch_size,
+        image_size=image_size,
+        checkpoint=checkpoint,
+    )
     
+def build_sam_vit_h(patch_size=8, image_size=[512, 512], checkpoint=None):
+    return _build_sam_vit(
+        encoder_embed_dim=1280,
+        encoder_depth=32,
+        encoder_num_heads=16,
+        encoder_global_attn_indexes=[7, 15, 23, 31],
+        patch_size=patch_size,
+        image_size=image_size,
+        checkpoint=checkpoint,
+    )
+
+
 def _build_sam_vit(
     encoder_embed_dim,
     encoder_depth,
@@ -50,20 +73,19 @@ def _build_sam_vit(
     return image_encoder
 
 class SAM(nn.Module):
-    def __init__(self, image_shape=(512, 512), patch_size=8, input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
+    def __init__(self, image_shape=(512, 512), 
+                 output_dim=1, 
+                 pretrain="sam-b"):
+        
         super().__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.embed_dim = embed_dim
-        self.image_shape = image_shape
-        self.patch_size = patch_size
-        self.tokens = int(image_shape[1]/patch_size)*int(image_shape[0]/patch_size)
-        self.num_heads = num_heads
-        self.dropout = dropout
-        self.num_layers = 12
-        self.ext_layers = [3, 6, 9, 12]
 
-        self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+        if pretrain== "sam-b":
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+        elif pretrain== "sam-l":
+            self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
+        elif pretrain=="sam-h":
+             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
+             
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
@@ -86,20 +108,18 @@ class SAM(nn.Module):
         return x
 
 class SAMQDT(nn.Module):
-    def __init__(self, image_shape=(4*32, 4*32), patch_size=4, input_dim=3, output_dim=1, embed_dim=768,  num_heads=12, dropout=0.1, pretrain=True):
+    def __init__(self, image_shape=(4*32, 4*32), 
+                 output_dim=1, 
+                 pretrain="sam-b"):
         super().__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.embed_dim = embed_dim
-        self.image_shape = image_shape
-        self.patch_size = patch_size
-        self.tokens = int(image_shape[1]/patch_size)*int(image_shape[0]/patch_size)
-        self.num_heads = num_heads
-        self.dropout = dropout
-        self.num_layers = 12
-        self.ext_layers = [3, 6, 9, 12]
 
-        self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+        if pretrain== "sam-b":
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+        elif pretrain== "sam-l":
+            self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
+        elif pretrain=="sam-h":
+             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
+             
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2, padding=0),
