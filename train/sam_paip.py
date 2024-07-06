@@ -71,12 +71,9 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
-            input_dim=3, 
             output_dim=1, 
-            embed_dim=768,
-            pretrain=args.pretrain,
-            num_heads=12, 
-            dropout=0.1)
+            pretrain=args.pretrain
+            )
     criterion = DiceBCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
