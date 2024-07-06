@@ -80,7 +80,7 @@ class SAM(nn.Module):
                  pretrain="sam-b"):
         
         super().__init__()
-        self.patch_size = patch_size
+        self.patch_size = 8
         if pretrain== "sam-b":
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
         elif pretrain== "sam-l":
