@@ -23,10 +23,10 @@ class PAIPQDTDataset(Dataset):
         self.mask_filenames = []
         self.qdt_mask_filenames = []
 
-        for sth in sths:
-            for subdir in os.listdir(data_path):
-                subdir_path = os.path.join(data_path, subdir)
-                if os.path.isdir(subdir_path):
+        for subdir in os.listdir(data_path):
+            subdir_path = os.path.join(data_path, subdir)
+            if os.path.isdir(subdir_path):
+                for sth in sths:
                     image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
                     qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
                     mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
