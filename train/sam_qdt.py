@@ -93,7 +93,7 @@ def main(args):
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
     test_size = val_size
-    logging.info(train_size, val_size, test_size)
+    logging.info(f"train_size:{train_size}, val_size:{val_size}, test_size:{test_size}")
     
     train_indices = list(range(0, train_size))
     val_indices = list(range(train_size, dataset_size))
