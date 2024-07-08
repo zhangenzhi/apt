@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split
+from torch.utils.data.dataset import Subset
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import numpy as np
@@ -87,13 +88,18 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, normalize=True)
+    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size,sths=[1,3,5], normalize=True)
     dataset_size = len(dataset)
-    train_size = int(0.7 * dataset_size)
-    val_size = (dataset_size - train_size) // 2
-    test_size = dataset_size - train_size - val_size
-    logging.info(train_size)
-    train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
+    train_size = int(0.85 * dataset_size)
+    val_size = dataset_size - train_size
+    test_size = val_size
+    logging.info(train_size, val_size, test_size)
+    
+    train_indices = list(range(0, train_size))
+    val_indices = list(range(train_size, dataset_size))
+    train_set = Subset(dataset, train_indices)
+    val_set = test_set = Subset(dataset, val_indices)
+    # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=16, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)

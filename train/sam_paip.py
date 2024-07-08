@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from model.apt import APT
 from model.sam import SAM
-from model.unet import Unet
+
 from dataset.paip_qdt import PAIPQDTDataset
 # from torchmetrics.functional import dice_score
 
@@ -86,7 +86,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, normalize=True)
+    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, sths=[1], normalize=True)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2

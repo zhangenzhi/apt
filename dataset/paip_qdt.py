@@ -14,7 +14,7 @@ from torchvision.transforms import v2
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class PAIPQDTDataset(Dataset):
-    def __init__(self, data_path, resolution, fixed_length, patch_size, normalize=False):
+    def __init__(self, data_path, resolution, fixed_length, patch_size, sths = [1,3,5], normalize=False):
         self.data_path = data_path
         self.resolution = resolution
 
@@ -23,7 +23,6 @@ class PAIPQDTDataset(Dataset):
         self.mask_filenames = []
         self.qdt_mask_filenames = []
 
-        sths = [1,3,5]
         for sth in sths:
             for subdir in os.listdir(data_path):
                 subdir_path = os.path.join(data_path, subdir)
