@@ -88,12 +88,12 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size,sths=[1,3,5], normalize=True)
+    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, sths=[1,3,5], normalize=True)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
     test_size = val_size
-    logging.info(f"train_size:{train_size}, val_size:{val_size}, test_size:{test_size}")
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
     
     train_indices = list(range(0, train_size))
     val_indices = list(range(train_size, dataset_size))
