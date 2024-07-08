@@ -26,3 +26,5 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --fixed_length=1024 \
         --to_size=4 \
         --sth=3
+
+# python ./apt/patchify.py --data_dir=../paip/output_images_and_masks --fixed_length=1024 --to_size=8 --resolution=512 --sth=1
