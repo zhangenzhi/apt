@@ -22,9 +22,19 @@ module load rocm/5.7.0
 # exec
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./apt/patchify.py \
         --data_dir=../paip/output_images_and_masks \
-        --resolution=512 \
+        --resolution=1024 \
+        --fixed_length=1024 \
+        --to_size=4 \
+        --sth=1
+srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./apt/patchify.py \
+        --data_dir=../paip/output_images_and_masks \
+        --resolution=1024 \
         --fixed_length=1024 \
         --to_size=4 \
         --sth=3
-
-# python ./apt/patchify.py --data_dir=../paip/output_images_and_masks --fixed_length=1024 --to_size=8 --resolution=512 --sth=1
+srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./apt/patchify.py \
+        --data_dir=../paip/output_images_and_masks \
+        --resolution=1024 \
+        --fixed_length=1024 \
+        --to_size=4 \
+        --sth=5
