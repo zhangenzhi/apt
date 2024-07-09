@@ -191,20 +191,21 @@ def main(args, device_id):
     torch.save(val_losses, val_losses_path)
 
     # Test the model
-    model.eval()
-    test_loss = 0.0
+    if device_id == 0:
+        model.eval()
+        test_loss = 0.0
 
-    with torch.no_grad():
-        for batch in test_loader:
-            qimages, qmasks = batch
-            qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
-            outputs = model(qimages)
-            loss,_ = criterion(outputs, qmasks)
-            test_loss += loss.item()
+        with torch.no_grad():
+            for batch in test_loader:
+                qimages, qmasks = batch
+                qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+                outputs = model(qimages)
+                loss,_ = criterion(outputs, qmasks)
+                test_loss += loss.item()
 
-    test_loss /= len(test_loader)
-    logging.info(f"Test Loss: {test_loss:.4f}")
-    draw_loss(output_dir=output_dir)
+        test_loss /= len(test_loader)
+        logging.info(f"Test Loss: {test_loss:.4f}")
+        draw_loss(output_dir=output_dir)
 
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
