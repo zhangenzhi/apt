@@ -92,8 +92,8 @@ def main(args, device_id):
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
-    val_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
-    test_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
+    val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
+    test_sampler = torch.utils.data.distributed.DistributedSampler(test_set)
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler, shuffle=False)
@@ -114,7 +114,7 @@ def main(args, device_id):
         step=1
         for batch in train_loader:
             qimages, qmasks = batch
-            qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+            qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
@@ -139,7 +139,7 @@ def main(args, device_id):
             with torch.no_grad():
                 for batch in val_loader:
                     qimages, qmasks = batch
-                    qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+                    qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
                     loss, score = criterion(outputs, qmasks)
                     epoch_val_loss += loss.item()
@@ -197,7 +197,7 @@ def main(args, device_id):
     with torch.no_grad():
         for batch in test_loader:
             qimages, qmasks = batch
-            qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+            qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
             test_loss += loss.item()
