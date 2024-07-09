@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o unet_miccai.o%J
+#SBATCH -o sam_miccai.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 2
 #SBATCH -p batch
@@ -25,4 +25,6 @@ srun srun -N 2 -n 16 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/
         --resolution=512 \
         --epoch=10 \
         --batch_size=32 \
-        --savefile=./unet_miccai-16-32
+        --patch_size=8 \
+        --pretrain=sam-b \
+        --savefile=./sam-b_miccai-16-32
