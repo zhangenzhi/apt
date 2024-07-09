@@ -8,7 +8,6 @@
 export MIOPEN_DISABLE_CACHE=1 
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
 export HOME="/tmp/srun"
-cp ./model/resnet18-f37072fd.pth /tmp/srun/.cache/torch/hub/checkpoints/
 
 export PATH="/lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/bin:$PATH"
 

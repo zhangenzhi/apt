@@ -247,8 +247,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.world_size = int(os.environ['SLURM_NTASKS'])
-    
-    log(args=args)
+    print(args.world_size)
+
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
@@ -265,8 +265,10 @@ if __name__ == '__main__':
     	world_size=args.world_size,                              
     	rank=int(os.environ['RANK'])                                               
     )
+    log(args=args)
     print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
 
     print(f"Start running basic DDP example on rank {local_rank}.")
     device_id = local_rank % torch.cuda.device_count()
     main(args)
+    dist.destroy_process_group()
