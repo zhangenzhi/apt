@@ -67,8 +67,36 @@ class DiceBCELoss(nn.Module):
         Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
         return Dice_BCE, coeff
+
+def setup_env(args):
+    args.world_size = int(os.environ['SLURM_NTASKS'])
+    print(args.world_size)
+
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
+    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
+    os.environ['RANK'] = os.environ['SLURM_PROCID']
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    local_rank))
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=int(os.environ['RANK'])                                               
+    )
+    log(args=args)
+    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
+
+    print(f"Start running basic DDP example on rank {local_rank}.")
+    device_id = local_rank % torch.cuda.device_count()
+    return device_id
     
-def main(args, device_id):
+def main(args):
+    device_id = setup_env(args=args)
     
     # Create an instance of the U-Net model and other necessary components
     model = Unet(n_class=1)
@@ -246,29 +274,6 @@ if __name__ == '__main__':
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
-    args.world_size = int(os.environ['SLURM_NTASKS'])
-    print(args.world_size)
-
-    local_rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "29500"
-    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
-    os.environ['RANK'] = os.environ['SLURM_PROCID']
-    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
-                                                    os.environ['MASTER_PORT'], 
-                                                    os.environ['WORLD_SIZE'], 
-                                                    os.environ['RANK'],
-                                                    local_rank))
-    dist.init_process_group(                                   
-    	backend='nccl',                                         
-   		init_method='env://',                                   
-    	world_size=args.world_size,                              
-    	rank=int(os.environ['RANK'])                                               
-    )
-    log(args=args)
-    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
-
-    print(f"Start running basic DDP example on rank {local_rank}.")
-    device_id = local_rank % torch.cuda.device_count()
     main(args)
+    
     dist.destroy_process_group()
