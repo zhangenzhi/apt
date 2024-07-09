@@ -27,7 +27,9 @@ class Unet(nn.Module):
     def __init__(self, n_class, pretrain=True):
         super().__init__()
         self.up_first = nn.ConvTranspose2d(in_channels=3, out_channels=3, kernel_size=2, stride=2)
-        self.base_model = torchvision.models.resnet18(pretrain)
+        self.base_model = torchvision.models.resnet18()
+        # model = resnet18()
+        self.base_model.load_state_dict(torch.load("resnet_18.pth"))
         self.base_layers = list(self.base_model.children())
         self.layer1 = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False),
