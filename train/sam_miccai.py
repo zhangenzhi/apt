@@ -99,9 +99,9 @@ def main(args, device_id):
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_set)
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size,  sampler=test_sampler, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size,  sampler=test_sampler)
 
     # Training loop
     num_epochs = args.epoch

@@ -4,6 +4,8 @@
 #SBATCH -t 02:00:00
 #SBATCH -N 2
 #SBATCH -p batch
+#SBATCH --mail-user=zhangsuiyu657@gmail.com
+#SBATCH --mail-type=END
 
 export MIOPEN_DISABLE_CACHE=1 
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
@@ -25,6 +27,6 @@ srun srun -N 2 -n 16 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/
         --resolution=512 \
         --epoch=10 \
         --batch_size=32 \
-        --patch_size=8 \
+        --patch_size=16 \
         --pretrain=sam-b \
-        --savefile=./sam-b_miccai-16-32
+        --savefile=./sam-b_miccai-32
