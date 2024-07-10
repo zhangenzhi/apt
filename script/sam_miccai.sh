@@ -28,7 +28,7 @@ srun -N 2 -n 16 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/m
         --data_dir=../miccai_patches/ \
         --resolution=512 \
         --epoch=10 \
-        --batch_size=32 \
+        --batch_size=4 \
         --patch_size=16 \
         --pretrain=sam-b \
         --savefile=./sam-b_miccai-32
