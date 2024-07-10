@@ -105,7 +105,7 @@ def main(args):
     
     # Move the model to GPU
     model.to(device_id)
-    model = DDP(model, device_ids=[device_id])
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     # Define the learning rate scheduler
     # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
     # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
@@ -143,11 +143,14 @@ def main(args):
         for batch in train_loader:
             qimages, qmasks = batch
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
-            optimizer.zero_grad()
+            
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
+            
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
             step+=1
