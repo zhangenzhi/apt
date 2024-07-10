@@ -11,7 +11,9 @@ export MIOPEN_DISABLE_CACHE=1
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
 export HOME="/tmp/srun"
 
-export PATH="/lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/bin:$PATH"
+source export_ddp_envs.sh
+
+# export PATH="/lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/bin:$PATH"
 
 # set +x
 # source /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/etc/profile.d/conda.sh
