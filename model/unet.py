@@ -1,12 +1,8 @@
-
 import sys
 sys.path.append("./")
 import torch
 import torchvision
 import torch.nn as nn
-import torch.optim as optim
-import numpy as np
-import matplotlib.pyplot as plt
 
 class Decoder(nn.Module):
     def __init__(self, in_channels, middle_channels, out_channels):
