@@ -155,7 +155,8 @@ def main(args):
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
-        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time, (end_time-start_time)/train_size))
+        if device_id == 0:
+            logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time, (end_time-start_time)/train_size))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -180,7 +181,8 @@ def main(args):
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
 
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
+        if device_id == 0:
+            logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # # Visualize and save predictions on a few validation samples
         # if (epoch + 1) % 3 == 0 and device_id == 0:  # Adjust the frequency of visualization
