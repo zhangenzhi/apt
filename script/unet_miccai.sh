@@ -26,5 +26,5 @@ srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/mi
         --data_dir=../miccai_patches/ \
         --resolution=512 \
         --epoch=10 \
-        --batch_size=32 \
+        --batch_size=8 \
         --savefile=./unet_miccai-8
