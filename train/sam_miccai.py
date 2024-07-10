@@ -138,12 +138,11 @@ def main(args, device_id):
         train_losses.append(epoch_train_loss)
         # scheduler.step()
 
-        # Validation
-        model.eval()
-        epoch_val_loss = 0.0
-        epoch_val_score = 0.0
-
         if device_id == 0:
+            # Validation
+            model.eval()
+            epoch_val_loss = 0.0
+            epoch_val_score = 0.0
             with torch.no_grad():
                 for batch in val_loader:
                     qimages, qmasks = batch
@@ -153,11 +152,10 @@ def main(args, device_id):
                     epoch_val_loss += loss.item()
                     epoch_val_score += score.item()
 
-        epoch_val_loss /= len(val_loader)
-        epoch_val_score /= len(val_loader)
-        val_losses.append(epoch_val_loss)
+            epoch_val_loss /= len(val_loader)
+            epoch_val_score /= len(val_loader)
+            val_losses.append(epoch_val_loss)
         
-        if device_id == 0:
             # Save the best model based on validation accuracy
             if epoch_val_score > best_val_score:
                 best_val_score = epoch_val_score
@@ -218,7 +216,7 @@ def main(args, device_id):
 
         test_loss /= len(test_loader)
         logging.info(f"Test Loss: {test_loss:.4f}")
-        draw_loss(output_dir=output_dir)
+        # draw_loss(output_dir=output_dir)
 
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
