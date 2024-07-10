@@ -4,6 +4,8 @@
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
+#SBATCH --mail-user=zhangsuiyu657@gmail.com
+#SBATCH --mail-type=END
 
 export MIOPEN_DISABLE_CACHE=1 
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
