@@ -77,9 +77,13 @@ def main(args, device_id):
             output_dim=1, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss()
+    best_val_score = 0.0
     
     # Move the model to GPU
     model.to(device_id)
+    if args.reload:
+        if os.path.exists(os.path.join(args.output, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.output, "best_score_model.pth")))
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # Define the learning rate scheduler
@@ -152,8 +156,13 @@ def main(args, device_id):
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
-
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
+        
+        if device_id == 0:
+            # Save the best model based on validation accuracy
+            if epoch_val_score > best_val_score:
+                best_val_score = epoch_val_score
+                torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
+            logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # # Visualize and save predictions on a few validation samples
         # if (epoch + 1) % 3 == 0 and device_id == 0:  # Adjust the frequency of visualization

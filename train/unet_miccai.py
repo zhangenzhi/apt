@@ -70,9 +70,13 @@ def main(args, device_id):
     # Create an instance of the U-Net model and other necessary components
     model = Unet(n_class=1)
     criterion = DiceBCELoss()
+    best_val_score = 0.0
     
     # Move the model to GPU
     model.to(device_id)
+    if args.reload:
+        if os.path.exists(os.path.join(args.output, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.output, "best_score_model.pth")))
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
@@ -152,6 +156,10 @@ def main(args, device_id):
         val_losses.append(epoch_val_loss)
 
         if device_id == 0:
+            # Save the best model based on validation accuracy
+            if epoch_val_score > best_val_score:
+                best_val_score = epoch_val_score
+                torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # # Visualize and save predictions on a few validation samples
@@ -239,8 +247,8 @@ if __name__ == '__main__':
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=512, type=int,
                         help='resolution of img.')
-    parser.add_argument('--pretrain', default="sam", type=str,
-                        help='Use SAM pretrained weigths.')
+    parser.add_argument('--reload', default=True, type=bool,
+                        help='Use reload val weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
