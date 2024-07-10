@@ -27,6 +27,6 @@ module load rocm/5.7.0
 srun -N 2 -n 16 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/unet_miccai.py \
         --data_dir=../miccai_patches/ \
         --resolution=512 \
-        --epoch=10 \
+        --epoch=20 \
         --batch_size=8 \
         --savefile=./unet_miccai-16-2
