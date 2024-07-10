@@ -2,21 +2,17 @@ import os
 import sys
 sys.path.append("./")
 import argparse
-from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-import numpy as np
 import matplotlib.pyplot as plt
 
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from model.apt import APT
-from model.sam import SAMQDT
 from model.unet import Unet
 from dataset.miccai import MICCAIDataset
 # from dataset.paip_mqdt import PAIPQDTDataset
