@@ -29,4 +29,4 @@ srun -N 2 -n 16 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/m
         --resolution=512 \
         --epoch=10 \
         --batch_size=8 \
-        --savefile=./unet_miccai-16
+        --savefile=./unet_miccai-16-2
