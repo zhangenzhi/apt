@@ -68,44 +68,18 @@ class DiceBCELoss(nn.Module):
         
         return Dice_BCE, coeff
 
-def setup_env(args):
-    args.world_size = int(os.environ['SLURM_NTASKS'])
-    print(args.world_size)
-
-    local_rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "29500"
-    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
-    os.environ['RANK'] = os.environ['SLURM_PROCID']
-    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
-                                                    os.environ['MASTER_PORT'], 
-                                                    os.environ['WORLD_SIZE'], 
-                                                    os.environ['RANK'],
-                                                    local_rank))
-    dist.init_process_group(                                   
-    	backend='nccl',                                         
-   		init_method='env://',                                   
-    	world_size=args.world_size,                              
-    	rank=int(os.environ['RANK'])                                               
-    )
-    log(args=args)
-    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
-
-    print(f"Start running basic DDP example on rank {local_rank}.")
-    device_id = local_rank % torch.cuda.device_count()
-    return device_id
     
-def main(args):
-    device_id = setup_env(args=args)
+def main(args, device_id):
     
     # Create an instance of the U-Net model and other necessary components
     model = Unet(n_class=1)
     criterion = DiceBCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     
     # Move the model to GPU
     model.to(device_id)
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
+    
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # Define the learning rate scheduler
     # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
     # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
@@ -278,7 +252,33 @@ if __name__ == '__main__':
     parser.add_argument('--savefile', default="./apt",
                         help='save visualized and loss filename')
     args = parser.parse_args()
+    
+    args.world_size = int(os.environ['SLURM_NTASKS'])
+    print(args.world_size)
 
-    main(args)
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
+    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
+    os.environ['RANK'] = os.environ['SLURM_PROCID']
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    local_rank))
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=int(os.environ['RANK'])                                               
+    )
+    log(args=args)
+    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
+
+    print(f"Start running basic DDP example on rank {local_rank}.")
+    device_id = local_rank % torch.cuda.device_count()
+
+
+    main(args, device_id)
     
     dist.destroy_process_group()

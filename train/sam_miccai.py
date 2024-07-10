@@ -77,11 +77,11 @@ def main(args, device_id):
             output_dim=1, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     
     # Move the model to GPU
     model.to(device_id)
-    model = DDP(model, device_ids=[device_id])
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # Define the learning rate scheduler
     # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
     # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
