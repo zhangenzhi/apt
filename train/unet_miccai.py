@@ -73,10 +73,12 @@ def main(args, device_id):
     best_val_score = 0.0
     
     # Move the model to GPU
-    model.to(device_id)
     if args.reload:
         if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
+    
+    model.to(device_id)
+    
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
