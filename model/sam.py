@@ -118,6 +118,8 @@ class SAMQDT(nn.Module):
         self.patch_size = patch_size
         if pretrain== "sam-b":
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+            for param in self.transformer.parameters():
+                param.requires_grad = False  # Optionally freeze early layers
         elif pretrain== "sam-l":
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
         elif pretrain=="sam-h":

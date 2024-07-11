@@ -285,3 +285,5 @@ if __name__ == '__main__':
     print(f"Start running basic DDP example on rank {local_rank}.")
     device_id = local_rank % torch.cuda.device_count()
     main(args, device_id)
+    
+    dist.destroy_process_group()
