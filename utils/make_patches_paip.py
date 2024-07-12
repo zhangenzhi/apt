@@ -30,7 +30,7 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
             lower = min(upper + patch_size, height)
             
             # Read the patch as a numpy array
-            patch = np.array(slide.read_region((left, upper), 0, (right-left, lower-upper)))
+            patch = np.array(slide[lower:upper, left:right,])
             
             # Convert numpy array to PIL image
             patch = Image.fromarray(patch)
