@@ -33,7 +33,7 @@ def extract_patches(image_path, patch_size=512, save_path='patches/'):
             patch = np.array(slide[lower:upper, left:right])
             print(patch.shape)
             # Convert numpy array to PIL image
-            patch = Image.fromarray(patch)
+            # patch = Image.fromarray(patch)
             
             # Save the patch as a PNG file
             cv.imwrite(f"{save_path}/patch_{i}_{j}.png", patch)
