@@ -68,7 +68,7 @@ class MICCAIDataset(Dataset):
         # Calculate the overall mean and std
         mean = mean_acc / len(self.image_filenames)
         std = std_acc / len(self.image_filenames)
-
+        print(mean, std)
         return mean.tolist(), std.tolist()
     
     def compute_mask_statistics(self):
