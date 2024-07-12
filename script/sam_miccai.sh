@@ -30,5 +30,5 @@ srun -N 128 -n 1024 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/e
         --epoch=200 \
         --batch_size=4 \
         --patch_size=8 \
-        --pretrain=sam-h \
-        --savefile=./sam-h_miccai-1024-pz8
+        --pretrain=sam-b \
+        --savefile=./sam-b_miccai-1024-pz8
