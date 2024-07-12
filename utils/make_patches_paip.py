@@ -14,7 +14,7 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
     os.makedirs(save_path, exist_ok=True)
     
     # Get the dimensions of the image
-    width, height = slide.size()
+    width, height, _ = slide.shape
     
     # Calculate the number of patches in both dimensions
     num_patches_width = width // patch_size
