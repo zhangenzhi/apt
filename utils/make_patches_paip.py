@@ -4,16 +4,17 @@ import openslide
 from PIL import Image
 import glob 
 from pathlib import Path
+import cv2 as cv
 
 def extract_patches(image_path, patch_size=256, save_path='patches/'):
     # Open the TIFF image using OpenSlide
-    slide = openslide.OpenSlide(image_path)
+    slide = cv.imread(image_path)
     
     # Ensure that the save_path directory exists
     os.makedirs(save_path, exist_ok=True)
     
     # Get the dimensions of the image
-    width, height = slide.dimensions
+    width, height = slide.size()
     
     # Calculate the number of patches in both dimensions
     num_patches_width = width // patch_size
