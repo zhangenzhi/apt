@@ -26,8 +26,8 @@ def extract_patches(image_path, patch_size=512, save_path='patches/'):
             # Define the coordinates of the current patch
             left = i * patch_size
             right = min(left + patch_size, width)
-            upper = j * patch_size
-            lower = min(upper + patch_size, height)
+            lower = j * patch_size
+            upper = min(upper + patch_size, height)
             
             # Read the patch as a numpy array
             patch = np.array(slide[lower:upper, left:right])
