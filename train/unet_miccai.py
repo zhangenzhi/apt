@@ -68,7 +68,7 @@ class DiceBCELoss(nn.Module):
 def main(args, device_id):
     
     # Create an instance of the U-Net model and other necessary components
-    model = Unet(n_class=1)
+    model = Unet(n_class=1, pretrain=False)
     criterion = DiceBCELoss()
     best_val_score = 0.0
     
