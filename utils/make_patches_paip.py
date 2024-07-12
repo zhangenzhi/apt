@@ -30,7 +30,7 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
             lower = min(upper + patch_size, height)
             
             # Read the patch as a numpy array
-            patch = np.array(slide[lower:upper, left:right,])
+            patch = np.array(slide[lower:upper, left:right])
             
             # Convert numpy array to PIL image
             patch = Image.fromarray(patch)
@@ -44,10 +44,11 @@ def get_png_path(base, resolution):
     data_path = base
     image_filenames = []
     mask_filenames = []
-
+    sub_path = []
     for subdir in os.listdir(data_path):
         subdir_path = os.path.join(data_path, subdir)
         if os.path.isdir(subdir_path):
+            sub_path.append(subdir_path)
             image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
             mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
 
@@ -57,17 +58,17 @@ def get_png_path(base, resolution):
                 image_filenames.extend([image])
                 mask_filenames.extend([mask])
                 
-    return image_filenames, mask_filenames
+    return image_filenames, mask_filenames, sub_path
 
 def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
-    wsi, mask =  get_png_path(path, resolution=8192)
+    wsi, mask, files =  get_png_path(path, resolution=8192)
     output_dir = save_path
     os.makedirs(output_dir, exist_ok=True)
-    for wsi,mask in zip(wsi, mask):
+    for wsi,mask,f in zip(wsi, mask, files):
         wsi_dir = wsi
         mask_dir = mask
-        wsi_save_path = os.path.join(save_path, f"{os.path.basename(wsi_dir)}/patches-{patch_size}")
-        mask_save_path = os.path.join(save_path, f"{os.path.basename(mask_dir)}/masks-{patch_size}")
+        wsi_save_path = os.path.join(save_path, f"{os.path.basename(f)}/patches-{patch_size}")
+        mask_save_path = os.path.join(save_path, f"{os.path.basename(f)}/masks-{patch_size}")
         extract_patches(wsi_dir, patch_size=patch_size, save_path=wsi_save_path)
         extract_patches(mask_dir, patch_size=patch_size, save_path=mask_save_path)
 
