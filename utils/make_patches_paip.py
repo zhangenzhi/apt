@@ -6,7 +6,7 @@ import glob
 from pathlib import Path
 import cv2 as cv
 
-def extract_patches(image_path, patch_size=256, save_path='patches/'):
+def extract_patches(image_path, patch_size=512, save_path='patches/'):
     # Open the TIFF image using OpenSlide
     slide = cv.imread(image_path)
     
@@ -25,13 +25,13 @@ def extract_patches(image_path, patch_size=256, save_path='patches/'):
         for j in range(num_patches_height):
             # Define the coordinates of the current patch
             left = i * patch_size
-            upper = j * patch_size
             right = min(left + patch_size, width)
+            upper = j * patch_size
             lower = min(upper + patch_size, height)
             
             # Read the patch as a numpy array
             patch = np.array(slide[lower:upper, left:right])
-            
+            print(patch.shape)
             # Convert numpy array to PIL image
             patch = Image.fromarray(patch)
             
