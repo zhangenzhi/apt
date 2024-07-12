@@ -59,10 +59,10 @@ def get_png_path(base, resolution):
     return image_filenames, mask_filenames
 
 def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
-    files =  get_png_path(path, resolution=8192)
+    wsi, mask =  get_png_path(path, resolution=8192)
     output_dir = save_path
     os.makedirs(output_dir, exist_ok=True)
-    for wsi,mask in zip(files):
+    for wsi,mask in zip(wsi, mask):
         wsi_dir = wsi
         mask_dir = mask
         wsi_save_path = os.path.join(save_path, f"{os.path.basename(wsi_dir)}/patches-{patch_size}")
@@ -70,7 +70,7 @@ def make_patches(path, patch_size=512, save_path="../miccai_patches/"):
         extract_patches(wsi_dir, patch_size=patch_size, save_path=wsi_save_path)
         extract_patches(mask_dir, patch_size=patch_size, save_path=mask_save_path)
 
-    print(f"Done! Totoal {len(files)} file.")
+    print(f"Done! Totoal {len(wsi)} file.")
 
 if __name__ == "__main__":
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/paip/output_images_and_masks", 
