@@ -36,7 +36,8 @@ def extract_patches(image_path, patch_size=512, save_path='patches/'):
             patch = Image.fromarray(patch)
             
             # Save the patch as a PNG file
-            patch.save(f"{save_path}/patch_{i}_{j}.png")
+            cv.imwrite(f"{save_path}/patch_{i}_{j}.png", patch)
+            # patch.save(f"{save_path}/patch_{i}_{j}.png")
             print(f"{save_path}/patch_{i}_{j}.png")
             
 
