@@ -29,6 +29,6 @@ srun -N 64 -n 512 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env
         --resolution=512 \
         --epoch=200 \
         --batch_size=4 \
-        --patch_size=8 \
+        --patch_size=4 \
         --pretrain=sam-b \
         --savefile=./sam-b_miccai-512-pz8-bz4
