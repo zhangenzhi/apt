@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -A bif146
 #SBATCH -o sam_miccai.o%J
-#SBATCH -t 06:00:00
-#SBATCH -N 128
+#SBATCH -t 02:00:00
+#SBATCH -N 64
 #SBATCH -p batch
 #SBATCH --mail-user=zhangsuiyu657@gmail.com
 #SBATCH --mail-type=END
