@@ -85,10 +85,10 @@ def main(args, device_id):
         if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # Define the learning rate scheduler
-    # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
-    # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+    milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
@@ -136,7 +136,7 @@ def main(args, device_id):
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
-        # scheduler.step()
+        scheduler.step()
 
         if device_id == 0:
             # Validation
@@ -246,6 +246,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=512, type=int,
+                        help='resolution of img.')
+    parser.add_argument('--lr', default=1e-4, type=float,
                         help='resolution of img.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')
