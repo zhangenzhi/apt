@@ -32,4 +32,4 @@ srun -N 16 -n 128 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env
         --batch_size=4 \
         --patch_size=8 \
         --pretrain=sam-b \
-        --savefile=./sam-b_miccai-n2-pz8-bz4-nomalize-rddp
+        --savefile=./sam-b_miccai-n16-pz8-bz4-nomalize-rddp
