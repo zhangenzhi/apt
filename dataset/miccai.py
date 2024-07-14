@@ -34,21 +34,27 @@ class MICCAIDataset(Dataset):
                         self.image_filenames.extend([image])
                         self.mask_filenames.extend([mask])
         print("img tiles: ",len(self.image_filenames))
-
-        self.transform= transforms.Compose([
-            transforms.ToTensor(),
-        ])
         
-        self.transform_mask= transforms.Compose([
-            transforms.ToTensor(),
-        ])
-
         if normalize:
             # Compute mean and std from the dataset (you need to implement this)
-            self.mean, self.std = self.compute_img_statistics()
+            self.mean = [0.50809551, 0.45305302, 0.56169638]
+            self.std = [0.09898977, 0.0989375,  0.06035593]
+            # self.mean, self.std = self.compute_img_statistics()
             # self.mask_m, self.mask_std = self.compute_mask_statistics()
             # self.transform_timg.transforms.append(transforms.Normalize(mean=self.mean, std=self.std))
             # self.transform_mask.transforms.append(transforms.Normalize(mean=self.mask_m, std=self.mask_std))
+            self.transform= transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize(mean=self.mean, std=self.std)
+            ])
+        else:
+            self.transform= transforms.Compose([
+                transforms.ToTensor(),
+            ])
+            
+        self.transform_mask= transforms.Compose([
+            transforms.ToTensor(),
+        ])
     
     
     def compute_img_statistics(self):
