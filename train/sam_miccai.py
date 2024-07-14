@@ -76,7 +76,7 @@ def main(args, device_id):
             patch_size=args.patch_size,
             output_dim=1, 
             pretrain=args.pretrain)
-    criterion = DiceBCELoss()
+    criterion = DiceBCELoss().to(device_id)
     best_val_score = 0.0
     
     # Move the model to GPU
@@ -117,7 +117,7 @@ def main(args, device_id):
     for epoch in range(num_epochs):
         model.train()
         epoch_train_loss = 0.0
-        
+        train_loader.sampler.set_epoch(epoch)
         start_time = time.time()
         step=1
         for batch in train_loader:
