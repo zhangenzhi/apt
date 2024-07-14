@@ -87,7 +87,7 @@ def main(args, device_id):
     model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # Define the learning rate scheduler
-    milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
+    milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
