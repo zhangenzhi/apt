@@ -31,7 +31,6 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         patch_size=patch_size,
         output_dim=1, 
         pretrain="sam-b")
-    model.to(device)
     
     def fix_model_state_dict(state_dict):
         new_state_dict = OrderedDict()
@@ -43,6 +42,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         return new_state_dict
     state_dict = torch.load(os.path.join(model_weights, "best_score_model.pth"))
     model.load_state_dict(fix_model_state_dict(state_dict))
+    
+    model.to(device)
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
     data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
