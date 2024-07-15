@@ -166,7 +166,7 @@ def main(args, device_id):
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
-        if epoch % 100 == 99 and device_id == 0:  # Adjust the frequency of visualization
+        if epoch % 30 == 29 and device_id == 0:  # Adjust the frequency of visualization
             model.eval()
             with torch.no_grad():
                 for i,batch in enumerate(eval_loader):
