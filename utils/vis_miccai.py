@@ -4,18 +4,24 @@ sys.path.append("./")
 from collections import OrderedDict
 
 import torch
+from torchvision.utils import save_image
+
 from model.sam import SAM
 from torch.utils.data import DataLoader
 from dataset.miccai import MICCAIDataset
 from train.sam_miccai import DiceBCELoss
 
-def evaluate(model, dataset):
-    pass
+def save_predicts(outputs, resolution, filename):
+    outputs = outputs.to('cpu')
+    save_name=f"predict_patches-{resolution}"
+    for i,fp in enumerate(filename):
+        pardir = os.path.dirname(os.path.dirname(fp))
+        save_path = os.path.join(pardir, save_name)
+        basename = os.path.basename(fp)
+        save_path = os.path.join(save_path,basename)
+        save_image(outputs[i], save_path)
 
-def merge(to_resolution, save_path):
-    pass
-
-def main(path, model_weights, resolution, patch_size, to_resolution, save_path):
+def main(path, model_weights, resolution, batch_size, patch_size, to_resolution):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
@@ -37,24 +43,28 @@ def main(path, model_weights, resolution, patch_size, to_resolution, save_path):
     model.load_state_dict(fix_model_state_dict(state_dict))
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
-    data_loader = DataLoader(dataset, batch_size=8, num_workers=16, shuffle=False)
-    
-    import pdb
-    pdb.set_trace()
+    data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
+    dataset_size= len(dataset)
+    # import pdb
+    # pdb.set_trace()
     
     for i,batch in enumerate(data_loader):
-        filename = data_loader.dataset.samples[i]
         images, masks = batch
         images, masks = images.to(device), masks.to(device)  # Move data to GPU
         outputs = model(images)
         loss, score = criterion(outputs, masks)
         val_score += score
-    merge(to_resolution, save_path=save_path)
+        
+        filename = data_loader.dataset.image_filenames[i:min((i+1)*batch_size, dataset_size)]
+        save_predicts(outputs, to_resolution, filename=filename)
+        
+    print("Total mean score:{}".format(val_score/len(data_loader)))
 
 if __name__ == "__main__":
     main(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
         model_weights="/lustre/orion/bif146/world-shared/enzhi/apt/sam-b_miccai-n128-pz8-bz4/",
         patch_size=8,
+        batch_size=8,
         resolution=512,
         to_resolution=1024,
         save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
