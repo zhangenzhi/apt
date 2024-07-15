@@ -7,7 +7,7 @@ import glob
 from pathlib import Path
 
 
-def patches_merge(slide_dir, patches, resolution):
+def patches_merge(slide_dir, patches, patch_szie, resolution):
     pattern = patches
     files = glob.glob(pattern)
     regex = re.compile(r'patches_(.*?)_(.*?).png')
@@ -20,19 +20,19 @@ def patches_merge(slide_dir, patches, resolution):
             list_j.append(match.group(2))
     num_patches_width=len(list_i)
     num_patches_height = len(list_j)
-    width = resolution*num_patches_width
-    height = resolution*num_patches_height
+    width = patch_szie*num_patches_width
+    height = patch_szie*num_patches_height
     slide = np.zeros((width, height, 1))
     for i in range(num_patches_width):
         for j in range(num_patches_height):
             # Define the coordinates of the current patch
-            left = i * resolution
-            upper = j * resolution
-            right = min(left + resolution, width)
-            lower = min(upper + resolution, height)
+            left = i * patch_szie
+            upper = j * patch_szie
+            right = min(left + patch_szie, width)
+            lower = min(upper + patch_szie, height)
             slide[left:right,lower:right] = cv.imread(os.path.join(slide_dir, "patches_{i}_{j}.png"))
     save_path = os.path.join(os.path.dirname(slide_dir), "merged-mask-512.png")
-    cv.imwrite(save_path, cv.resize(slide, dsize=(1024,1024)))
+    cv.imwrite(save_path, cv.resize(slide, dsize=(resolution,resolution)))
     # return slide
 
 def get_patches_path(datapath, patch_type="maskes-512"):
@@ -56,6 +56,6 @@ def make_slides(path, patch_size=512, resolution=1024, save_path="../miccai_patc
     
     
 if __name__ == "__main__":
-    make_slides(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
+    make_slides(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
                  patch_size=512,
                  save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
