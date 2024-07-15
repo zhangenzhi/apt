@@ -22,7 +22,7 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
     num_patches_height = int(max(list_j))
     width = patch_size*num_patches_width
     height = patch_size*num_patches_height
-    print(width,height)
+    print(width, height)
     import pdb
     pdb.set_trace()
     slide = np.zeros((width, height, 1))
@@ -36,7 +36,6 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
             slide[left:right,lower:right] = cv.imread(os.path.join(slide_dir, "patches_{i}_{j}.png"))
     save_path = os.path.join(os.path.dirname(slide_dir), "merged-mask-512.png")
     cv.imwrite(save_path, cv.resize(slide, dsize=(resolution,resolution)))
-    # return slide
 
 def get_patches_path(datapath, patch_type="masks-512"):
     filenames = os.listdir(datapath)
