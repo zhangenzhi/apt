@@ -34,7 +34,7 @@ def patches_merge(slide_dir, patches, patch_size, patch_type, resolution):
             upper = j * patch_size
             right = min(left + patch_size, width)
             lower = min(upper + patch_size, height)
-            slide[left:right,lower:right] = cv.imread(os.path.join(patch_type_dir, f"patches_{i}_{j}.png"))
+            slide[left:right,lower:right] = cv.imread(os.path.join(patch_type_dir, f"patch_{i}_{j}.png"))
     save_path = os.path.join(os.path.dirname(patch_type_dir), "merged-mask-512.png")
     cv.imwrite(save_path, cv.resize(slide, dsize=(resolution, resolution)))
 
