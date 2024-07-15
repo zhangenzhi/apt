@@ -20,14 +20,14 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
             
     num_patches_width = int(max([int(idx) for idx in list_i]))
     num_patches_height = int(max([int(idx) for idx in list_j]))
-    width = patch_size*num_patches_width
-    height = patch_size*num_patches_height
+    width = patch_size*(num_patches_width+1)
+    height = patch_size*(num_patches_height+1)
     print(width, height)
-    import pdb
-    pdb.set_trace()
+    # import pdb
+    # pdb.set_trace()
     slide = np.zeros((width, height, 1))
-    for i in range(num_patches_width):
-        for j in range(num_patches_height):
+    for i in range(num_patches_width+1):
+        for j in range(num_patches_height+1):
             # Define the coordinates of the current patch
             left = i * patch_size
             upper = j * patch_size
