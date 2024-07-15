@@ -31,7 +31,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     model = SAM(image_shape=(resolution, resolution),
         patch_size=patch_size,
         output_dim=1, 
-        pretrain="sam-b")
+        pretrain=False)
     
     def fix_model_state_dict(state_dict):
         new_state_dict = OrderedDict()
@@ -41,8 +41,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 name = name[7:]  # remove 'module.' of dataparallel
             new_state_dict[name] = v
         return new_state_dict
-    state_dict = torch.load(os.path.join(model_weights, "best_score_model.pth"))
-    model.load_state_dict(fix_model_state_dict(state_dict))
+    model.load_state_dict(fix_model_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth"))))
     
     model.to(device)
     
