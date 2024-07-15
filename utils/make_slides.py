@@ -8,8 +8,7 @@ from pathlib import Path
 
 
 def patches_merge(slide_dir, patches, patch_size, resolution):
-    pattern = patches
-    files = glob.glob(pattern)
+    files = patches
     regex = re.compile(r'patches_(.*?)_(.*?).png')
     list_i = []
     list_j = []
