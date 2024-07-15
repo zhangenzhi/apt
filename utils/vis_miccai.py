@@ -68,7 +68,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             os.makedirs(save_path, exist_ok=True)
             basename = os.path.basename(fp)
             save_path = os.path.join(save_path,basename)
-            save_image(outputs[i], save_path)
+            # save_image(outputs[i], save_path)
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
