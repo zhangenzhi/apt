@@ -39,7 +39,8 @@ def patches_merge(slide_dir, patches, patch_size, patch_type, resolution):
     cv.imwrite(save_path, cv.resize(slide, dsize=(resolution, resolution)))
 
 def get_patches_path(datapath, patch_type="masks-512"):
-    filenames = os.listdir(datapath)
+    # filenames = os.listdir(datapath)
+    filenames=["11-356_"]
     slides_patches={}
     for f in filenames:
         subdir = os.path.join(datapath, f)
