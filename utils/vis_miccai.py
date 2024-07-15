@@ -56,29 +56,26 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     model.eval()
     with torch.no_grad():
         for i,batch in enumerate(data_loader):
-            # import pdb
-            # pdb.set_trace()
             
             images, masks = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            loss, score = criterion(outputs, masks)
             outputs = torch.sigmoid(model(images))
 
-            # loss, score = criterion(outputs, masks)
-            # print(f"score:{score}, step:{i*batch_size}")
-            # val_score += score
+            print(f"score:{score}, step:{i*batch_size}")
+            val_score += score
             
             filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
-            save_name=f"predict_patches-{resolution}"
+            save_name = f"predict_patches-{resolution}"
             
-            for i,fp in enumerate(filename):
+            for i, fp in enumerate(filename):
                 mask_pred = (outputs[i, 0].cpu() > 0.5).numpy()
                 pardir = os.path.dirname(os.path.dirname(fp))
                 save_path = os.path.join(pardir, save_name)
                 os.makedirs(save_path, exist_ok=True)
                 basename = os.path.basename(fp)
-                save_path = os.path.join(save_path,basename)
-                # import pdb
-                # pdb.set_trace()
+                save_path = os.path.join(save_path, basename)
+
                 plt.imsave(save_path, mask_pred, cmap='gray')
                 # mask_pred = (((mask_pred - mask_pred.min()) / (mask_pred.max() - mask_pred.min())) * 255.9).astype(np.uint8)
                 # im = Image.fromarray(mask_pred)
