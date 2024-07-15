@@ -21,7 +21,7 @@ def save_predicts(outputs, resolution, filename):
         save_path = os.path.join(save_path,basename)
         save_image(outputs[i], save_path)
 
-def main(path, model_weights, resolution, batch_size, patch_size, to_resolution):
+def main(path, model_weights, resolution, batch_size, patch_size):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
@@ -65,6 +65,4 @@ if __name__ == "__main__":
         model_weights="/lustre/orion/bif146/world-shared/enzhi/apt/sam-b_miccai-n128-pz8-bz4/",
         patch_size=8,
         batch_size=8,
-        resolution=512,
-        to_resolution=1024,
-        save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
+        resolution=512)
