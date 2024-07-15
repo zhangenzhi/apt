@@ -23,7 +23,8 @@ def save_predicts(outputs, resolution, filename):
         save_image(outputs[i], save_path)
 
 def main(path, model_weights, resolution, batch_size, patch_size):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
     
