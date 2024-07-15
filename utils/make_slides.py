@@ -7,7 +7,8 @@ import glob
 from pathlib import Path
 
 
-def patches_merge(slide_dir, patches, patch_size, resolution):
+def patches_merge(slide_dir, patches, patch_size, patch_type, resolution):
+    patch_type_dir = os.path.join(slide_dir, patch_type)
     files = patches
     regex = re.compile(r'patch_(.*?)_(.*?).png')
     list_i = []
@@ -33,9 +34,9 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
             upper = j * patch_size
             right = min(left + patch_size, width)
             lower = min(upper + patch_size, height)
-            slide[left:right,lower:right] = cv.imread(os.path.join(slide_dir, "patches_{i}_{j}.png"))
-    save_path = os.path.join(os.path.dirname(slide_dir), "merged-mask-512.png")
-    cv.imwrite(save_path, cv.resize(slide, dsize=(resolution,resolution)))
+            slide[left:right,lower:right] = cv.imread(os.path.join(patch_type_dir, "patches_{i}_{j}.png"))
+    save_path = os.path.join(os.path.dirname(patch_type_dir), "merged-mask-512.png")
+    cv.imwrite(save_path, cv.resize(slide, dsize=(resolution, resolution)))
 
 def get_patches_path(datapath, patch_type="masks-512"):
     filenames = os.listdir(datapath)
@@ -48,11 +49,11 @@ def get_patches_path(datapath, patch_type="masks-512"):
     return slides_patches
 
 
-def make_slides(path, patch_size=512, resolution=1024, save_path="../miccai_patches/"):
-    files =  get_patches_path(path)
+def make_slides(path, patch_size=512, resolution=1024, patch_type="masks-512", save_path="../miccai_patches/"):
+    files =  get_patches_path(path, patch_type="masks-512")
     for slide_dir, patches in files.items():
         print(f"Start to merge {slide_dir}.")
-        patches_merge(slide_dir, patches=patches, patch_size=patch_size, resolution=resolution)
+        patches_merge(slide_dir, patches=patches, patch_size=patch_size, patch_type="masks-512", resolution=resolution)
         break
     print(f"Done! Totoal {len(files)} file.")
     
