@@ -61,6 +61,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             outputs = model(images)
             loss, score = criterion(outputs, masks)
             pred_outputs = torch.sigmoid(outputs)
+            print(f"Mean pixel:{torch.mean(pred_outputs)}")
 
             print(f"score:{score}, step:{i*batch_size}")
             val_score += score
@@ -75,7 +76,6 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 os.makedirs(save_path, exist_ok=True)
                 basename = os.path.basename(fp)
                 save_path = os.path.join(save_path, basename)
-                print(f"Mean pixel:{torch.mean(mask_pred)}")
                 plt.imsave(save_path, mask_pred, cmap='gray')
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
