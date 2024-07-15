@@ -30,6 +30,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         patch_size=patch_size,
         output_dim=1, 
         pretrain="sam-b")
+    model.to(device)
     
     def fix_model_state_dict(state_dict):
         new_state_dict = OrderedDict()
@@ -56,7 +57,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         val_score += score
         
         filename = data_loader.dataset.image_filenames[i:min((i+1)*batch_size, dataset_size)]
-        save_predicts(outputs, to_resolution, filename=filename)
+        save_predicts(outputs, resolution, filename=filename)
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
