@@ -63,9 +63,6 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             print(f"score:{score}, step:{i*batch_size}")
             val_score += score
             
-            del outputs,loss
-            torch.cuda.empty_cache()
-            
             filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
             save_name=f"predict_patches-{resolution}"
             
@@ -76,6 +73,9 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 basename = os.path.basename(fp)
                 save_path = os.path.join(save_path,basename)
                 save_image(outputs[i], save_path)
+            
+            del outputs,loss
+            torch.cuda.empty_cache()
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
