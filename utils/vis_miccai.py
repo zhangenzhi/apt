@@ -75,6 +75,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 os.makedirs(save_path, exist_ok=True)
                 basename = os.path.basename(fp)
                 save_path = os.path.join(save_path,basename)
+                import pdb
+                pdb.set_trace()
                 im = Image.fromarray(mask_pred)
                 im.save(mask_pred, save_path)
             
