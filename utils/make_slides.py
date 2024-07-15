@@ -7,7 +7,7 @@ import glob
 from pathlib import Path
 
 
-def patches_merge(slide_dir, patches, patch_szie, resolution):
+def patches_merge(slide_dir, patches, patch_size, resolution):
     pattern = patches
     files = glob.glob(pattern)
     regex = re.compile(r'patches_(.*?)_(.*?).png')
@@ -20,16 +20,16 @@ def patches_merge(slide_dir, patches, patch_szie, resolution):
             list_j.append(match.group(2))
     num_patches_width=len(list_i)
     num_patches_height = len(list_j)
-    width = patch_szie*num_patches_width
-    height = patch_szie*num_patches_height
+    width = patch_size*num_patches_width
+    height = patch_size*num_patches_height
     slide = np.zeros((width, height, 1))
     for i in range(num_patches_width):
         for j in range(num_patches_height):
             # Define the coordinates of the current patch
-            left = i * patch_szie
-            upper = j * patch_szie
-            right = min(left + patch_szie, width)
-            lower = min(upper + patch_szie, height)
+            left = i * patch_size
+            upper = j * patch_size
+            right = min(left + patch_size, width)
+            lower = min(upper + patch_size, height)
             slide[left:right,lower:right] = cv.imread(os.path.join(slide_dir, "patches_{i}_{j}.png"))
     save_path = os.path.join(os.path.dirname(slide_dir), "merged-mask-512.png")
     cv.imwrite(save_path, cv.resize(slide, dsize=(resolution,resolution)))
