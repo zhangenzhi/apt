@@ -84,8 +84,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 # im = Image.fromarray(mask_pred)
                 # im.save(mask_pred, save_path)
             
-            del outputs,loss
-            torch.cuda.empty_cache()
+            # del outputs,loss
+            # torch.cuda.empty_cache()
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
