@@ -46,7 +46,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     model.to(device)
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
-    data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     dataset_size= len(dataset)
 
     model.eval()
