@@ -28,22 +28,23 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
     
-    model = SAM(image_shape=(resolution, resolution),
-        patch_size=patch_size,
-        output_dim=1, 
-        pretrain="sam-b")
-    
-    def fix_model_state_dict(state_dict):
-        new_state_dict = OrderedDict()
-        for k, v in state_dict.items():
-            name = k
-            if name.startswith('module.'):
-                name = name[7:]  # remove 'module.' of dataparallel
-            new_state_dict[name] = v
-        return new_state_dict
-    model.load_state_dict(fix_model_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth"))))
-    
-    model.to(device)
+    with torch.no_grad():
+        model = SAM(image_shape=(resolution, resolution),
+            patch_size=patch_size,
+            output_dim=1, 
+            pretrain="sam-b")
+        
+        def fix_model_state_dict(state_dict):
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k
+                if name.startswith('module.'):
+                    name = name[7:]  # remove 'module.' of dataparallel
+                new_state_dict[name] = v
+            return new_state_dict
+        model.load_state_dict(fix_model_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth"))))
+        
+        model.to(device)
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
@@ -60,6 +61,9 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         loss, score = criterion(outputs, masks)
         print(f"score:{score}, step:{i*batch_size}")
         val_score += score
+        
+        del outputs,loss
+        torch.cuda.empty_cache()
         
         # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
         # save_name=f"predict_patches-{resolution}"
