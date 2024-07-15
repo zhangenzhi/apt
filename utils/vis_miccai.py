@@ -42,7 +42,7 @@ def main(path, model_weights, resolution, patch_size, to_resolution, save_path):
 
 if __name__ == "__main__":
     main(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
-        model_weights="/lustre/orion/bif146/world-shared/enzhi/apt/",
+        model_weights="/lustre/orion/bif146/world-shared/enzhi/apt/sam-b_miccai-n128-pz8-bz4/",
         patch_size=8,
         resolution=512,
         to_resolution=1024,
