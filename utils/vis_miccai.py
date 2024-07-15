@@ -1,6 +1,7 @@
 import os
 import sys
 from PIL import Image
+import numpy as np
 sys.path.append("./")
 from collections import OrderedDict
 
@@ -77,6 +78,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 save_path = os.path.join(save_path,basename)
                 import pdb
                 pdb.set_trace()
+                mask_pred = (((mask_pred - mask_pred.min()) / (mask_pred.max() - mask_pred.min())) * 255.9).astype(np.uint8)
                 im = Image.fromarray(mask_pred)
                 im.save(mask_pred, save_path)
             
