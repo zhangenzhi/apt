@@ -59,8 +59,9 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             
             images, masks = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            outputs = model(images)
             loss, score = criterion(outputs, masks)
-            outputs = torch.sigmoid(model(images))
+            pred_outputs = torch.sigmoid(outputs)
 
             print(f"score:{score}, step:{i*batch_size}")
             val_score += score
@@ -69,7 +70,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             save_name = f"predict_patches-{resolution}"
             
             for i, fp in enumerate(filename):
-                mask_pred = (outputs[i, 0].cpu() > 0.5).numpy()
+                mask_pred = (pred_outputs[i, 0].cpu() > 0.5).numpy()
                 pardir = os.path.dirname(os.path.dirname(fp))
                 save_path = os.path.join(pardir, save_name)
                 os.makedirs(save_path, exist_ok=True)
