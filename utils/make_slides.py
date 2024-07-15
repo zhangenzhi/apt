@@ -9,7 +9,7 @@ from pathlib import Path
 
 def patches_merge(slide_dir, patches, patch_size, resolution):
     files = patches
-    regex = re.compile(r'patches_(.*?)_(.*?).png')
+    regex = re.compile(r'patch_(.*?)_(.*?).png')
     list_i = []
     list_j = []
     for file in files:
@@ -17,6 +17,7 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
         if match:
             list_i.append(match.group(1))
             list_j.append(match.group(2))
+            
     num_patches_width=len(list_i)
     num_patches_height = len(list_j)
     width = patch_size*num_patches_width
