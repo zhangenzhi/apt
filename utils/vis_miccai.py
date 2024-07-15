@@ -56,6 +56,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     model.eval()
     with torch.no_grad():
         for i,batch in enumerate(data_loader):
+            import pdb
+            pdb.set_trace()
             
             images, masks = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
@@ -78,12 +80,6 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 save_path = os.path.join(save_path, basename)
 
                 plt.imsave(save_path, mask_pred, cmap='gray')
-                # mask_pred = (((mask_pred - mask_pred.min()) / (mask_pred.max() - mask_pred.min())) * 255.9).astype(np.uint8)
-                # im = Image.fromarray(mask_pred)
-                # im.save(mask_pred, save_path)
-            
-            # del outputs,loss
-            # torch.cuda.empty_cache()
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
