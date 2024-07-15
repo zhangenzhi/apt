@@ -23,15 +23,15 @@ def save_predicts(outputs, resolution, filename):
         save_image(outputs[i], save_path)
 
 def main(path, model_weights, resolution, batch_size, patch_size):
-    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cpu'
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
     
     model = SAM(image_shape=(resolution, resolution),
         patch_size=patch_size,
         output_dim=1, 
-        pretrain=False)
+        pretrain="sam-b")
     
     def fix_model_state_dict(state_dict):
         new_state_dict = OrderedDict()
