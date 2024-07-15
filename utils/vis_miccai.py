@@ -17,6 +17,7 @@ def save_predicts(outputs, resolution, filename):
     for i,fp in enumerate(filename):
         pardir = os.path.dirname(os.path.dirname(fp))
         save_path = os.path.join(pardir, save_name)
+        os.makedirs(save_path,exist_ok=True)
         basename = os.path.basename(fp)
         save_path = os.path.join(save_path,basename)
         save_image(outputs[i], save_path)
