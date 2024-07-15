@@ -46,7 +46,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         
         model.to(device)
     
-    dataset = MICCAIDataset(path, resolution, normalize=False)
+    dataset = MICCAIDataset(path, resolution, normalize=False, eval_mode=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
     dataset_size= len(dataset)
 
@@ -58,21 +58,23 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             
             images, masks = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
-            outputs = model(images)
-            loss, score = criterion(outputs, masks)
-            print(f"score:{score}, step:{i*batch_size}")
-            val_score += score
+            outputs = torch.sigmoid(model(images))
+
+            # loss, score = criterion(outputs, masks)
+            # print(f"score:{score}, step:{i*batch_size}")
+            # val_score += score
             
             filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
             save_name=f"predict_patches-{resolution}"
             
             for i,fp in enumerate(filename):
+                mask_pred = (outputs[i, 0].cpu() > 0.5).numpy()
                 pardir = os.path.dirname(os.path.dirname(fp))
                 save_path = os.path.join(pardir, save_name)
                 os.makedirs(save_path, exist_ok=True)
                 basename = os.path.basename(fp)
                 save_path = os.path.join(save_path,basename)
-                save_image(outputs[i], save_path)
+                save_image(mask_pred, save_path)
             
             del outputs,loss
             torch.cuda.empty_cache()

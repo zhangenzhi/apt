@@ -13,14 +13,15 @@ from torchvision import transforms
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class MICCAIDataset(Dataset):
-    def __init__(self, data_path, resolution, normalize=False):
+    def __init__(self, data_path, resolution, normalize=False, eval_mode=False):
         self.data_path = data_path
+        self.subslides = os.path.join(data_path, subdir) if not eval_mode else ["11-356_"]
         self.resolution = resolution
 
         self.image_filenames = []
         self.mask_filenames = []
 
-        for subdir in os.listdir(data_path):
+        for subdir in self.subslides:
             subdir_path = os.path.join(data_path, subdir)
             if os.path.isdir(subdir_path):
                 images_path = os.path.join(subdir_path, f"patches-{resolution}/")
