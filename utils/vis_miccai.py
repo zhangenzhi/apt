@@ -70,6 +70,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             save_name = f"predict_patches-{resolution}"
             
             for i, fp in enumerate(filename):
+                import pdb
+                pdb.set_trace()
                 mask_pred = (pred_outputs[i, 0].cpu() > 0.5).numpy()
                 pardir = os.path.dirname(os.path.dirname(fp))
                 save_path = os.path.join(pardir, save_name)
