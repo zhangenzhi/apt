@@ -23,7 +23,8 @@ def main(path, model_weights, resolution, patch_size, to_resolution, save_path):
     model = SAM(image_shape=(resolution, resolution),
         patch_size=patch_size,
         output_dim=1, 
-        pretrain="None")
+        pretrain="sam-b")
+    
     def fix_model_state_dict(state_dict):
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
