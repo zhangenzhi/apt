@@ -48,7 +48,7 @@ def get_patches_path(datapath, patch_type="masks-512"):
 
 def make_slides(path, patch_size=512, resolution=1024, save_path="../miccai_patches/"):
     files =  get_patches_path(path)
-    for slide_dir, patches in files.items:
+    for slide_dir, patches in files.items():
         print(f"Start to merge {slide_dir}.")
         patches_merge(slide_dir, patches=patches, patch_size=patch_size, resolution=resolution)
         break
