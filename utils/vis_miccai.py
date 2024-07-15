@@ -22,8 +22,16 @@ def main(path, model_weights, resolution, patch_size, to_resolution, save_path):
         patch_size=patch_size,
         output_dim=1, 
         pretrain="None")
-
-    model.load_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth")))
+    def fix_model_state_dict(state_dict):
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            name = k
+            if name.startswith('module.'):
+                name = name[7:]  # remove 'module.' of dataparallel
+            new_state_dict[name] = v
+        return new_state_dict
+    state_dict = torch.load(os.path.join(model_weights, "best_score_model.pth"))
+    model.load_state_dict(fix_model_state_dict(state_dict))
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
     data_loader = DataLoader(dataset, batch_size=8, num_workers=16, shuffle=False)
