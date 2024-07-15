@@ -35,7 +35,7 @@ def patches_merge(slide_dir, patches, patch_size, patch_type, resolution):
             lower = j * patch_size
             upper = min(lower + patch_size, height)
             slide[left:right,lower:upper] = cv.imread(os.path.join(patch_type_dir, f"patch_{i}_{j}.png"))
-    save_path = os.path.join(os.path.dirname(patch_type_dir), "merged-mask-512.png")
+    save_path = os.path.join(os.path.dirname(patch_type_dir), "merged-predict-mask-512.png")
     cv.imwrite(save_path, cv.resize(slide, dsize=(resolution, resolution)))
 
 def get_patches_path(datapath, patch_type="masks-512"):
@@ -50,10 +50,10 @@ def get_patches_path(datapath, patch_type="masks-512"):
 
 
 def make_slides(path, patch_size=512, resolution=1024, patch_type="masks-512", save_path="../miccai_patches/"):
-    files =  get_patches_path(path, patch_type="masks-512")
+    files =  get_patches_path(path, patch_type=patch_type)
     for slide_dir, patches in files.items():
         print(f"Start to merge {slide_dir}.")
-        patches_merge(slide_dir, patches=patches, patch_size=patch_size, patch_type="masks-512", resolution=resolution)
+        patches_merge(slide_dir, patches=patches, patch_size=patch_size, patch_type=patch_type, resolution=resolution)
         break
     print(f"Done! Totoal {len(files)} file.")
     
@@ -61,4 +61,5 @@ def make_slides(path, patch_size=512, resolution=1024, patch_type="masks-512", s
 if __name__ == "__main__":
     make_slides(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
                  patch_size=512,
+                 patch_type="predict_patches-512",
                  save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
