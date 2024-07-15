@@ -29,8 +29,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     val_score = 0.0
     
     with torch.no_grad():
-        model = SAM(image_shape=(resolution, resolution),
-            patch_size=patch_size,
+        model = SAM(image_shape=(512, 512),
+            patch_size=8,
             output_dim=1, 
             pretrain="sam-b")
         
