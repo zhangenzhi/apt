@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import torch
 from torchvision.utils import save_image
+import matplotlib.pyplot as plt
 
 from model.sam import SAM
 from torch.utils.data import DataLoader
@@ -76,11 +77,12 @@ def main(path, model_weights, resolution, batch_size, patch_size):
                 os.makedirs(save_path, exist_ok=True)
                 basename = os.path.basename(fp)
                 save_path = os.path.join(save_path,basename)
-                import pdb
-                pdb.set_trace()
-                mask_pred = (((mask_pred - mask_pred.min()) / (mask_pred.max() - mask_pred.min())) * 255.9).astype(np.uint8)
-                im = Image.fromarray(mask_pred)
-                im.save(mask_pred, save_path)
+                # import pdb
+                # pdb.set_trace()
+                plt.imsave(save_path, mask_pred, cmap='gray')
+                # mask_pred = (((mask_pred - mask_pred.min()) / (mask_pred.max() - mask_pred.min())) * 255.9).astype(np.uint8)
+                # im = Image.fromarray(mask_pred)
+                # im.save(mask_pred, save_path)
             
             del outputs,loss
             torch.cuda.empty_cache()
