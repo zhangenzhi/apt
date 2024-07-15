@@ -36,12 +36,12 @@ def patches_merge(slide_dir, patches, patch_szie, resolution):
     # return slide
 
 def get_patches_path(datapath, patch_type="maskes-512"):
-    filenames = os.listdir(os.path.join(datapath,patch_type))
+    filenames = os.listdir(datapath)
     slides_patches={}
     for f in filenames:
         subdir = os.path.join(datapath, f)
         slides_patches[subdir] = []
-        for patches in os.listdir(subdir):
+        for patches in os.listdir(os.path.join(subdir, patch_type)):
             slides_patches[subdir].append(patches)        
     return slides_patches
 
