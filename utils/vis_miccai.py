@@ -61,7 +61,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             outputs = model(images)
             loss, score = criterion(outputs, masks)
             pred_outputs = torch.sigmoid(outputs)
-            print(f"Mean pixel:{torch.mean(pred_outputs)}")
+            print(f"Shape:{pred_outputs.shape} Mean pixel:{torch.mean(pred_outputs)}")
 
             print(f"score:{score}, step:{i*batch_size}")
             val_score += score
