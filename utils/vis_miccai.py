@@ -51,30 +51,31 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     dataset_size= len(dataset)
 
     model.eval()
-    for i,batch in enumerate(data_loader):
-        # import pdb
-        # pdb.set_trace()
-        
-        images, masks = batch
-        images, masks = images.to(device), masks.to(device)  # Move data to GPU
-        outputs = model(images)
-        loss, score = criterion(outputs, masks)
-        print(f"score:{score}, step:{i*batch_size}")
-        val_score += score
-        
-        del outputs,loss
-        torch.cuda.empty_cache()
-        
-        # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
-        # save_name=f"predict_patches-{resolution}"
-        
-        # for i,fp in enumerate(filename):
-        #     pardir = os.path.dirname(os.path.dirname(fp))
-        #     save_path = os.path.join(pardir, save_name)
-        #     os.makedirs(save_path, exist_ok=True)
-        #     basename = os.path.basename(fp)
-        #     save_path = os.path.join(save_path,basename)
-            # save_image(outputs[i], save_path)
+    with torch.no_grad():
+        for i,batch in enumerate(data_loader):
+            # import pdb
+            # pdb.set_trace()
+            
+            images, masks = batch
+            images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            outputs = model(images)
+            loss, score = criterion(outputs, masks)
+            print(f"score:{score}, step:{i*batch_size}")
+            val_score += score
+            
+            del outputs,loss
+            torch.cuda.empty_cache()
+            
+            # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
+            # save_name=f"predict_patches-{resolution}"
+            
+            # for i,fp in enumerate(filename):
+            #     pardir = os.path.dirname(os.path.dirname(fp))
+            #     save_path = os.path.join(pardir, save_name)
+            #     os.makedirs(save_path, exist_ok=True)
+            #     basename = os.path.basename(fp)
+            #     save_path = os.path.join(save_path,basename)
+                # save_image(outputs[i], save_path)
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
