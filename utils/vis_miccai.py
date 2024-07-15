@@ -58,7 +58,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         images, masks = images.to(device), masks.to(device)  # Move data to GPU
         outputs = model(images)
         loss, score = criterion(outputs, masks)
-        print(score)
+        print(f"score:{score}, step:{i*batch}")
         val_score += score
         
         # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
