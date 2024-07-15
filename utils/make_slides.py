@@ -18,8 +18,8 @@ def patches_merge(slide_dir, patches, patch_size, resolution):
             list_i.append(match.group(1))
             list_j.append(match.group(2))
             
-    num_patches_width=len(list_i)
-    num_patches_height = len(list_j)
+    num_patches_width = max(list_i)
+    num_patches_height = max(list_j)
     width = patch_size*num_patches_width
     height = patch_size*num_patches_height
     slide = np.zeros((width, height, 1))
