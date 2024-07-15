@@ -66,5 +66,5 @@ if __name__ == "__main__":
     main(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
         model_weights="/lustre/orion/bif146/world-shared/enzhi/apt/sam-b_miccai-n128-pz8-bz4/",
         patch_size=8,
-        batch_size=8,
+        batch_size=4,
         resolution=512)
