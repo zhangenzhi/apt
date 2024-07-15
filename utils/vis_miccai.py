@@ -17,7 +17,7 @@ def save_predicts(outputs, resolution, filename):
     for i,fp in enumerate(filename):
         pardir = os.path.dirname(os.path.dirname(fp))
         save_path = os.path.join(pardir, save_name)
-        os.makedirs(save_path,exist_ok=True)
+        os.makedirs(save_path, exist_ok=True)
         basename = os.path.basename(fp)
         save_path = os.path.join(save_path,basename)
         save_image(outputs[i], save_path)
@@ -57,7 +57,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         loss, score = criterion(outputs, masks)
         val_score += score
         
-        filename = data_loader.dataset.image_filenames[i:min((i+1)*batch_size, dataset_size)]
+        filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
         save_predicts(outputs, resolution, filename=filename)
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
