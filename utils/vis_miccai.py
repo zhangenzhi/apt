@@ -47,7 +47,7 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         model.to(device)
     
     dataset = MICCAIDataset(path, resolution, normalize=False)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
     dataset_size= len(dataset)
 
     model.eval()
@@ -66,16 +66,16 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             del outputs,loss
             torch.cuda.empty_cache()
             
-            # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
-            # save_name=f"predict_patches-{resolution}"
+            filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
+            save_name=f"predict_patches-{resolution}"
             
-            # for i,fp in enumerate(filename):
-            #     pardir = os.path.dirname(os.path.dirname(fp))
-            #     save_path = os.path.join(pardir, save_name)
-            #     os.makedirs(save_path, exist_ok=True)
-            #     basename = os.path.basename(fp)
-            #     save_path = os.path.join(save_path,basename)
-                # save_image(outputs[i], save_path)
+            for i,fp in enumerate(filename):
+                pardir = os.path.dirname(os.path.dirname(fp))
+                save_path = os.path.join(pardir, save_name)
+                os.makedirs(save_path, exist_ok=True)
+                basename = os.path.basename(fp)
+                save_path = os.path.join(save_path,basename)
+                save_image(outputs[i], save_path)
         
     print("Total mean score:{}".format(val_score/len(data_loader)))
 
