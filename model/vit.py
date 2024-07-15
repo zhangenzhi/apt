@@ -23,6 +23,7 @@ class ImageEncoderViT(nn.Module):
         rel_pos_zero_init: bool = True,
         window_size: int = 0,
         global_attn_indexes: Tuple[int, ...] = (),
+        pretrain = True,
     ) -> None:
         """
         Args:
@@ -76,12 +77,14 @@ class ImageEncoderViT(nn.Module):
             )
             self.blocks.append(block)
             
-        if embed_dim==768:
-            self.blocks = torch.load("./model/vit_blocks_b.pth")
-        elif embed_dim==1024:
-            self.blocks = torch.load("./model/vit_blocks_l.pth")
-        elif embed_dim==1280:
-            self.blocks = torch.load("./model/vit_blocks_h.pth")
+        if pretrain:
+            if embed_dim==768:
+                self.blocks = torch.load("./model/vit_blocks_b.pth")
+            elif embed_dim==1024:
+                self.blocks = torch.load("./model/vit_blocks_l.pth")
+            elif embed_dim==1280:
+                self.blocks = torch.load("./model/vit_blocks_h.pth")
+        
         
         self.neck = nn.Sequential(
             nn.Conv2d(

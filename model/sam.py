@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(patch_size=8, image_size=[512, 512], checkpoint=None):
+def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
@@ -15,10 +15,10 @@ def build_sam_vit_b(patch_size=8, image_size=[512, 512], checkpoint=None):
         encoder_global_attn_indexes=[2, 5, 8, 11],
         patch_size=patch_size,
         image_size=image_size,
-        checkpoint=checkpoint,
+        pretrain=pretrain,
     )
 
-def build_sam_vit_l(patch_size=8, image_size=[512, 512], checkpoint=None):
+def build_sam_vit_l(patch_size=8, image_size=[512, 512], pretrain=True):
     return _build_sam_vit(
         encoder_embed_dim=1024,
         encoder_depth=24,
@@ -26,10 +26,10 @@ def build_sam_vit_l(patch_size=8, image_size=[512, 512], checkpoint=None):
         encoder_global_attn_indexes=[5, 11, 17, 23],
         patch_size=patch_size,
         image_size=image_size,
-        checkpoint=checkpoint,
+        pretrain=pretrain,
     )
     
-def build_sam_vit_h(patch_size=8, image_size=[512, 512], checkpoint=None):
+def build_sam_vit_h(patch_size=8, image_size=[512, 512], pretrain=True):
     return _build_sam_vit(
         encoder_embed_dim=1280,
         encoder_depth=32,
@@ -37,7 +37,7 @@ def build_sam_vit_h(patch_size=8, image_size=[512, 512], checkpoint=None):
         encoder_global_attn_indexes=[7, 15, 23, 31],
         patch_size=patch_size,
         image_size=image_size,
-        checkpoint=checkpoint,
+        pretrain=pretrain,
     )
 
 
@@ -48,7 +48,7 @@ def _build_sam_vit(
     encoder_global_attn_indexes,
     patch_size,
     image_size,
-    checkpoint=None,
+    pretrain =True,
 ):
     prompt_embed_dim = 256
     image_size = image_size
@@ -68,6 +68,7 @@ def _build_sam_vit(
             global_attn_indexes=encoder_global_attn_indexes,
             window_size=tokens,
             out_chans=prompt_embed_dim,
+            pretrain=pretrain
         )
     
     return image_encoder
@@ -86,7 +87,9 @@ class SAM(nn.Module):
         elif pretrain== "sam-l":
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
         elif pretrain=="sam-h":
-             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
+            self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
+        else:
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
              
         self.mask_header = \
         nn.Sequential(
