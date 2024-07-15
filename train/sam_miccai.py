@@ -93,6 +93,7 @@ def main(args, device_id):
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
     dataset = MICCAIDataset(data_path, args.resolution, normalize=True)
+    eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
@@ -102,10 +103,12 @@ def main(args, device_id):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_set)
+    eval_sampler = torch.utils.data.distributed.DistributedSampler(eval_set)
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler)
     test_loader = DataLoader(test_set, batch_size=args.batch_size,  sampler=test_sampler)
+    eval_loader = DataLoader(eval_set, batch_size=args.batch_size, sampler=eval_sampler)
 
     # Training loop
     num_epochs = args.epoch
@@ -125,7 +128,7 @@ def main(args, device_id):
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss,_ = criterion(outputs, qmasks)
+            loss, _ = criterion(outputs, qmasks)
             loss.backward()
             optimizer.step()
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
@@ -162,39 +165,32 @@ def main(args, device_id):
                 torch.save(model.module.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
-        # # Visualize and save predictions on a few validation samples
-        # if (epoch + 1) % 3 == 0 and device_id == 0:  # Adjust the frequency of visualization
-        #     model.eval()
-        #     with torch.no_grad():
-        #         qsample_images, qsample_masks= next(iter(val_loader))
-        #         qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-        #         qsample_outputs = torch.sigmoid(model(qsample_images))
+        # Visualize and save predictions on a few validation samples
+        if epoch % 100 == 99 and device_id == 0:  # Adjust the frequency of visualization
+            model.eval()
+            with torch.no_grad():
+                for i,batch in enumerate(eval_loader):
+                    images, masks = batch
+                    images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
+                    outputs = model(images)
+                    # loss, score = criterion(outputs, masks)
+                    pred_outputs = torch.sigmoid(outputs)
 
-        #         for i in range(qsample_images.size(0)):
-        #             image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
-        #             mask_true = qsample_masks[i].cpu().numpy()
-        #             mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
+                    # print(f"score:{score}, step:{i*args.batch_size}")
+                    # val_score += score
                     
-        #             # Squeeze the singleton dimension from mask_true
-        #             mask_true = np.squeeze(mask_true, axis=0)
-
-        #             # # Plot and save images
-        #             # plt.figure(figsize=(12, 4))
-        #             # plt.subplot(1, 3, 1)
-        #             # plt.imshow(image)
-        #             # plt.title("Input Image")
-
-        #             # plt.subplot(1, 3, 2)
-        #             # plt.imshow(mask_true, cmap='gray')
-        #             # plt.title("True Mask")
-
-        #             # plt.subplot(1, 3, 3)
-        #             # plt.imshow(mask_pred, cmap='gray')
-        #             # plt.title("Predicted Mask")
-
-        #             # plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
-        #             # plt.close()
-
+                    filename = eval_loader.dataset.image_filenames[i*args.batch_size:min((i+1)*args.batch_size, dataset_size)]
+                    save_name = f"predict_patches-{epoch}-{args.resolution}"
+                    
+                    for i, fp in enumerate(filename):
+                        mask_pred = (pred_outputs[i, 0].cpu() > 0.5).numpy()
+                        partdir = os.path.dirname(os.path.dirname(fp))
+                        save_path = os.path.join(partdir, save_name)
+                        os.makedirs(save_path, exist_ok=True)
+                        basename = os.path.basename(fp)
+                        save_path = os.path.join(save_path, basename)
+                        plt.imsave(save_path, mask_pred, cmap='gray')
+                        
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
     val_losses_path = os.path.join(output_dir, 'val_losses.pth')

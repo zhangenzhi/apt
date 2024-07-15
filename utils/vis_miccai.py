@@ -56,9 +56,6 @@ def main(path, model_weights, resolution, batch_size, patch_size):
     model.eval()
     with torch.no_grad():
         for i,batch in enumerate(data_loader):
-            import pdb
-            pdb.set_trace()
-            
             images, masks = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             outputs = model(images)
