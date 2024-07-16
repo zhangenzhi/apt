@@ -96,8 +96,9 @@ def main(args, device_id):
     eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.1 * dataset_size)
-    val_size = (dataset_size - train_size) // 2
-    test_size = dataset_size - train_size - val_size
+    val_size = (dataset_size - train_size) // 10
+    test_size=val_size
+    # test_size = dataset_size - train_size - val_size
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
