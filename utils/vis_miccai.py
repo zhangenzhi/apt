@@ -27,7 +27,6 @@ def save_predicts(outputs, resolution, filename):
 
 def main(path, model_weights, resolution, batch_size, patch_size):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
     val_loss = 0.0
@@ -36,42 +35,26 @@ def main(path, model_weights, resolution, batch_size, patch_size):
         patch_size=patch_size,
         output_dim=1, 
         pretrain="sam-b")
-    
-    # def fix_model_state_dict(state_dict):
-    #     new_state_dict = OrderedDict()
-    #     for k, v in state_dict.items():
-    #         name = k
-    #         if name.startswith('module.'):
-    #             name = name[7:]  # remove 'module.' of dataparallel
-    #         new_state_dict[name] = v
-    #     return new_state_dict
-    # model.load_state_dict(fix_model_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth"))))
     model.load_state_dict(torch.load(os.path.join(model_weights, "best_score_model.pth")))
-    
     model.to(device)
     
     dataset = MICCAIDataset(path, resolution, normalize=False, eval_mode=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=16, shuffle=False)
-    dataset_size= len(dataset)
-    opt = torch.optim.Adam(params=model.parameters(), lr=1e-4)
     
     # model.eval()
-    # with torch.no_grad():
-    for i,batch in enumerate(data_loader):
-        model.train()
-        images, masks = batch
-        images, masks = images.to(device), masks.to(device)  # Move data to GPU
-        outputs = model(images)
-        opt.zero_grad()
-        loss, score = criterion(outputs, masks)
-        loss.backward()
-        opt.step()
-        pred_outputs = torch.sigmoid(outputs)
-        print(f"Shape:{pred_outputs.shape} Mean pred:{torch.mean(pred_outputs)} Mean true:{torch.mean(masks)}")
-
-        print(f"score:{score}, step:{i*batch_size}")
-        val_score += score
-        val_loss += loss
+    with torch.no_grad():
+        for i,batch in enumerate(data_loader):
+            model.train()
+            images, masks = batch
+            images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            outputs = model(images)
+            loss, score = criterion(outputs, masks)
+            pred_outputs = torch.sigmoid(outputs)
+            print(f"Shape:{pred_outputs.shape} Sum pred:{torch.sum(pred_outputs)} Sum true:{torch.sum(masks)}")
+            print(f"score:{score}, step:{i*batch_size}")
+            
+            val_score += score
+            val_loss += loss
         
         # filename = data_loader.dataset.image_filenames[i*batch_size:min((i+1)*batch_size, dataset_size)]
         # save_name = f"predict_patches-{resolution}"
