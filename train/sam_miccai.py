@@ -169,29 +169,7 @@ def main(args, device_id):
         # Visualize and save predictions on a few validation samples
         if epoch % (num_epochs//3) == (num_epochs//3-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
-            with torch.no_grad():
-                for i,batch in enumerate(eval_loader):
-                    images, masks = batch
-                    images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
-                    outputs = model(images)
-                    # loss, score = criterion(outputs, masks)
-                    pred_outputs = torch.sigmoid(outputs)
-
-                    # print(f"score:{score}, step:{i*args.batch_size}")
-                    print(f"Shape:{pred_outputs.shape} Mean pixel:{torch.mean(pred_outputs)}")
-                    # val_score += score
-                    
-                    filename = eval_loader.dataset.image_filenames[i*args.batch_size:min((i+1)*args.batch_size, dataset_size)]
-                    save_name = f"predict_patches-{epoch}-{args.resolution}"
-                    
-                    for i, fp in enumerate(filename):
-                        mask_pred = (pred_outputs[i, 0].cpu() > 0.5).numpy()
-                        partdir = os.path.dirname(os.path.dirname(fp))
-                        save_path = os.path.join(partdir, save_name)
-                        os.makedirs(save_path, exist_ok=True)
-                        basename = os.path.basename(fp)
-                        save_path = os.path.join(save_path, basename)
-                        plt.imsave(save_path, mask_pred, cmap='gray')
+            sub_plot(model=model,val_loader=val_loader,epoch=epoch, device=dist.get_rank() == 0, output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
