@@ -20,6 +20,7 @@ from model.sam import SAMQDT
 from model.sam import SAM
 from model.unet import Unet
 from dataset.miccai import MICCAIDataset
+from utils.focal_loss import DiceBCELoss, FocalLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
@@ -32,42 +33,6 @@ def log(args):
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-    
-# Define the Dice Loss
-class DiceLoss(nn.Module):
-    def __init__(self, smooth=1):
-        super(DiceLoss, self).__init__()
-        self.smooth = smooth
-
-    def forward(self, predicted, target):
-        predicted = torch.sigmoid(predicted)
-        intersection = torch.sum(predicted * target)
-        union = torch.sum(predicted) + torch.sum(target) + self.smooth
-        dice_coefficient = (2 * intersection + self.smooth) / union
-        loss = 1.0 - dice_coefficient  # Adjusted to ensure non-negative loss
-        return loss
-    
-class DiceBCELoss(nn.Module):
-    def __init__(self, weight=0.5, size_average=True):
-        super(DiceBCELoss, self).__init__()
-        self.weight = weight
-
-    def forward(self, inputs, targets, smooth=1):
-        
-        #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = F.sigmoid(inputs)       
-        
-        #flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-        
-        intersection = (inputs * targets).sum()
-        coeff = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)                                        
-        dice_loss = 1 - (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        BCE = F.binary_cross_entropy(inputs, targets, reduction='mean')
-        Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
-        
-        return Dice_BCE, coeff
     
 def main(args, device_id):
     
@@ -95,10 +60,10 @@ def main(args, device_id):
     dataset = MICCAIDataset(data_path, args.resolution, normalize=False)
     eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
-    train_size = int(0.1 * dataset_size)
-    val_size = (dataset_size - train_size) // 10
-    test_size=val_size
-    # test_size = dataset_size - train_size - val_size
+    train_size = int(0.7 * dataset_size)
+    val_size = (dataset_size - train_size) // 2
+    # test_size=val_size
+    test_size = dataset_size - train_size - val_size
 
     train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
@@ -170,7 +135,7 @@ def main(args, device_id):
         # Visualize and save predictions on a few validation samples
         if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
-            sub_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
+            # sub_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
