@@ -27,13 +27,13 @@ def save_predicts(outputs, resolution, filename):
 
 def main(path, model_weights, resolution, batch_size, patch_size):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # device = 'cpu'
+
     criterion = DiceBCELoss().to(device)
     val_score = 0.0
     
     with torch.no_grad():
-        model = SAM(image_shape=(512, 512),
-            patch_size=8,
+        model = SAM(image_shape=(resolution, resolution),
+            patch_size=patch_size,
             output_dim=1, 
             pretrain="sam-b")
         
@@ -70,8 +70,8 @@ def main(path, model_weights, resolution, batch_size, patch_size):
             save_name = f"predict_patches-{resolution}"
             
             for i, fp in enumerate(filename):
-                import pdb
-                pdb.set_trace()
+                # import pdb
+                # pdb.set_trace()
                 mask_pred = (pred_outputs[i, 0].cpu() > 0.5).numpy()
                 pardir = os.path.dirname(os.path.dirname(fp))
                 save_path = os.path.join(pardir, save_name)

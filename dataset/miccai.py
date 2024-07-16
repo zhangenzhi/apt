@@ -15,7 +15,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 class MICCAIDataset(Dataset):
     def __init__(self, data_path, resolution, normalize=False, eval_mode=False):
         self.data_path = data_path
-        self.subslides = os.listdir(data_path) if not eval_mode else ["11-356_"]
+        self.subslides = os.listdir(data_path) if not eval_mode else ["08-368_01_"]
         self.resolution = resolution
 
         self.image_filenames = []
