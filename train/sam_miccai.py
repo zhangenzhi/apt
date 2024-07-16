@@ -215,7 +215,39 @@ def main(args, device_id):
         test_loss /= len(test_loader)
         logging.info(f"Test Loss: {test_loss:.4f}")
         # draw_loss(output_dir=output_dir)
+def sub_plot():
+    # Visualize and save predictions on a few validation samples
+        if (epoch + 1) % 3 == 0 and device_id == 0:  # Adjust the frequency of visualization
+            model.eval()
+            with torch.no_grad():
+                qsample_images, qsample_masks= next(iter(val_loader))
+                qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
+                qsample_outputs = torch.sigmoid(model(qsample_images))
 
+                for i in range(qsample_images.size(0)):
+                    image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
+                    mask_true = qsample_masks[i].cpu().numpy()
+                    mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
+                    
+                    # Squeeze the singleton dimension from mask_true
+                    mask_true = np.squeeze(mask_true, axis=0)
+
+                    # Plot and save images
+                    plt.figure(figsize=(12, 4))
+                    plt.subplot(1, 3, 1)
+                    plt.imshow(image)
+                    plt.title("Input Image")
+
+                    plt.subplot(1, 3, 2)
+                    plt.imshow(mask_true, cmap='gray')
+                    plt.title("True Mask")
+
+                    plt.subplot(1, 3, 3)
+                    plt.imshow(mask_pred, cmap='gray')
+                    plt.title("Predicted Mask")
+
+                    plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
+                    plt.close()
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     
