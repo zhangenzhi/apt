@@ -103,12 +103,12 @@ def main(args, device_id):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_set)
-    eval_sampler = torch.utils.data.distributed.DistributedSampler(eval_set)
+    # eval_sampler = torch.utils.data.distributed.DistributedSampler(eval_set)
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler)
     test_loader = DataLoader(test_set, batch_size=args.batch_size,  sampler=test_sampler)
-    eval_loader = DataLoader(eval_set, batch_size=args.batch_size, sampler=eval_sampler)
+    eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False)
 
     # Training loop
     num_epochs = args.epoch
@@ -167,7 +167,7 @@ def main(args, device_id):
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
-        if epoch % 2 == 1 and device_id == 0:  # Adjust the frequency of visualization
+        if epoch % 2 == 1 and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
             with torch.no_grad():
                 for i,batch in enumerate(eval_loader):
