@@ -24,8 +24,7 @@ def patches_merge(slide_dir, patches, patch_size, patch_type, resolution):
     width = patch_size*(num_patches_width+1)
     height = patch_size*(num_patches_height+1)
     print(width, height)
-    # import pdb
-    # pdb.set_trace()
+
     slide = np.zeros((width, height))
     for i in range(num_patches_width+1):
         for j in range(num_patches_height+1):

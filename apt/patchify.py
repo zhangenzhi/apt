@@ -54,7 +54,6 @@ def transform(img, sth:int=3, canny:tuple=(100,200), dsize:tuple=(512, 512)):
     edge = cv.Canny(blur, canny[0], canny[1])
     return res, edge
 
-
 # save patch sequence
 def compress_mix_patches(qdt:FixedQuadTree, img: np.array, to_size:tuple=(8,8,3)):
     seq_patches = qdt.serialize(img, size=to_size)

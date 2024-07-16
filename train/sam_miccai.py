@@ -74,7 +74,7 @@ def main(args, device_id):
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
-            output_dim=1, 
+            output_dim=2, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss().to(device_id)
     best_val_score = 0.0
@@ -92,10 +92,10 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = MICCAIDataset(data_path, args.resolution, normalize=True)
+    dataset = MICCAIDataset(data_path, args.resolution, normalize=False)
     eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
-    train_size = int(0.7 * dataset_size)
+    train_size = int(0.1 * dataset_size)
     val_size = (dataset_size - train_size) // 2
     test_size = dataset_size - train_size - val_size
 
@@ -197,7 +197,7 @@ def main(args, device_id):
 def sub_plot(model, eval_loader, epoch, device, output_dir):
     # Visualize and save predictions on a few validation samples
         model.eval()
-        for batch in eval_loader:
+        for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
                 qsample_images, qsample_masks= batch
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
@@ -225,8 +225,10 @@ def sub_plot(model, eval_loader, epoch, device, output_dir):
                     plt.subplot(1, 3, 3)
                     plt.imshow(mask_pred, cmap='gray')
                     plt.title("Predicted Mask")
-
-                    plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
+                    
+                    basedir = os.path.join(output_dir, bi)
+                    os.makedirs(basedir, exist_ok=True)
+                    plt.savefig(os.path.join(basedir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
                     plt.close()
                 
 def draw_loss(output_dir):
