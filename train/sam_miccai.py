@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append("./")
 import argparse
-from pathlib import Path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -15,10 +15,7 @@ import matplotlib.pyplot as plt
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from model.apt import APT
-from model.sam import SAMQDT
 from model.sam import SAM
-from model.unet import Unet
 from dataset.miccai import MICCAIDataset
 from utils.focal_loss import DiceBCELoss, FocalLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
@@ -39,7 +36,7 @@ def main(args, device_id):
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
-            output_dim=2, 
+            output_dim=1, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss().to(device_id)
     best_val_score = 0.0
