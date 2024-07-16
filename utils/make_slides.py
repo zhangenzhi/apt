@@ -62,5 +62,5 @@ def make_slides(path, patch_size=512, resolution=1024, patch_type="masks-512", s
 if __name__ == "__main__":
     make_slides(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
                  patch_size=512,
-                 patch_type="predict_patches-512",
+                 patch_type="predict_patches-1-512",
                  save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
