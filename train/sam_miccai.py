@@ -169,7 +169,7 @@ def main(args, device_id):
         # Visualize and save predictions on a few validation samples
         if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
-            sub_plot(model=model,val_loader=val_loader, epoch=epoch, device=dist.get_rank() == 0, output_dir=args.savefile)
+            sub_plot(model=model,eval_loader=eval_loader, epoch=epoch, device=dist.get_rank() == 0, output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -194,14 +194,15 @@ def main(args, device_id):
         logging.info(f"Test Loss: {test_loss:.4f}")
         # draw_loss(output_dir=output_dir)
         
-def sub_plot(model, val_loader, epoch, device, output_dir):
+def sub_plot(model, eval_loader, epoch, device, output_dir):
     # Visualize and save predictions on a few validation samples
         model.eval()
-        for batch in val_loader:
+        for batch in eval_loader:
             with torch.no_grad():
                 qsample_images, qsample_masks= batch
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-                qsample_outputs = torch.sigmoid(model(qsample_images))
+                outputs = model(qsample_images)
+                qsample_outputs = torch.sigmoid(outputs)
 
                 for i in range(qsample_images.size(0)):
                     image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
