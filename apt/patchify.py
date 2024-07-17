@@ -47,7 +47,7 @@ def get_imagenet_path(datapath):
         files.append(f)
     return files
  
-def transform(img, sth:int=3, canny:tuple=(100,200), dsize:tuple=(512, 512)):
+def transform(img, sth:int=3, canny:list=[100,200], dsize:tuple=(512, 512)):
     res = cv.resize(img, dsize=dsize, interpolation=cv.INTER_CUBIC)
     grey_img = res[:, :, 0]
     blur = cv.GaussianBlur(grey_img, (sth,sth), 0)
@@ -59,7 +59,7 @@ def compress_mix_patches(qdt:FixedQuadTree, img: np.array, to_size:tuple=(8,8,3)
     seq_patches = qdt.serialize(img, size=to_size)
     return seq_patches, to_size
 
-def paip_patchify(base, fixed_length:int, resolution: int, sth:int=3, to_size:tuple=(8,8,3)):
+def paip_patchify(base, fixed_length:int, resolution: int, sth:int=3, canny:list=[100,200], to_size:tuple=(8,8,3)):
     img_path, mask_path = get_png_path(base=base, resolution=resolution)
     output_dir = base
     os.makedirs(output_dir, exist_ok=True)
@@ -67,8 +67,8 @@ def paip_patchify(base, fixed_length:int, resolution: int, sth:int=3, to_size:tu
     for i,(p,m) in enumerate(zip(img_path, mask_path)):
         img = cv.imread(p)
         mask = cv.imread(m)
-        
-        img, edge = transform(img, sth=sth, dsize=(resolution, resolution))
+        # print(canny)
+        img, edge = transform(img, sth=sth, canny=canny, dsize=(resolution, resolution))
         qdt = FixedQuadTree(domain=edge, fixed_length=fixed_length)
         seq_patches = qdt.serialize(img, size=to_size)
         seq_img = np.asarray(seq_patches)
@@ -79,8 +79,8 @@ def paip_patchify(base, fixed_length:int, resolution: int, sth:int=3, to_size:tu
         seq_mask = np.reshape(seq_mask, [to_size[0], -1, to_size[2]])
         
         name = Path(p).parts[-2]
-        cv.imwrite(output_dir+"/{}/image-{}_{}_{}_{}_{}.png".format(name, resolution, fixed_length, sth, to_size[0], "qdt"), seq_img)
-        cv.imwrite(output_dir+"/{}/mask-{}_{}_{}_{}_{}.png".format(name, resolution, fixed_length, sth, to_size[0], "qdt"), seq_mask)
+        cv.imwrite(output_dir+f"/{name}/image-{resolution}_{fixed_length}_{sth}_({canny[0]}_{canny[1]})_{to_size[0]}_qdt.png", seq_img)
+        cv.imwrite(output_dir+f"/{name}/mask-{resolution}_{fixed_length}_{sth}_({canny[0]}_{canny[1]})_{to_size[0]}_qdt.png", seq_mask)
                 
     print("Fixed lenth:{}, resolution:{}, to_size:{}, sth:{}".format(fixed_length, resolution, to_size[0], sth))
         
@@ -99,6 +99,7 @@ def patchify(args):
         paip_patchify(base=datapath, 
                       resolution=args.resolution,
                       sth=args.sth,
+                      canny=args.canny,
                       fixed_length=args.fixed_length,
                       to_size=(args.to_size, args.to_size, 3))
     elif args.dataset == "btcv":
@@ -114,6 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--to_size', type=int, default=8, help='path of the dataset.')
     parser.add_argument('--fixed_length', type=int, default=576, help='path of the dataset.')
     parser.add_argument('--sth', type=int, default=3, help='smooth factor for gaussain smoothing.')
+    parser.add_argument('--canny', type=int, nargs='+',  default=[100,200], help='canny detect threshhold.')
     parser.add_argument('--data_dir',  type=str, default="/Volumes/data/dataset/paip/output_images_and_masks", 
                         help='base path of dataset.')
     args = parser.parse_args()

@@ -12,11 +12,13 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 from model.apt import APT
 from model.sam import SAMQDT
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
+from utils.draw import draw_loss, sub_plot
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
@@ -71,24 +73,29 @@ def main(args):
     log(args=args)
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
-    fixed_length=args.fixed_length
-    model = SAMQDT(image_shape=(patch_size*32, patch_size*32),
+    sqrt_len=int(math.sqrt(args.fixed_length))
+    
+    model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
             output_dim=1, 
             pretrain=args.pretrain)
     criterion = DiceBCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
+    best_val_score = 0.0
     
     # Move the model to GPU
     model.to(device)
+    if args.reload:
+        if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
     # Define the learning rate scheduler
-    # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
-    # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+    milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, sths=[1,3,5], normalize=True)
+    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, sths=[1,3,5], normalize=False)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
@@ -101,7 +108,7 @@ def main(args):
     val_set = test_set = Subset(dataset, val_indices)
     # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=16, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=8, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
@@ -112,18 +119,22 @@ def main(args):
     output_dir = args.savefile  # Change this to the desired directory
     os.makedirs(output_dir, exist_ok=True)
     import time
+    import random
     for epoch in range(num_epochs):
         model.train()
         epoch_train_loss = 0.0
-        
         start_time = time.time()
         for batch in train_loader:
             _, qimages, _, qmasks = batch
-            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
+            drop_idx = [random.randint(0, args.fixed_length) for i in range(100)]
+            print(drop_idx)
+            for idx in drop_idx:
+                qimages[:,:,:,idx*patch_size:(idx+1)*patch_size]= torch.zeros(size=qimages[:,:,:,idx*patch_size:(idx+1)*patch_size].shape)
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+            
             optimizer.zero_grad()
-
             outputs = model(qimages)
             loss,_ = criterion(outputs, qmasks)
             # print("train step loss:{}".format(loss))
@@ -136,18 +147,17 @@ def main(args):
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
-        # scheduler.step()
+        scheduler.step()
 
         # Validation
         model.eval()
         epoch_val_loss = 0.0
         epoch_val_score = 0.0
-        
         with torch.no_grad():
             for batch in val_loader:
                 _, qimages, _, qmasks = batch
-                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
-                qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
+                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+                qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
                 loss, score = criterion(outputs, qmasks)
@@ -157,43 +167,17 @@ def main(args):
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
-
+        # Save the best model based on validation accuracy
+        if epoch_val_score > best_val_score:
+            best_val_score = epoch_val_score
+            torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
+            logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
         logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # # Visualize and save predictions on a few validation samples
         # if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
-        #     model.eval()
-        #     with torch.no_grad():
-        #         _, qsample_images, _,  qsample_masks= next(iter(val_loader))
-        #         qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-        #         qsample_images = torch.reshape(qsample_images,shape=(-1,3,patch_size*32, patch_size*32))
-        #         qsample_masks = torch.reshape(qsample_masks,shape=(-1,1,patch_size*32, patch_size*32))
-        #         qsample_outputs = torch.sigmoid(model(qsample_images))
+        #     sub_plot(model=model, eval_loader=val_loader, epoch=epoch, device=device, output_dir=args.savefile)
 
-        #         for i in range(qsample_images.size(0)):
-        #             image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
-        #             mask_true = qsample_masks[i].cpu().numpy()
-        #             mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
-                    
-        #             # Squeeze the singleton dimension from mask_true
-        #             mask_true = np.squeeze(mask_true, axis=0)
-
-        #             # # Plot and save images
-        #             # plt.figure(figsize=(12, 4))
-        #             # plt.subplot(1, 3, 1)
-        #             # plt.imshow(image)
-        #             # plt.title("Input Image")
-
-        #             # plt.subplot(1, 3, 2)
-        #             # plt.imshow(mask_true, cmap='gray')
-        #             # plt.title("True Mask")
-
-        #             # plt.subplot(1, 3, 3)
-        #             # plt.imshow(mask_pred, cmap='gray')
-        #             # plt.title("Predicted Mask")
-
-        #             # plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
-        #             # plt.close()
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -208,8 +192,8 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             _, qimages, _, qmasks = batch
-            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*32, patch_size*32))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*32, patch_size*32))
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
             loss,score = criterion(outputs, qmasks)
@@ -221,27 +205,6 @@ def main(args):
     logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
-def draw_loss(output_dir):
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Load saved losses
-    train_losses_path = os.path.join(output_dir, 'train_losses.pth')
-    val_losses_path = os.path.join(output_dir, 'val_losses.pth')
-
-    train_losses = torch.load(train_losses_path)
-    val_losses = torch.load(val_losses_path)
-
-    # Plotting the loss curves
-    epochs = range(1, len(train_losses) + 1)
-
-    plt.plot(epochs, train_losses, label='Train Loss')
-    plt.plot(epochs, val_losses, label='Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.title('Training and Validation Loss Curves')
-    plt.savefig(os.path.join(output_dir, f"train_val_loss.png"))
-    plt.close()
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -256,11 +219,13 @@ if __name__ == '__main__':
                         help='patch size.')
     parser.add_argument('--pretrain', default="sam", type=str,
                         help='Use SAM pretrained weigths.')
+    parser.add_argument('--reload', default=True, type=bool,
+                        help='Use SAM pretrained weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./apt",
+    parser.add_argument('--savefile', default="./output",
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
