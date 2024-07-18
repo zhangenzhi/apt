@@ -24,12 +24,10 @@ from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
-def dice_score(inputs, targets, smooth=1):
-    inputs = F.sigmoid(inputs)       
-    
+def dice_score(inputs, targets, smooth=1):      
     #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    pred = torch.flatten(inputs)
+    true = torch.flatten(targets)
     
     intersection = (pred * true).sum()
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
