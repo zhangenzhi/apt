@@ -124,6 +124,9 @@ class FixedQuadTree:
         return seq_patch
     
     def deserialize(self, seq):
+        import pdb
+        pdb.set_trace()
+        
         mask = np.zeros(shape=self.domain.shape)
         for bbox,value in self.nodes:
             pred_mask = seq.pop(0)
