@@ -106,10 +106,11 @@ class PAIPTrans(Dataset):
         mask_name = self.mask_filenames[idx]
 
         image = Image.open(img_name).convert("RGB")
-        mask = Image.open(mask_name).convert("RGB")  # Assuming masks are grayscale
+        mask = Image.open(mask_name).convert("L")  # Assuming masks are grayscale
 
         image = np.array(image)
         mask = np.array(mask)
+        mask = np.reshape(mask, mask.shape+[1])
         qdt_img, qdt_mask, qdt = self.patchify(image, mask)
         
         # # Apply transformations
