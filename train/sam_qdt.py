@@ -20,6 +20,7 @@ from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
 from utils.draw import draw_loss, sub_paip_plot
 from utils.focal_loss import DiceBCELoss, DiceBLoss
+from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
@@ -45,7 +46,7 @@ def main(args):
             patch_size=args.patch_size,
             output_dim=num_class, 
             pretrain=args.pretrain)
-    criterion = DiceBLoss()
+    criterion = DiceLoss(sigmoid=True)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
