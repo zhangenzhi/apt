@@ -139,7 +139,7 @@ def main(args):
         logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
         # Visualize and save predictions on a few validation samples
-        if (epoch + 1) % 3 == 1:  # Adjust the frequency of visualization
+        if (epoch + 1) % 10 == 9:  # Adjust the frequency of visualization
             sub_paip_plot(model=model, eval_loader=val_loader, epoch=epoch, device=device, output_dir=args.savefile)
 
     # Save train and validation losses
