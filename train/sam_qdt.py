@@ -57,7 +57,7 @@ def main(args):
             patch_size=args.patch_size,
             output_dim=num_class, 
             pretrain=args.pretrain)
-    criterion = DiceLoss(sigmoid=True)
+    criterion = DiceBLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
