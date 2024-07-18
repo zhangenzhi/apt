@@ -108,13 +108,14 @@ class PAIPTrans(Dataset):
         image = Image.open(img_name).convert("RGB")
         mask = Image.open(mask_name).convert("L")  # Assuming masks are grayscale
 
-        qdt_img, qdt_mask, qdt = self.patchify(image, mask)
+        qdt_img, qdt_mask, qdt = self.patchify(np.array(image), np.array(mask))
         
         # # Apply transformations
-        # image = self.transform(image)
-        # qdt_image = self.transform_qdt_image(qdt_image)
-        # mask = self.transform_mask(mask)
-        # qdt_mask = self.transform_qdt_mask(qdt_mask)
+        image = self.transform(image)
+        qdt_image = self.transform(qdt_image)
+        mask = self.transform(mask)
+        qdt_mask = self.transform(qdt_mask)
+        
         # qdt_mask = qdt_mask.long()
         # qdt_mask = F.one_hot(qdt_mask, num_classes=2)
         # qdt_mask = torch.squeeze(qdt_mask)
