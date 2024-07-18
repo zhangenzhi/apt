@@ -101,7 +101,7 @@ def main(args):
             
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss,_ = criterion(outputs, qmasks)
+            loss = criterion(outputs, qmasks)
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
@@ -125,9 +125,10 @@ def main(args):
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
-                loss, score = criterion(outputs, qmasks)
+                loss = criterion(outputs, qmasks)
+                
                 epoch_val_loss += loss.item()
-                epoch_val_score += score.item()
+                # epoch_val_score += score.item()
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
@@ -160,9 +161,9 @@ def main(args):
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
-            loss,score = criterion(outputs, qmasks)
+            loss = criterion(outputs, qmasks)
             test_loss += loss.item()
-            epoch_test_score += score.item()
+            # epoch_test_score += score.item()
 
     test_loss /= len(test_loader)
     epoch_test_score /= len(test_loader)
