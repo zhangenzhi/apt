@@ -129,7 +129,7 @@ class FixedQuadTree:
         patch_size=seq.shape[0]
         mask = np.zeros(shape=self.domain.shape)
         for idx,(bbox,value) in enumerate(self.nodes):
-            pred_mask = seq[patch_size, idx*patch_size:(idx+1)*patch_size]
+            pred_mask = seq[:, idx*patch_size:(idx+1)*patch_size]
             mask = bbox.set_area(mask, pred_mask)
         return mask
     
