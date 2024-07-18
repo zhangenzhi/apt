@@ -20,8 +20,6 @@ class Rect:
         return int(np.sum(patch)/255)
     
     def get_area(self, img):
-        import pdb
-        pdb.set_trace()
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
