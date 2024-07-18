@@ -9,6 +9,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.transforms import v2
+import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -144,11 +146,14 @@ class PAIPQDTDataset(Dataset):
         qdt_image = self.transform_qdt_image(qdt_image)
         mask = self.transform_mask(mask)
         qdt_mask = self.transform_qdt_mask(qdt_mask)
+        qdt_mask = qdt_mask.long()
+        qdt_mask = F.one_hot(qdt_mask, num_classes=2)
+        qdt_mask = torch.squeeze(qdt_mask)
+        qdt_mask = torch.permute(qdt_mask, dims=(2,0,1))
+        qdt_mask = qdt_mask.to(torch.float32)
 
         return image, qdt_image, mask, qdt_mask
 
-import matplotlib.pyplot as plt
-import torchvision.transforms.functional as F
     
 if __name__ == "__main__":
     # Example usage

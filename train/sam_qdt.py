@@ -18,7 +18,8 @@ from model.apt import APT
 from model.sam import SAMQDT
 from model.unet import Unet
 from dataset.paip_qdt import PAIPQDTDataset
-from utils.draw import draw_loss, sub_plot
+from utils.draw import draw_loss, sub_paip_plot
+from utils.focal_loss import DiceBCELoss, DiceBLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
@@ -32,42 +33,6 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
     
-# Define the Dice Loss
-class DiceLoss(nn.Module):
-    def __init__(self, smooth=1):
-        super(DiceLoss, self).__init__()
-        self.smooth = smooth
-
-    def forward(self, predicted, target):
-        predicted = torch.sigmoid(predicted)
-        intersection = torch.sum(predicted * target)
-        union = torch.sum(predicted) + torch.sum(target) + self.smooth
-        dice_coefficient = (2 * intersection + self.smooth) / union
-        loss = 1.0 - dice_coefficient  # Adjusted to ensure non-negative loss
-        return loss
-    
-class DiceBCELoss(nn.Module):
-    def __init__(self, weight=0.5, size_average=True):
-        super(DiceBCELoss, self).__init__()
-        self.weight = weight
-
-    def forward(self, inputs, targets, smooth=1):
-        
-        #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = F.sigmoid(inputs)       
-        
-        #flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-        
-        intersection = (inputs * targets).sum()
-        coeff = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)                                        
-        dice_loss = 1 - (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        BCE = F.binary_cross_entropy(inputs, targets, reduction='mean')
-        Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
-        
-        return Dice_BCE, coeff
-    
 def main(args):
     
     log(args=args)
@@ -75,11 +40,12 @@ def main(args):
     patch_size=args.patch_size
     sqrt_len=int(math.sqrt(args.fixed_length))
     
+    num_class = 2 
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
-            output_dim=1, 
+            output_dim=num_class, 
             pretrain=args.pretrain)
-    criterion = DiceBCELoss()
+    criterion = DiceBLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
@@ -121,17 +87,15 @@ def main(args):
     import time
     import random
     for epoch in range(num_epochs):
+        # sub_paip_plot(model=model, eval_loader=val_loader, epoch=epoch, device=device, output_dir=args.savefile)
+        # break
         model.train()
         epoch_train_loss = 0.0
         start_time = time.time()
         for batch in train_loader:
             _, qimages, _, qmasks = batch
-            drop_idx = [random.randint(0, args.fixed_length) for i in range(100)]
-            print(drop_idx)
-            for idx in drop_idx:
-                qimages[:,:,:,idx*patch_size:(idx+1)*patch_size]= torch.zeros(size=qimages[:,:,:,idx*patch_size:(idx+1)*patch_size].shape)
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             
             optimizer.zero_grad()
@@ -157,7 +121,7 @@ def main(args):
             for batch in val_loader:
                 _, qimages, _, qmasks = batch
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-                qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+                qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
                 loss, score = criterion(outputs, qmasks)
@@ -174,10 +138,9 @@ def main(args):
             logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
         logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
-        # # Visualize and save predictions on a few validation samples
-        # if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
-        #     sub_plot(model=model, eval_loader=val_loader, epoch=epoch, device=device, output_dir=args.savefile)
-
+        # Visualize and save predictions on a few validation samples
+        if (epoch + 1) % 3 == 1:  # Adjust the frequency of visualization
+            sub_paip_plot(model=model, eval_loader=val_loader, epoch=epoch, device=device, output_dir=args.savefile)
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -192,8 +155,8 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             _, qimages, _, qmasks = batch
-            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-            qmasks = torch.reshape(qmasks,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+            qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
             loss,score = criterion(outputs, qmasks)

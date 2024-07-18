@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+
+
 # Define the Dice Loss
 class DiceLoss(nn.Module):
     def __init__(self, smooth=1):
@@ -16,6 +18,30 @@ class DiceLoss(nn.Module):
         dice_coefficient = (2 * intersection + self.smooth) / union
         loss = 1.0 - dice_coefficient  # Adjusted to ensure non-negative loss
         return loss
+
+class DiceBLoss(nn.Module):
+    def __init__(self, weight=0.5, num_class=2, size_average=True):
+        super(DiceBLoss, self).__init__()
+        self.weight = weight
+        self.num_class = num_class
+
+    def forward(self, inputs, targets, smooth=1):
+        
+        #comment out if your model contains a sigmoid or equivalent activation layer
+        inputs = F.sigmoid(inputs)       
+        
+        #flatten label and prediction tensors
+        pred = torch.flatten(inputs[:,1:,:,:])
+        true = torch.flatten(targets[:,1:,:,:])
+        
+        intersection = (pred * true).sum()
+        coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
+        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        BCE = F.binary_cross_entropy(pred, true, reduction='mean')
+        Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
+        
+        return Dice_BCE, coeff
+    
     
 class DiceBCELoss(nn.Module):
     def __init__(self, weight=0.5, size_average=True):
