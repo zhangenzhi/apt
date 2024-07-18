@@ -60,8 +60,6 @@ class FixedQuadTree:
         return meta_info
     
     def decoder_nodes(self, meta_info):
-        import pdb
-        pdb.set_trace()
         nodes = []
         for info in meta_info:
             x1,x2,y1,y2 = info
