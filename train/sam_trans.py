@@ -191,7 +191,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
         
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
-        mask_pred=mask_pred[1]
+        mask_pred= mask_pred[1]
         
         meta_info = []
         for nodes in qdt_info:

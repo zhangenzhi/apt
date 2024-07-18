@@ -127,6 +127,7 @@ class FixedQuadTree:
         # import pdb
         # pdb.set_trace()
         patch_size=seq.shape[0]
+        seq = seq.astype(int)
         mask = np.zeros(shape=self.domain.shape)
         for idx,(bbox,value) in enumerate(self.nodes):
             pred_mask = seq[:, idx*patch_size:(idx+1)*patch_size]
