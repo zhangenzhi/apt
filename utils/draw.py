@@ -15,8 +15,8 @@ def sub_paip_plot(model, eval_loader, epoch, device, output_dir):
         for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
                 _, qsample_images, _, qsample_masks= batch
-                qsample_images = torch.reshape(qsample_images,shape=(-1, 3, 128, 128))
-                qsample_masks = torch.reshape(qsample_masks,shape=(-1, 2, 128, 128))
+                qsample_images = torch.reshape(qsample_images,shape=(-1, 3, 8*32, 8*32))
+                qsample_masks = torch.reshape(qsample_masks,shape=(-1, 2, 8*32, 8*32))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 outputs = model(qsample_images)
                 qsample_outputs = torch.sigmoid(outputs)
