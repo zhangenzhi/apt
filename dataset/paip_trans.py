@@ -167,7 +167,7 @@ if __name__ == "__main__":
     
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        images, qdt, masks = batch
+        images, qdt, masks, _, _ = batch
         print(images.shape, qdt.shape, masks.shape)
         # visualize_samples(images, masks, num_samples=4)
         # break
