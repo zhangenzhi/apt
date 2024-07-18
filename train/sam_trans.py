@@ -191,6 +191,9 @@ def sub_trans_plot(image, mask, qmasks, fixed_length, qdt_info, bi, epoch, outpu
         mask_true = mask_true[1]
         mask_pred= mask_pred[1]
         
+        import pdb
+        pdb.set_trace()
+        
         meta_info = []
         for nodes in qdt_info:
             n = []
