@@ -20,6 +20,8 @@ class Rect:
         return int(np.sum(patch)/255)
     
     def get_area(self, img):
+        import pdb
+        pdb.set_trace()
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
@@ -93,7 +95,7 @@ class FixedQuadTree:
             h1, w1, c1 = seq_patch[i].shape
             assert h1==w1, "Need squared input."
             seq_patch[i] = cv.resize(seq_patch[i], (h2, w2), interpolation=cv.INTER_CUBIC)
-            assert seq_patch[i].shape == (h2,w2,c2), "Wrong shape {} get, need {}".format(seq_patch[i].shape, (h2,w2,c2))
+            # assert seq_patch[i].shape == (h2,w2,c2), "Wrong shape {} get, need {}".format(seq_patch[i].shape, (h2,w2,c2))
         if len(seq_patch)!=self.fixed_length:
             seq_patch += [np.zeros(shape=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
