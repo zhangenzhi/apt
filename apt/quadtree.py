@@ -27,6 +27,7 @@ class Rect:
         # pdb.set_trace()
         patch_size = self.get_size()
         patch = np.resize(patch, patch_size)
+        patch = np.expand_dims(patch, axis=-1)
         # patch = cv.resize(patch, interpolation=cv.INTER_CUBIC , dsize=patch_size)
         mask[self.y1:self.y2, self.x1:self.x2, :] = patch
         return mask
