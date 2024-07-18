@@ -124,7 +124,6 @@ class PAIPTrans(Dataset):
         mask = torch.squeeze(mask)
         mask = torch.permute(mask, dims=(2,0,1))
         
-        qdt_mask = qdt_mask.to(torch.float32)
         qdt_mask = qdt_mask.long()
         qdt_mask = F.one_hot(qdt_mask, num_classes=2)
         qdt_mask = torch.squeeze(qdt_mask)
