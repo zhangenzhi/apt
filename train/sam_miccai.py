@@ -190,7 +190,7 @@ def sub_plot(model, eval_loader, epoch, device, output_dir):
                     plt.imshow(mask_pred, cmap='gray')
                     plt.title("Predicted Mask")
                     
-                    basedir = os.path.join(output_dir, bi)
+                    basedir = os.path.join(output_dir, str(bi))
                     os.makedirs(basedir, exist_ok=True)
                     plt.savefig(os.path.join(basedir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
                     plt.close()
