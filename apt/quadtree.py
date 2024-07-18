@@ -124,12 +124,12 @@ class FixedQuadTree:
         return seq_patch
     
     def deserialize(self, seq):
-        import pdb
-        pdb.set_trace()
-        
+        # import pdb
+        # pdb.set_trace()
+        patch_size=seq.shape[0]
         mask = np.zeros(shape=self.domain.shape)
-        for bbox,value in self.nodes:
-            pred_mask = seq.pop(0)
+        for idx,(bbox,value) in enumerate(self.nodes):
+            pred_mask = seq[patch_size, idx*patch_size:(idx+1)*patch_size]
             mask = bbox.set_area(mask, pred_mask)
         return mask
     
