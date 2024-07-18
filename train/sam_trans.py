@@ -26,8 +26,8 @@ from monai.losses import DiceLoss
 
 def dice_score(inputs, targets, smooth=1):      
     #flatten label and prediction tensors
-    pred = torch.flatten(inputs)
-    true = torch.flatten(targets)
+    pred = inputs.flatten()
+    true = targets.flatten()
     
     intersection = (pred * true).sum()
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
