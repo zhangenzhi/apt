@@ -131,7 +131,7 @@ class PAIPTrans(Dataset):
         qdt_mask = torch.permute(qdt_mask, dims=(2,0,1))
         qdt_mask = qdt_mask.to(torch.float32)
 
-        return image, qdt_img, mask, qdt_mask, qdt
+        return image, qdt_img, mask, qdt_mask, [qdt]
 
     
 if __name__ == "__main__":
