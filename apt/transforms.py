@@ -19,4 +19,4 @@ class Patchify(torch.nn.Module):
         seq_img = qdt.serialize(img, size=(self.patch_size,self.patch_size,3))
         seq_mask = qdt.serialize(target, size=(self.patch_size, self.patch_size, 3))
         
-        return seq_img, seq_mask, qdt
+        return np.array(seq_img), np.array(seq_mask), qdt
