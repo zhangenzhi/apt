@@ -119,7 +119,6 @@ class PAIPTrans(Dataset):
         mask = self.transform(mask)
         qdt_mask = self.transform(qdt_mask)
         
-        print(mask.shape)
         mask = mask.long()
         mask = F.one_hot(mask, num_classes=2)
         mask = torch.squeeze(mask)
@@ -131,7 +130,9 @@ class PAIPTrans(Dataset):
         qdt_mask = torch.permute(qdt_mask, dims=(2,0,1))
         qdt_mask = qdt_mask.to(torch.float32)
 
-        return image, qdt_img, mask, qdt_mask, [qdt]
+        qdt_info = qdt.encode_nodes()
+        
+        return image, qdt_img, mask, qdt_mask, qdt_info
 
     
 if __name__ == "__main__":

@@ -45,11 +45,35 @@ class Rect:
     
                  
 class FixedQuadTree:
-    def __init__(self, domain, fixed_length=128) -> None:
+    def __init__(self, domain, fixed_length=128, build_from_info=False, meta_info=None) -> None:
         self.domain = domain
         self.fixed_length = fixed_length
-        self._build_tree()
+        if build_from_info:
+            self.nodes = self.decoder_nodes(meta_info=meta_info)
+        else:
+            self._build_tree()
         
+    def encode_nodes(self):
+        meta_info = []
+        for n in self.nodes:
+            meta_info += [n.x1,n.x2,n.y1,n.y2]
+        return meta_info
+    
+    def decoder_nodes(self, meta_info):
+        nodes = []
+        for info in meta_info:
+            x1,x2,y1,y2 = info
+            lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
+            v1 = lt.contains(self.domain)
+            rt = Rect(int((x1+x2)/2), x2, int((y1+y2)/2), y2)
+            v2 = rt.contains(self.domain)
+            lb = Rect(x1, int((x1+x2)/2), y1, int((y1+y2)/2))
+            v3 = lb.contains(self.domain)
+            rb = Rect(int((x1+x2)/2), x2, y1, int((y1+y2)/2))
+            v4 = rb.contains(self.domain)
+            nodes +=  [[lt,v1], [rt,v2], [lb,v3], [rb,v4]] 
+        return nodes
+            
     def _build_tree(self):
     
         h,w = self.domain.shape
