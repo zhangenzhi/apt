@@ -19,6 +19,6 @@ class Patchify(torch.nn.Module):
         edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
         qdt = FixedQuadTree(domain=edges, fixed_length=self.fixed_length)
         seq_img = qdt.serialize(img, size=(self.patch_size,self.patch_size,3))
-        seq_mask = qdt.serialize(target, size=(self.patch_size,self.patch_size,3))
+        seq_mask = qdt.serialize(target, size=(self.patch_size,self.patch_size,1))
         
         return seq_img, seq_mask, qdt
