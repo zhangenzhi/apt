@@ -132,7 +132,7 @@ def main(args):
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
                 image, qimages, mask, qmasks, qdt_info = batch
-                seq_shape = qmasks.shape()
+                seq_shape = qmasks.shape
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -141,7 +141,7 @@ def main(args):
                 score = dice_score(outputs, qmasks)
                 if  (epoch + 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
-                    qdt_score=sub_trans_plot(image, mask, outputs, qdt_info, bi=bi, epoch=epoch, output_dir=args.savefile)
+                    qdt_score = sub_trans_plot(image, mask, outputs, qdt_info, bi=bi, epoch=epoch, output_dir=args.savefile)
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
                 epoch_qdt_score += qdt_score.item()
