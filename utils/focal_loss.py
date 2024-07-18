@@ -40,7 +40,7 @@ class DiceBLoss(nn.Module):
         BCE = F.binary_cross_entropy(pred, true, reduction='mean')
         Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
-        return Dice_BCE, coeff
+        return Dice_BCE
     
     
 class DiceBCELoss(nn.Module):
