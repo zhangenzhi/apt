@@ -23,6 +23,17 @@ from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
+def dice_score(inputs, targets, smooth=1):
+    inputs = F.sigmoid(inputs)       
+    
+    #flatten label and prediction tensors
+    pred = torch.flatten(inputs[:,1:,:,:])
+    true = torch.flatten(targets[:,1:,:,:])
+    
+    intersection = (pred * true).sum()
+    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
+    return coeff  
+
 import logging
 
 # Configure logging
@@ -126,9 +137,10 @@ def main(args):
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
+                score = dice_score(outputs, qmasks)
                 
                 epoch_val_loss += loss.item()
-                # epoch_val_score += score.item()
+                epoch_val_score += score.item()
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
@@ -162,8 +174,9 @@ def main(args):
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
+            score = dice_score(outputs, qmasks)
             test_loss += loss.item()
-            # epoch_test_score += score.item()
+            epoch_test_score += score.item()
 
     test_loss /= len(test_loader)
     epoch_test_score /= len(test_loader)
