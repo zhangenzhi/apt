@@ -200,7 +200,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
                 n.append(nodes[idx][i].numpy())
             meta_info.append(n)
         
-        qdt = FixedQuadTree(domain=image, fixed_length=256, build_from_info=True, meta_info=meta_info)
+        qdt = FixedQuadTree(domain=mask, fixed_length=256, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred)
         true_score = dice_score(mask_true, targets=deoced_mask_pred)
         
