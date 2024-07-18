@@ -17,7 +17,7 @@ from apt.transforms import Patchify
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class PAIPTrans(Dataset):
-    def __init__(self, data_path, resolution, fixed_length, patch_size, sths = [1,3,5], normalize=False):
+    def __init__(self, data_path, resolution, normalize=False):
         self.data_path = data_path
         self.resolution = resolution
 
@@ -143,9 +143,16 @@ if __name__ == "__main__":
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
-    dataset = PAIPTrans(args.datapath, args.resolution)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    # dataset = PAIPTrans(args.datapath, args.resolution)
+    # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
+    from dataset.paip_trans import PAIPTrans
+    from torch.utils.data import Dataset, DataLoader
+    data_dir="../paip/output_images_and_masks"
+    resolution=512
+    dataset = PAIPTrans(data_dir,resolution)
+    dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+    
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
         images, qdt, masks = batch
