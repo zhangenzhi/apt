@@ -46,14 +46,14 @@ def sub_paip_plot(model, eval_loader, epoch, device, output_dir):
                     plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
                     plt.close()
                     
-def sub_plot(model, eval_loader, epoch, device, output_dir):
+def sub_miccai_plot(model, eval_loader, epoch, device, output_dir):
     # Visualize and save predictions on a few validation samples
         model.eval()
         for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
                 _, qsample_images, _, qsample_masks= batch
-                qimages = torch.reshape(qimages,shape=(-1, 3, 128, 128))
-                qmasks = torch.reshape(qmasks,shape=(-1, 2, 128, 128))
+                qimages = torch.reshape(qimages,shape=(-1, 3, 1024, 1024))
+                qmasks = torch.reshape(qmasks,shape=(-1, 2,  1024, 1024))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 outputs = model(qsample_images)
                 qsample_outputs = torch.sigmoid(outputs)
