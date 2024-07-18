@@ -110,7 +110,7 @@ class PAIPTrans(Dataset):
 
         image = np.array(image)
         mask = np.array(mask)
-        mask = np.reshape(mask, mask.shape+[1])
+        mask = np.reshape(mask, mask.shape+(1))
         qdt_img, qdt_mask, qdt = self.patchify(image, mask)
         
         # # Apply transformations
