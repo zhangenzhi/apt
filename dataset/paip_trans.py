@@ -118,6 +118,9 @@ class PAIPTrans(Dataset):
         mask = self.transform(mask)
         qdt_mask = self.transform(qdt_mask)
         
+        import pdb
+        pdb.set_trace
+        
         mask = mask.long()
         mask = F.one_hot(mask, num_classes=2)
         mask = torch.squeeze(mask)
