@@ -199,8 +199,8 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
         meta_info = []
         for nodes in qdt_info:
             n = []
-            for idx in range(image.size(0)):
-                n.append[nodes[idx][0]]
+            for idx in range(len(nodes)):
+                n.append[nodes[idx][i]]
             meta_info.append(n)
             
         qdt = FixedQuadTree(domain=image, fixed_length=256, build_from_info=True, meta_info=meta_info)
