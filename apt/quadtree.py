@@ -123,7 +123,8 @@ class FixedQuadTree:
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch
     
-    def deserialize(self, seq, mask):
+    def deserialize(self, seq):
+        mask = np.zeros(shape=self.domain.shape)
         for bbox,value in self.nodes:
             pred_mask = seq.pop(0)
             mask = bbox.set_area(mask, pred_mask)

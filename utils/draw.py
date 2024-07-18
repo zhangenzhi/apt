@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-import logging
 def sub_paip_plot(model, eval_loader, epoch, device, output_dir):
     # Visualize and save predictions on a few validation samples
         model.eval()
