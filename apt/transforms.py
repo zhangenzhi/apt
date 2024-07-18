@@ -13,6 +13,8 @@ class Patchify(torch.nn.Module):
         
     def forward(self, img, target):  # we assume inputs are always structured like this
         # Do some transformations. Here, we're just passing though the input
+        import pdb
+        pdb.set_trace()
         grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
         edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
         qdt = FixedQuadTree(domain=edges, fixed_length=self.fixed_length)
