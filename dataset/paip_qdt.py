@@ -33,7 +33,7 @@ class PAIPQDTDataset(Dataset):
                     for c in canny:
                         image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
                         qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{sth}_({c[0]}_{c[1]})_{patch_size}_qdt.png")
-                        qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
+                        # qdt_image =  os.path.join(subdir_path, f"image-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
                         mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
                         qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_{fixed_length}_{sth}_({c[0]}_{c[1]})_{patch_size}_qdt.png")
                         # qdt_mask = os.path.join(subdir_path, f"mask-{resolution}_{fixed_length}_{sth}_{patch_size}_qdt.png")
