@@ -214,8 +214,9 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
         true_score = dice_score(mask_true, targets=deoced_mask_pred)
         
-        print(mask_true.dtype)
-        print(deoced_mask_pred.dtype)
+        mask_true = mask_true.astype(np.float64)
+        # print(mask_true.dtype)
+        # print(deoced_mask_pred.dtype)
         # Plot and save images
         plt.figure(figsize=(12, 4))
         plt.subplot(1, 3, 1)
