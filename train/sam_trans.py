@@ -187,7 +187,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
         mask_pred = (qmasks[i].cpu() > 0.5).numpy()
-        mask_pred.to(int)
+        mask_pred.astype(np.int32)
         
         import pdb
         pdb.set_trace()
