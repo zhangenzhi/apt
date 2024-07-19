@@ -190,6 +190,8 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         mask_pred = (qmasks[i].cpu() > 0.5).numpy()
         mask_pred.astype(np.int32)
         
+        import pdb
+        pdb.set_trace()
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
         mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
