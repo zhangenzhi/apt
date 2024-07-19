@@ -23,8 +23,13 @@ class Rect:
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
+        # import pdb
+        # pdb.set_trace()
         patch_size = self.get_size()
+        # patch = np.resize(patch, patch_size)
+        patch = patch.astype('float32')
         patch = cv.resize(patch, interpolation=cv.INTER_CUBIC , dsize=patch_size)
+        # patch = np.expand_dims(patch, axis=-1)
         mask[self.y1:self.y2, self.x1:self.x2, :] = patch
         return mask
     
@@ -123,14 +128,14 @@ class FixedQuadTree:
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch
     
-    def deserialize(self, seq):
-        # import pdb
-        # pdb.set_trace()
-        patch_size=seq.shape[0]
+    def deserialize(self, seq, patch_size, channel):
+
+        seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
-        mask = np.zeros(shape=self.domain.shape)
+        mask = np.zeros(shape=self.domain.shape+(channel,))
+        # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
-            pred_mask = seq[:, idx*patch_size:(idx+1)*patch_size]
+            pred_mask = seq[idx, ...]
             mask = bbox.set_area(mask, pred_mask)
         return mask
     

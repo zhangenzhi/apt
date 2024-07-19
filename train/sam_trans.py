@@ -24,12 +24,10 @@ from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
-def dice_score(inputs, targets, smooth=1):
-    inputs = F.sigmoid(inputs)       
-    
+def dice_score(inputs, targets, smooth=1):      
     #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    pred = inputs.flatten()
+    true = targets.flatten()
     
     intersection = (pred * true).sum()
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
@@ -141,7 +139,8 @@ def main(args):
                 score = dice_score(outputs, qmasks)
                 if  (epoch + 1) % 10 == 1:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
-                    qdt_score = sub_trans_plot(image, mask, outputs, qdt_info, bi=bi, epoch=epoch, output_dir=args.savefile)
+                    qdt_score = sub_trans_plot(image, mask, qmasks=outputs, qdt_info=qdt_info, 
+                                               fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
                     epoch_qdt_score += qdt_score.item()
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
@@ -183,7 +182,7 @@ def main(args):
     logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
-def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
+def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, output_dir):
     for i in range(image.size(0)):
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
@@ -193,6 +192,9 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
         mask_true = mask_true[1]
         mask_pred= mask_pred[1]
         
+        import pdb
+        pdb.set_trace()
+        
         meta_info = []
         for nodes in qdt_info:
             n = []
@@ -200,7 +202,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, bi, epoch, output_dir):
                 n.append(nodes[idx][i].numpy())
             meta_info.append(n)
         
-        qdt = FixedQuadTree(domain=mask_true, fixed_length=256, build_from_info=True, meta_info=meta_info)
+        qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred)
         true_score = dice_score(mask_true, targets=deoced_mask_pred)
         
