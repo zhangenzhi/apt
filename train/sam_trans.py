@@ -203,8 +203,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         mask_pred = (qmasks[i].cpu() > 0.5).numpy()
         mask_pred.astype(np.int32)
         
-        # import pdb
-        # pdb.set_trace()
+ 
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
         mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
@@ -244,8 +243,8 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         plt.title("Predicted Mask")
         plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
         plt.close()
-    true_score /= image.size(0)
-    return true_score
+        # true_score /= image.size(0)
+        return true_score
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
