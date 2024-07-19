@@ -9,7 +9,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt
-import torchvision.transforms.functional as F
+import torch.nn.functional as F
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -116,7 +116,7 @@ class MICCAIDataset(Dataset):
         mask = mask.long()
         mask = F.one_hot(mask, num_classes=2)
         mask = torch.squeeze(mask)
-        mask = torch.permute(mask,dims=(0,3,1,2))
+        mask = torch.permute(mask, dims=(2,0,1))
 
         return image, mask
  
