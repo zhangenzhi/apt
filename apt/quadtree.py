@@ -68,15 +68,9 @@ class FixedQuadTree:
         nodes = []
         for info in meta_info:
             x1,x2,y1,y2 = info
-            lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
-            v1 = lt.contains(self.domain)
-            rt = Rect(int((x1+x2)/2), x2, int((y1+y2)/2), y2)
-            v2 = rt.contains(self.domain)
-            lb = Rect(x1, int((x1+x2)/2), y1, int((y1+y2)/2))
-            v3 = lb.contains(self.domain)
-            rb = Rect(int((x1+x2)/2), x2, y1, int((y1+y2)/2))
-            v4 = rb.contains(self.domain)
-            nodes +=  [[lt,v1], [rt,v2], [lb,v3], [rb,v4]] 
+            n = Rect(x1, x2, y1, y2)
+            v = n.contains(self.domain)
+            nodes +=  [[n,v]] 
         return nodes
             
     def _build_tree(self):
