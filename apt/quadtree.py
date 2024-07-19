@@ -130,6 +130,9 @@ class FixedQuadTree:
     
     def deserialize(self, seq, patch_size, channel):
 
+        import pdb
+        pdb.set_trace()
+        
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
         mask = np.zeros(shape=self.domain.shape)
