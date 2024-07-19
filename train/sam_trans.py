@@ -187,13 +187,16 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
         mask_pred = (qmasks[i].cpu() > 0.5).numpy()
-        
-        # Squeeze the singleton dimension from mask_true
-        mask_true = mask_true[1]
-        mask_pred= mask_pred[1]
+        mask_pred.to(int)
         
         import pdb
         pdb.set_trace()
+        
+        # Squeeze the singleton dimension from mask_true
+        mask_true = mask_true[1]
+        mask_true = mask_true.unsqueeze(1).repeat(1, 3, 1)
+        mask_pred = mask_pred[1]
+        mask_pred = mask_pred.unsqueeze(1).repeat(1, 3, 1)
         
         meta_info = []
         for nodes in qdt_info:
@@ -203,7 +206,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
             meta_info.append(n)
         
         qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
-        deoced_mask_pred = qdt.deserialize(seq=mask_pred)
+        deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
         true_score = dice_score(mask_true, targets=deoced_mask_pred)
         
         # Plot and save images
