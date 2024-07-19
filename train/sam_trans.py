@@ -190,9 +190,6 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         mask_pred = (qmasks[i].cpu() > 0.5).numpy()
         mask_pred.astype(np.int32)
         
-        import pdb
-        pdb.set_trace()
-        
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
         mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
@@ -208,6 +205,9 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
             for idx in range(len(nodes)):
                 n.append(nodes[idx][i].numpy())
             meta_info.append(n)
+        
+        # import pdb
+        # pdb.set_trace()
         
         qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
