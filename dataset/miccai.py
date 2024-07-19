@@ -113,10 +113,10 @@ class MICCAIDataset(Dataset):
         # Apply transformations
         image = self.transform(image)
         mask = self.transform_mask(mask)
-        # mask = mask.long()
-        # mask = F.one_hot(mask, num_classes=2)
-        # mask = torch.squeeze(mask)
-        # mask = torch.permute(mask,dims=(0,3,1,2))
+        mask = mask.long()
+        mask = F.one_hot(mask, num_classes=2)
+        mask = torch.squeeze(mask)
+        mask = torch.permute(mask,dims=(0,3,1,2))
 
         return image, mask
  

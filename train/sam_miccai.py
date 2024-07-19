@@ -17,8 +17,9 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from model.sam import SAM
 from dataset.miccai import MICCAIDataset
-from utils.focal_loss import DiceBCELoss, FocalLoss
+from utils.focal_loss import DiceBLoss, FocalLoss
 from monai.losses import DiceLoss
+from utils.draw import sub_miccai_plot
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
@@ -33,13 +34,13 @@ def log(args):
     )
     
 def main(args, device_id):
-    
+    num_class = 2 
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
-            output_dim=1, 
+            output_dim=num_class, 
             pretrain=args.pretrain)
-    criterion = DiceBCELoss().to(device_id)
+    criterion = DiceBLoss().to(device_id)
     best_val_score = 0.0
     
     # Move the model to GPU
@@ -133,7 +134,7 @@ def main(args, device_id):
         # Visualize and save predictions on a few validation samples
         if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
-            sub_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
+            sub_miccai_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
