@@ -117,6 +117,7 @@ class MICCAIDataset(Dataset):
         mask = F.one_hot(mask, num_classes=2)
         mask = torch.squeeze(mask)
         mask = torch.permute(mask, dims=(2,0,1))
+        mask = mask.to(torch.float32)
 
         return image, mask
  
