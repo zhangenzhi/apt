@@ -24,7 +24,18 @@ from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
-def dice_score(inputs, targets, smooth=1):     
+def dice_score(inputs, targets, smooth=1):
+    inputs = F.sigmoid(inputs)       
+    
+    #flatten label and prediction tensors
+    pred = torch.flatten(inputs[:,1:,:,:])
+    true = torch.flatten(targets[:,1:,:,:])
+    
+    intersection = (pred * true).sum()
+    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
+    return coeff  
+
+def dice_score_plot(inputs, targets, smooth=1):     
     #flatten label and prediction tensors
     pred = inputs[...,0].flatten()
     true = targets[...,0].flatten()
@@ -213,7 +224,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         
         qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
-        true_score = dice_score(mask_true, targets=deoced_mask_pred)
+        true_score = dice_score_plot(mask_true, targets=deoced_mask_pred)
         
         mask_true = mask_true.astype(np.float64)
         # print(mask_true.dtype)
