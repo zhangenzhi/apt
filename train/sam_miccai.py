@@ -24,6 +24,17 @@ from utils.draw import sub_miccai_plot
 
 import logging
 
+def dice_score(inputs, targets, smooth=1):
+    inputs = F.sigmoid(inputs)       
+    
+    #flatten label and prediction tensors
+    pred = torch.flatten(inputs[:,1:,:,:])
+    true = torch.flatten(targets[:,1:,:,:])
+    
+    intersection = (pred * true).sum()
+    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
+    return coeff  
+
 # Configure logging
 def log(args):
     os.makedirs(args.savefile, exist_ok=True)
@@ -93,7 +104,7 @@ def main(args, device_id):
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss, _ = criterion(outputs, qmasks)
+            loss = criterion(outputs, qmasks)
             loss.backward()
             optimizer.step()
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
@@ -116,7 +127,8 @@ def main(args, device_id):
                     qimages, qmasks = batch
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
-                    loss, score = criterion(outputs, qmasks)
+                    loss = criterion(outputs, qmasks)
+                    score = dice_score(outputs, qmasks)
                     epoch_val_loss += loss.item()
                     epoch_val_score += score.item()
 
@@ -152,7 +164,7 @@ def main(args, device_id):
                 qimages, qmasks = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 outputs = model(qimages)
-                loss,_ = criterion(outputs, qmasks)
+                loss = criterion(outputs, qmasks)
                 test_loss += loss.item()
 
         test_loss /= len(test_loader)
