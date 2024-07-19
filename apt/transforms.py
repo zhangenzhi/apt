@@ -23,6 +23,5 @@ class Patchify(torch.nn.Module):
         seq_mask = qdt.serialize(target, size=(self.patch_size, self.patch_size, 1))
         seq_mask = np.asarray(seq_mask)
         seq_mask = np.reshape(seq_mask, [self.patch_size, -1, 1])
-        import pdb
-        pdb.set_trace()
+
         return seq_img, seq_mask, qdt
