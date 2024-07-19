@@ -139,7 +139,8 @@ def main(args):
                 score = dice_score(outputs, qmasks)
                 if  (epoch + 1) % 10 == 1:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
-                    qdt_score = sub_trans_plot(image, mask, qmasks=outputs, qdt_info=qdt_info, 
+                    qmasks = torch.reshape(qmasks, seq_shape)
+                    qdt_score = sub_trans_plot(image, mask, qmasks=qmasks, qdt_info=qdt_info, 
                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
                     epoch_qdt_score += qdt_score.item()
                 epoch_val_loss += loss.item()
@@ -194,9 +195,12 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
-        mask_true = mask_true.unsqueeze(1).repeat(1, 3, 1)
+        mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
         mask_pred = mask_pred[1]
-        mask_pred = mask_pred.unsqueeze(1).repeat(1, 3, 1)
+        patch_size = mask_pred.shape[0]
+        mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
+        mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
+      
         
         meta_info = []
         for nodes in qdt_info:
