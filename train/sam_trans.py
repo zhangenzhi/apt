@@ -195,6 +195,8 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         # Squeeze the singleton dimension from mask_true
         mask_true = mask_true[1]
         mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
+        mask_true_cp = mask_true.copy()
+        
         mask_pred = mask_pred[1]
         patch_size = mask_pred.shape[0]
         mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
@@ -211,7 +213,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         # import pdb
         # pdb.set_trace()
         
-        qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
+        qdt = FixedQuadTree(domain=mask_true_cp, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
         true_score = dice_score(mask_true, targets=deoced_mask_pred)
         
