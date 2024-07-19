@@ -148,7 +148,7 @@ def main(args):
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
                 score = dice_score(outputs, qmasks)
-                if  (epoch + 1) % 10 == 1:  # Adjust the frequency of visualization
+                if  (epoch + 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
                     qmasks = torch.reshape(qmasks, seq_shape)
                     qdt_score = sub_trans_plot(image, mask, qmasks=outputs, qdt_info=qdt_info, 
@@ -196,6 +196,7 @@ def main(args):
     draw_loss(output_dir=output_dir)
 
 def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, output_dir):
+    true_score = 0 
     for i in range(image.size(0)):
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
@@ -224,11 +225,10 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         
         qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=8, channel=3)
-        true_score = dice_score_plot(mask_true, targets=deoced_mask_pred)
+        true_score += dice_score_plot(mask_true, targets=deoced_mask_pred)
         
         mask_true = mask_true.astype(np.float64)
-        # print(mask_true.dtype)
-        # print(deoced_mask_pred.dtype)
+
         # Plot and save images
         plt.figure(figsize=(12, 4))
         plt.subplot(1, 3, 1)
@@ -244,8 +244,8 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         plt.title("Predicted Mask")
         plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
         plt.close()
-        
-        return true_score
+    true_score /= image.size(0)
+    return true_score
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
