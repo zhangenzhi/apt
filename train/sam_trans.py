@@ -151,6 +151,7 @@ def main(args):
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
+        epoch_qdt_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
         # Save the best model based on validation accuracy
         if epoch_val_score > best_val_score:
