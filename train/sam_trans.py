@@ -25,9 +25,6 @@ from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
 def dice_score(inputs, targets, smooth=1):     
-    import pdb
-    pdb.set_trace()
-     
     #flatten label and prediction tensors
     pred = inputs[...,0].flatten()
     true = targets[...,0].flatten()
