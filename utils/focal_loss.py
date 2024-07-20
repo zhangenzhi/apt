@@ -18,7 +18,39 @@ class DiceLoss(nn.Module):
         dice_coefficient = (2 * intersection + self.smooth) / union
         loss = 1.0 - dice_coefficient  # Adjusted to ensure non-negative loss
         return loss
+    
+class DiceQDTLoss(nn.Module):
+    def __init__(self, weight=0.5, patch_size=8, num_class=2):
+        super(DiceQDTLoss, self).__init__()
+        self.weight = weight
+        self.num_class = num_class
+        self.patch_size = patch_size
 
+    def forward(self, inputs, targets, qdt_value, smooth=1):
+        
+        #comment out if your model contains a sigmoid or equivalent activation layer
+        inputs = F.sigmoid(inputs)       
+        
+        #flatten label and prediction tensors
+        pred = torch.flatten(inputs[:,1:,:,:])
+        true = torch.flatten(targets[:,1:,:,:])
+        
+        intersection = (pred * true).sum()
+        # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
+        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        BCE = F.binary_cross_entropy(pred, true, reduction='mean')
+        # Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
+        
+        batch_size = inputs.shape[0]
+        fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
+        pred_value = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
+        pred_value = torch.sum(pred_value, dim=-1)
+        intersection = (pred_value*qdt_value[:,:,0]*qdt_value[:,:,1]).sum()
+        value_loss = 1 - (2.*intersection + smooth)/(pred_value * qdt_value[:,:,1] + qdt_value.sum() * qdt_value[:,:,1] + smooth)  
+        Dice_QDT = BCE + value_loss
+        
+        return Dice_QDT
+    
 class DiceBLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
         super(DiceBLoss, self).__init__()

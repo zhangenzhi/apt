@@ -57,7 +57,14 @@ class FixedQuadTree:
             self.nodes = self.decoder_nodes(meta_info=meta_info)
         else:
             self._build_tree()
-        
+    
+    def nodes_value(self):
+        meta_value = []
+        for rect,v in self.nodes:
+            size,_ = rect.get_size()
+            meta_value += [[v, size]]
+        return meta_value
+    
     def encode_nodes(self):
         meta_info = []
         for rect,v in self.nodes:

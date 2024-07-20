@@ -17,7 +17,7 @@ from apt.transforms import Patchify
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class PAIPTrans(Dataset):
-    def __init__(self, data_path, resolution, normalize=False):
+    def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 150], fixed_length=1024, patch_size=8, normalize=False):
         self.data_path = data_path
         self.resolution = resolution
 
@@ -38,7 +38,7 @@ class PAIPTrans(Dataset):
                     self.image_filenames.extend([image])
                     self.mask_filenames.extend([mask])
 
-        self.patchify = Patchify(smooth_factor=3, fixed_length=256, canny=[100,200], patch_size=8)
+        self.patchify = Patchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
         
         self.transform= transforms.Compose([
             transforms.ToTensor(),
@@ -131,8 +131,9 @@ class PAIPTrans(Dataset):
         qdt_mask = qdt_mask.to(torch.float32)
 
         qdt_info = qdt.encode_nodes()
+        qdt_value = qdt.nodes_value()
         
-        return image, qdt_img, mask, qdt_mask, qdt_info
+        return image, qdt_img, mask, qdt_mask, qdt_info, qdt_value
 
     
 if __name__ == "__main__":

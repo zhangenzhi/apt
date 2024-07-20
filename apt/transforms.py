@@ -5,13 +5,12 @@ import random
 from apt.quadtree import FixedQuadTree
 
 class Patchify(torch.nn.Module):
-    def __init__(self, smooth_factor=1, fixed_length=1024, canny=[100, 200], patch_size=8) -> None:
+    def __init__(self, sths=[1,3,5,7], fixed_length=1024, cannys=[50, 150], patch_size=8) -> None:
         super().__init__()
-        self.smooth_factor = smooth_factor
-        self.sths = [1,3,5,7]
+        
+        self.sths = sths
         self.fixed_length = fixed_length
-        self.canny = canny
-        self.cannys = [x for x in range(50, 150, 1)]
+        self.cannys = [x for x in range(cannys[0], cannys[1], 1)]
         self.patch_size = patch_size
         
     def forward(self, img, target):  # we assume inputs are always structured like this
