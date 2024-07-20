@@ -59,7 +59,7 @@ def rescale_slides(image_path, target_size=16384, save_path='rescale-images/'):
     # Save the rescaled images
     output_image_path = os.path.join(save_path, f"rescaled_image_0_{target_size}x{target_size}.png")
     scaled_image.save(output_image_path)
-
+    print(output_image_path, ", Done!")
     # Close the OpenSlide image
     slide.close()
 
