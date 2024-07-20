@@ -120,7 +120,7 @@ def main(args):
             
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks, qdt_value)
+            loss = criterion(outputs, qmasks)
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
@@ -146,7 +146,7 @@ def main(args):
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
-                loss = criterion(outputs, qmasks, qdt_value)
+                loss = criterion(outputs, qmasks)
                 score = dice_score(outputs, qmasks)
                 if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
@@ -185,7 +185,7 @@ def main(args):
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks, qdt_value)
+            loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
             test_loss += loss.item()
             epoch_test_score += score.item()
