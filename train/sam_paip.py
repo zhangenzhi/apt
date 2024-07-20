@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from model.apt import APT
 from model.sam import SAM
 
-from dataset.paip_qdt import PAIPQDTDataset
+from dataset.paip_qdt import PAIPDataset
 # from torchmetrics.functional import dice_score
 
 # Define the Dice Loss
@@ -86,7 +86,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPQDTDataset(data_path, args.resolution, args.fixed_length, args.patch_size, sths=[1], normalize=True)
+    dataset = PAIPDataset(data_path, args.resolution,normalize=False)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
