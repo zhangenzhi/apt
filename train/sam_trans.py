@@ -24,6 +24,9 @@ from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
 # from dataset.paip_mqdt import PAIPQDTDataset
 
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
+
 def dice_score(inputs, targets, smooth=1):
     inputs = F.sigmoid(inputs)       
     

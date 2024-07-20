@@ -162,7 +162,7 @@ if __name__ == "__main__":
     from torch.utils.data import Dataset, DataLoader
     data_dir="../paip/output_images_and_masks"
     resolution=512
-    dataset = PAIPTrans(data_dir, resolution, fixed_length=256)
+    dataset = PAIPTrans(data_dir, resolution, fixed_length=1024)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
     
     # Now you can iterate over the dataloader to get batches of images and masks

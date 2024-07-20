@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o apt-sam-b.o%J
+#SBATCH -o sam-qloss.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -20,12 +20,12 @@ module load gcc/12.2.0
 module load rocm/5.7.0
 
 # exec
-srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans.py \
+srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_qloss.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
-        --fixed_length=1024 \
+        --fixed_length=256 \
         --patch_size=8 \
         --pretrain=sam-b \
         --epoch=800 \
         --batch_size=4 \
-        --savefile=./sam-b-trans-1024
+        --savefile=./sam-b-trans3
