@@ -81,8 +81,8 @@ def main(args):
     # Move the model to GPU
     model.to(device)
     # Define the learning rate scheduler
-    # milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
-    # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+    milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
@@ -111,7 +111,7 @@ def main(args):
         
         start_time = time.time()
         for batch in train_loader:
-            images, _, masks, _ = batch
+            images, masks = batch
             images = torch.reshape(images,shape=(-1,3,512,512))
             masks = torch.reshape(masks,shape=(-1,1,512,512))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
@@ -129,7 +129,7 @@ def main(args):
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
-        # scheduler.step()
+        scheduler.step()
 
         # Validation
         model.eval()
@@ -138,7 +138,7 @@ def main(args):
         
         with torch.no_grad():
             for batch in val_loader:
-                images, _, masks, _ = batch
+                images, masks = batch
                 images = torch.reshape(images,shape=(-1,3,512,512))
                 masks = torch.reshape(masks,shape=(-1,1,512,512))
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
@@ -153,23 +153,23 @@ def main(args):
 
         print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
-        # Visualize and save predictions on a few validation samples
-        if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
-            model.eval()
-            with torch.no_grad():
-                sample_images, _, sample_masks,  _= next(iter(val_loader))
-                sample_images, sample_masks = sample_images.to(device), sample_masks.to(device)  # Move data to GPU
-                sample_images = torch.reshape(sample_images,shape=(-1,3,512,512))
-                sample_masks = torch.reshape(sample_masks,shape=(-1,1,512,512))
-                sample_outputs = torch.sigmoid(model(sample_images))
+        # # Visualize and save predictions on a few validation samples
+        # if (epoch + 1) % 3 == 0:  # Adjust the frequency of visualization
+        #     model.eval()
+        #     with torch.no_grad():
+        #         sample_images, sample_masks= next(iter(val_loader))
+        #         sample_images, sample_masks = sample_images.to(device), sample_masks.to(device)  # Move data to GPU
+        #         sample_images = torch.reshape(sample_images,shape=(-1,3,512,512))
+        #         sample_masks = torch.reshape(sample_masks,shape=(-1,1,512,512))
+        #         sample_outputs = torch.sigmoid(model(sample_images))
 
-                for i in range(sample_images.size(0)):
-                    image = sample_images[i].cpu().permute(1, 2, 0).numpy()
-                    mask_true = sample_masks[i].cpu().numpy()
-                    mask_pred = (sample_outputs[i, 0].cpu() > 0.5).numpy()
+                # for i in range(sample_images.size(0)):
+                #     image = sample_images[i].cpu().permute(1, 2, 0).numpy()
+                #     mask_true = sample_masks[i].cpu().numpy()
+                #     mask_pred = (sample_outputs[i, 0].cpu() > 0.5).numpy()
                     
-                    # Squeeze the singleton dimension from mask_true
-                    mask_true = np.squeeze(mask_true, axis=0)
+                #     # Squeeze the singleton dimension from mask_true
+                #     mask_true = np.squeeze(mask_true, axis=0)
 
                     # # Plot and save images
                     # plt.figure(figsize=(12, 4))
