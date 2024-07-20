@@ -67,7 +67,7 @@ def main(args):
     
     num_class = 2 
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
-            patch_size=args.patch_size,
+            patch_size=args.patch_size//2,
             output_dim=num_class, 
             pretrain=args.pretrain)
     criterion = DiceBLoss()
