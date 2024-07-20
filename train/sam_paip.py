@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from model.apt import APT
 from model.sam import SAM
 
-from dataset.paip_qdt import PAIPDataset
+from dataset.paip import PAIPDataset
 # from torchmetrics.functional import dice_score
 
 # Define the Dice Loss
