@@ -20,12 +20,14 @@ module load gcc/12.2.0
 module load rocm/5.7.0
 
 # exec
-srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans.py \
-        --data_dir=../paip/output_images_and_masks \
-        --resolution=512 \
-        --fixed_length=1024 \
-        --patch_size=8 \
+
+srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai_trans.py \
+        --data_dir=../miccai_patches/ \
+        --resolution=16384 \
+        --fixed_length=16384 \
+        --lr=1e-4 \
+        --epoch=1000 \
+        --batch_size=2 \
+        --patch_size=16 \
         --pretrain=sam-b \
-        --epoch=800 \
-        --batch_size=4 \
-        --savefile=./sam-b-trans-1024-pz4
+        --savefile=./sam_miccai-sam_miccai_trans
