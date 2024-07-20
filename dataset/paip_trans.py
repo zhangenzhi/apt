@@ -26,7 +26,6 @@ class PAIPTrans(Dataset):
         self.mask_filenames = []
         self.qdt_mask_filenames = []
 
-        canny = [[50,100], [100,200], [150,250]]
         for subdir in os.listdir(data_path):
             subdir_path = os.path.join(data_path, subdir)
             if os.path.isdir(subdir_path):
