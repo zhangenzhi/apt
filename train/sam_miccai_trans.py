@@ -66,7 +66,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length, normalize=False)
+    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length)
     # eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
