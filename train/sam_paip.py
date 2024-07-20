@@ -81,7 +81,7 @@ def main(args):
     # Move the model to GPU
     model.to(device)
     # Define the learning rate scheduler
-    milestones =[int(epoch*r) for r in [0.5, 0.75, 0.875]]
+    milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
     # Split the dataset into train, validation, and test sets
