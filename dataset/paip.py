@@ -112,7 +112,7 @@ class PAIPDataset(Dataset):
         timage = self.transform_timg(timage)
         mask = self.transform_mask(mask)
 
-        return image, timage, mask
+        return image, mask
 
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
