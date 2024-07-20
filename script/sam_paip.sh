@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o sam-l-32.o%J
+#SBATCH -o sam-h-32.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -24,7 +24,7 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --data_dir=../paip/output_images_and_masks \
         --resolution=512 \
         --patch_size=32 \
-        --pretrain=sam-l \
+        --pretrain=sam-h \
         --epoch=100 \
         --batch_size=2 \
         --savefile=./sam-l
