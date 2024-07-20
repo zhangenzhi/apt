@@ -51,7 +51,7 @@ def rescale_slides(image_path, target_size=16384, save_path='rescale-images/'):
 
     # Read the region at the specified zoom level
     scaled_image = slide.read_region((0, 0), 0, (scaled_width, scaled_height))
-    scaled_image = scaled_image.resize(target_size, Image.Resampling.LANCZOS)
+    scaled_image = scaled_image.resize((target_size,target_size), Image.Resampling.LANCZOS)
 
     # Create output directory if it doesn't exist
     os.makedirs(save_path, exist_ok=True)
