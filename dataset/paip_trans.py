@@ -17,7 +17,7 @@ from apt.transforms import Patchify
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class PAIPTrans(Dataset):
-    def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 150], fixed_length=1024, patch_size=8, normalize=False):
+    def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 100], fixed_length=1024, patch_size=8, normalize=False):
         self.data_path = data_path
         self.resolution = resolution
 

@@ -51,8 +51,8 @@ def sub_miccai_plot(model, eval_loader, epoch, device, output_dir):
         for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
                 qsample_images, qsample_masks= batch
-                qimages = torch.reshape(qimages,shape=(-1, 3, 1024, 1024))
-                qmasks = torch.reshape(qmasks,shape=(-1, 2,  1024, 1024))
+                qimages = torch.reshape(qimages,shape=(-1, 3, 2048, 2048))
+                qmasks = torch.reshape(qmasks,shape=(-1, 2,  2048, 2048))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 outputs = model(qsample_images)
                 qsample_outputs = torch.sigmoid(outputs)
