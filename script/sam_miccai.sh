@@ -39,7 +39,7 @@ srun -N 128 -n 1024 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/e
         --data_dir=../miccai_patches/ \
         --resolution=2048 \
         --lr=1e-4 \
-        --epoch=100 \
+        --epoch=1000 \
         --batch_size=2 \
         --patch_size=32 \
         --pretrain=sam-b \
