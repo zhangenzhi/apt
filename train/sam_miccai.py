@@ -18,7 +18,6 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from model.sam import SAM
 from dataset.miccai import MICCAIDataset
 from utils.focal_loss import DiceBLoss, FocalLoss
-from monai.losses import DiceLoss
 from utils.draw import sub_miccai_plot
 # from dataset.paip_mqdt import PAIPQDTDataset
 

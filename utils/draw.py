@@ -48,7 +48,7 @@ def sub_paip_plot(model, eval_loader, epoch, device, output_dir):
 def sub_miccai_plot(model, eval_loader, epoch, device, output_dir):
     # Visualize and save predictions on a few validation samples
         model.eval()
-        for bi,batch in enumerate(eval_loader):
+        for bi, batch in enumerate(eval_loader):
             with torch.no_grad():
                 qsample_images, qsample_masks= batch
                 qsample_images = torch.reshape(qsample_images,shape=(-1, 3, 2048, 2048))
