@@ -5,7 +5,7 @@ import random
 from apt.quadtree import FixedQuadTree
 
 class Patchify(torch.nn.Module):
-    def __init__(self, sths=[1,3,5,7], fixed_length=1024, cannys=[50, 150], patch_size=8) -> None:
+    def __init__(self, sths=[1,3,5,7], fixed_length=1024, cannys=[50, 100], patch_size=8) -> None:
         super().__init__()
         
         self.sths = sths
