@@ -19,7 +19,6 @@ from model.sam import SAM
 from dataset.miccai import MICCAIDataset
 from utils.focal_loss import DiceBLoss, FocalLoss
 from utils.draw import sub_miccai_plot
-# from dataset.paip_mqdt import PAIPQDTDataset
 
 import logging
 
@@ -145,7 +144,7 @@ def main(args, device_id):
         # Visualize and save predictions on a few validation samples
         if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
             model.eval()
-            sub_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
+            # sub_miccai_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')

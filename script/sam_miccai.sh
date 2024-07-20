@@ -35,11 +35,11 @@ module load rocm/5.7.0
 #         --savefile=./sam-b_miccai-n1-pz8-bz4
 
 
-srun -N 32 -n 128 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai.py \
+srun -N 32 -n 256 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai.py \
         --data_dir=../miccai_patches/ \
         --resolution=2048 \
         --lr=1e-4 \
-        --epoch=100 \
+        --epoch=1000 \
         --batch_size=2 \
         --patch_size=32 \
         --pretrain=sam-b \
