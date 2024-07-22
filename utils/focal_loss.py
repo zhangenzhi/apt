@@ -41,6 +41,9 @@ class DiceQDTLoss(nn.Module):
         BCE = F.binary_cross_entropy(pred, true, reduction='mean')
         # Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
+        import pdb
+        pdb.set_trace()
+        
         batch_size = inputs.shape[0]
         fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
         pred_value = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
