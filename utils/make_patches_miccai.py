@@ -89,13 +89,14 @@ def make_patches(path, patch_size=512, save_path="../miccai_patches/", target_si
             wsi_save_path = os.path.join(save_path, f"{os.path.basename(file)}/rescale-images-{target_size}")
             mask_save_path = os.path.join(save_path, f"{os.path.basename(file)}/rescale-masks-{target_size}")
             rescale_slides(wsi_dir, target_size=target_size, save_path=wsi_save_path)
-            rescale_slides(wsi_dir, target_size=target_size, save_path=mask_save_path)
+            rescale_slides(mask_dir, target_size=target_size, save_path=mask_save_path)
 
     print(f"Done! Totoal {len(files)} file.")
 
 if __name__ == "__main__":
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
-                patch_size=8192,
-                # target_size=16384,
-                task="patches",
+                # patch_size=8192,
+                # task="patches",
+                target_size=16384,
+                task="rescale",
                 save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
