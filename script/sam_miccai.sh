@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -A bif146
 #SBATCH -o sam_miccai.o%J
-#SBATCH -t 02:00:00
-#SBATCH -N 32
+#SBATCH -t 06:00:00
+#SBATCH -N 92
 #SBATCH -p batch
 #SBATCH --mail-user=zhangsuiyu657@gmail.com
 #SBATCH --mail-type=END
@@ -35,7 +35,7 @@ module load rocm/5.7.0
 #         --savefile=./sam-b_miccai-n1-pz8-bz4
 
 
-srun -N 32 -n 128 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai.py \
+srun -N 92 -n 736 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai.py \
         --data_dir=../miccai_patches/ \
         --resolution=4096 \
         --lr=1e-4 \
