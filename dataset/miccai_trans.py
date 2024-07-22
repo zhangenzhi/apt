@@ -4,6 +4,7 @@ sys.path.append("./")
 import argparse
 from pathlib import Path
 import numpy as np
+import PIL
 from PIL import Image, ImageFile
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -15,6 +16,7 @@ from apt.transforms import Patchify
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
 class MICCAIDataset(Dataset):
     def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 100], fixed_length=1024, patch_size=8, eval_mode=False):
