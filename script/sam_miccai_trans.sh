@@ -26,7 +26,7 @@ srun -N 4 -n 32 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/m
         --resolution=16384 \
         --fixed_length=16384 \
         --lr=1e-4 \
-        --epoch=1000 \
+        --epoch=120 \
         --batch_size=1 \
         --patch_size=8 \
         --pretrain=sam-b \
