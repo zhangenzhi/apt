@@ -64,8 +64,8 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     sqrt_len=int(math.sqrt(args.fixed_length))
-    
     num_class = 2 
+    
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size//2,
             output_dim=num_class, 

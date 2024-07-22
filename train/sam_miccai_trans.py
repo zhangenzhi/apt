@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -44,6 +45,9 @@ def log(args):
     )
     
 def main(args, device_id):
+    patch_size=args.patch_size
+    sqrt_len=int(math.sqrt(args.fixed_length))
+    num_class = 2 
     num_class = 2 
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
@@ -101,6 +105,8 @@ def main(args, device_id):
         step=1
         for batch in train_loader:
             _, qimages, _, qmasks, _, qdt_value = batch
+            qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
@@ -125,6 +131,8 @@ def main(args, device_id):
             with torch.no_grad():
                 for batch in val_loader:
                     _, qimages, _, qmasks, _, qdt_value = batch
+                    qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+                    qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
                     loss = criterion(outputs, qmasks)
@@ -177,6 +185,8 @@ def sub_plot(model, eval_loader, epoch, device, output_dir):
         for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
                 _, qsample_images, _, qsample_masks, qdt_value = batch
+                qsample_images = torch.reshape(qsample_images, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+                qsample_masks = torch.reshape(qsample_masks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 outputs = model(qsample_images)
                 qsample_outputs = torch.sigmoid(outputs)
