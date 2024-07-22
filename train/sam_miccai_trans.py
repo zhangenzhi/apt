@@ -49,8 +49,8 @@ def main(args, device_id):
     sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 2 
     # Create an instance of the U-Net model and other necessary components
-    model = SAM(image_shape=(args.resolution,  args.resolution),
-            patch_size=args.patch_size*2,
+    model = SAM(image_shape=(patch_size*sqrt_len,  patch_size*sqrt_len),
+            patch_size=args.patch_size,
             output_dim=num_class, 
             pretrain=args.pretrain)
     criterion = DiceBLoss().to(device_id)

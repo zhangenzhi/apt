@@ -57,7 +57,7 @@ class ImageEncoderViT(nn.Module):
         self.pos_embed: Optional[nn.Parameter] = None
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
-            print(img_size, patch_size)
+            # print(img_size, patch_size)
             self.pos_embed = nn.Parameter(
                 torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
             )
