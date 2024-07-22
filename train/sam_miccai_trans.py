@@ -100,7 +100,7 @@ def main(args, device_id):
         start_time = time.time()
         step=1
         for batch in train_loader:
-            qimages, qmasks = batch
+            _, qimages, _, qmasks, _, qdt_value = batch
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
@@ -124,7 +124,7 @@ def main(args, device_id):
             epoch_val_score = 0.0
             with torch.no_grad():
                 for batch in val_loader:
-                    qimages, qmasks = batch
+                    _, qimages, _, qmasks, _, qdt_value = batch
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
                     loss = criterion(outputs, qmasks)
@@ -161,7 +161,7 @@ def main(args, device_id):
 
         with torch.no_grad():
             for batch in test_loader:
-                qimages, qmasks = batch
+                _, qimages, _, qmasks, _, qdt_value = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
@@ -176,7 +176,7 @@ def sub_plot(model, eval_loader, epoch, device, output_dir):
         model.eval()
         for bi,batch in enumerate(eval_loader):
             with torch.no_grad():
-                qsample_images, qsample_masks= batch
+                _, qsample_images, _, qsample_masks, qdt_value = batch
                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
                 outputs = model(qsample_images)
                 qsample_outputs = torch.sigmoid(outputs)
