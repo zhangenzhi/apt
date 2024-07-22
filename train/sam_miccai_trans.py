@@ -48,7 +48,6 @@ def main(args, device_id):
     patch_size=args.patch_size
     sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 2 
-    num_class = 2 
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
@@ -70,7 +69,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length)
+    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=args.patch_size)
     # eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
