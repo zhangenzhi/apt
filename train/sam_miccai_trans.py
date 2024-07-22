@@ -105,6 +105,7 @@ def main(args, device_id):
         for batch in train_loader:
             _, qimages, _, qmasks, _, qdt_value = batch
             qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            print(qimages.shape)
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
@@ -178,44 +179,44 @@ def main(args, device_id):
         logging.info(f"Test Loss: {test_loss:.4f}")
         # draw_loss(output_dir=output_dir)
         
-def sub_plot(model, eval_loader, epoch, device, output_dir):
-    # Visualize and save predictions on a few validation samples
-        model.eval()
-        for bi,batch in enumerate(eval_loader):
-            with torch.no_grad():
-                _, qsample_images, _, qsample_masks, qdt_value = batch
-                qsample_images = torch.reshape(qsample_images, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-                qsample_masks = torch.reshape(qsample_masks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-                qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-                outputs = model(qsample_images)
-                qsample_outputs = torch.sigmoid(outputs)
+# def sub_plot(model, eval_loader, epoch, device, output_dir):
+#     # Visualize and save predictions on a few validation samples
+#         model.eval()
+#         for bi,batch in enumerate(eval_loader):
+#             with torch.no_grad():
+#                 _, qsample_images, _, qsample_masks, qdt_value = batch
+#                 qsample_images = torch.reshape(qsample_images, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+#                 qsample_masks = torch.reshape(qsample_masks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+#                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
+#                 outputs = model(qsample_images)
+#                 qsample_outputs = torch.sigmoid(outputs)
 
-                for i in range(qsample_images.size(0)):
-                    image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
-                    mask_true = qsample_masks[i].cpu().numpy()
-                    mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
+#                 for i in range(qsample_images.size(0)):
+#                     image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
+#                     mask_true = qsample_masks[i].cpu().numpy()
+#                     mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
                     
-                    # Squeeze the singleton dimension from mask_true
-                    mask_true = np.squeeze(mask_true, axis=0)
+#                     # Squeeze the singleton dimension from mask_true
+#                     mask_true = np.squeeze(mask_true, axis=0)
 
-                    # Plot and save images
-                    plt.figure(figsize=(12, 4))
-                    plt.subplot(1, 3, 1)
-                    plt.imshow(image)
-                    plt.title("Input Image")
+#                     # Plot and save images
+#                     plt.figure(figsize=(12, 4))
+#                     plt.subplot(1, 3, 1)
+#                     plt.imshow(image)
+#                     plt.title("Input Image")
 
-                    plt.subplot(1, 3, 2)
-                    plt.imshow(mask_true, cmap='gray')
-                    plt.title("True Mask")
+#                     plt.subplot(1, 3, 2)
+#                     plt.imshow(mask_true, cmap='gray')
+#                     plt.title("True Mask")
 
-                    plt.subplot(1, 3, 3)
-                    plt.imshow(mask_pred, cmap='gray')
-                    plt.title("Predicted Mask")
+#                     plt.subplot(1, 3, 3)
+#                     plt.imshow(mask_pred, cmap='gray')
+#                     plt.title("Predicted Mask")
                     
-                    basedir = os.path.join(output_dir, str(bi))
-                    os.makedirs(basedir, exist_ok=True)
-                    plt.savefig(os.path.join(basedir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
-                    plt.close()
+#                     basedir = os.path.join(output_dir, str(bi))
+#                     os.makedirs(basedir, exist_ok=True)
+#                     plt.savefig(os.path.join(basedir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
+#                     plt.close()
                 
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
