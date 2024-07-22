@@ -28,7 +28,7 @@ class MICCAIDataset(Dataset):
         for subdir in self.subslides:
             subdir_path = os.path.join(data_path, subdir)
             if os.path.isdir(subdir_path):
-                images_path = os.path.join(subdir_path, f"rescale-patches-{resolution}/")
+                images_path = os.path.join(subdir_path, f"rescale-images-{resolution}/")
                 masks_path = os.path.join(subdir_path, f"rescale-masks-{resolution}/")
 
                 for img_name in os.listdir(images_path):
