@@ -40,7 +40,7 @@ srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/mi
         --resolution=4096 \
         --lr=1e-4 \
         --epoch=1000 \
-        --batch_size=2 \
+        --batch_size=1 \
         --patch_size=64 \
         --pretrain=sam-b \
-        --savefile=./sam-b_miccai-n1-r4k-pz16-bz2-c2
+        --savefile=./sam-b_miccai-n1-r4k-pz64-bz1-c2
