@@ -65,9 +65,12 @@ class DiceBLoss(nn.Module):
         #comment out if your model contains a sigmoid or equivalent activation layer
         inputs = F.sigmoid(inputs)       
         
-        #flatten label and prediction tensors
-        pred = torch.flatten(inputs[:,1:,:,:])
-        true = torch.flatten(targets[:,1:,:,:])
+        pred = torch.flatten(inputs)
+        true = torch.flatten(targets)
+        
+        # #flatten label and prediction tensors
+        # pred = torch.flatten(inputs[:,1:,:,:])
+        # true = torch.flatten(targets[:,1:,:,:])
         
         intersection = (pred * true).sum()
         coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        

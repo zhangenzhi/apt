@@ -30,6 +30,8 @@ class Rect:
         patch = patch.astype('float32')
         patch = cv.resize(patch, interpolation=cv.INTER_CUBIC , dsize=patch_size)
         # patch = np.expand_dims(patch, axis=-1)
+        # import pdb
+        # pdb.set_trace()
         mask[self.y1:self.y2, self.x1:self.x2, :] = patch
         return mask
     
@@ -136,7 +138,7 @@ class FixedQuadTree:
         
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
-        mask = np.zeros(shape=self.domain.shape)
+        mask = np.zeros(shape=self.domain.shape+(3,))
         # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
             pred_mask = seq[idx, ...]
