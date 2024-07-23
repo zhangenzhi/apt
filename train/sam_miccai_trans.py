@@ -28,11 +28,11 @@ def dice_score(inputs, targets, smooth=1):
     inputs = F.sigmoid(inputs)       
     
     #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    # pred = torch.flatten(inputs[:,1:,:,:])
+    # true = torch.flatten(targets[:,1:,:,:])
     
-    # pred = torch.flatten(inputs)
-    # true = torch.flatten(targets)
+    pred = torch.flatten(inputs)
+    true = torch.flatten(targets)
     
     intersection = (pred * true).sum()
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
