@@ -31,28 +31,31 @@ class DiceQDTLoss(nn.Module):
         #comment out if your model contains a sigmoid or equivalent activation layer
         inputs = F.sigmoid(inputs)       
         
-        #flatten label and prediction tensors
-        pred = torch.flatten(inputs[:,1:,:,:])
-        true = torch.flatten(targets[:,1:,:,:])
-        
-        # intersection = (pred * true).sum()
-        # # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
-        # dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
-        # BCE = F.binary_cross_entropy(pred, true, reduction='mean')
-        # # Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
-        
         import pdb
         pdb.set_trace()
         
+        inputs = torch.flatten(inputs[:,1:,:,:])
+        targets = torch.flatten(targets[:,1:,:,:])
+        value = torch.reshape(qdt_value,shape=(batch_size, fixed_length))
+        
         batch_size = inputs.shape[0]
         fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
-        pred_value = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
-        pred_value = torch.sum(pred_value, dim=-1)
-        intersection = (pred_value*qdt_value[:,:,0]*qdt_value[:,:,1]).sum()
-        value_loss = 1 - (2.*intersection + smooth)/(pred_value * qdt_value[:,:,1] + qdt_value.sum() * qdt_value[:,:,1] + smooth)  
-        Dice_QDT = value_loss
+        pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
+        pred_value = pred*value
         
-        return Dice_QDT
+        targets = torch.reshape(targets,shape=(batch_size, fixed_length, -1))
+        fixed_length = targets.shape[-1]//self.patch_size*targets.shape[-1]//self.patch_size
+        true = torch.reshape(targets,shape=(batch_size, fixed_length, -1))
+        true_value = true*value
+        
+        #flatten label and prediction tensors
+        pred = torch.flatten(pred_value)
+        true = torch.flatten(true_value)
+        
+        intersection = (pred * true).sum()
+        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        
+        return dice_loss
     
 class DiceBLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
