@@ -32,8 +32,8 @@ class DiceQDTLoss(nn.Module):
         #comment out if your model contains a sigmoid or equivalent activation layer
         inputs = F.sigmoid(inputs)       
         
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         batch_size = inputs.shape[0]
         fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
         
