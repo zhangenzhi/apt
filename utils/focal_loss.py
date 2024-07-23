@@ -43,9 +43,7 @@ class DiceQDTLoss(nn.Module):
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
         pred_value = pred*value
         
-        targets = torch.reshape(targets,shape=(batch_size, fixed_length, -1))
-        fixed_length = targets.shape[-1]//self.patch_size*targets.shape[-1]//self.patch_size
-        true = torch.reshape(targets,shape=(batch_size, fixed_length, -1))
+        true = torch.reshape(targets,hape=(batch_size, fixed_length, -1))
         true_value = true*value
         
         #flatten label and prediction tensors
