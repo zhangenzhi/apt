@@ -35,11 +35,11 @@ class DiceQDTLoss(nn.Module):
         pred = torch.flatten(inputs[:,1:,:,:])
         true = torch.flatten(targets[:,1:,:,:])
         
-        intersection = (pred * true).sum()
-        # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
-        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
-        BCE = F.binary_cross_entropy(pred, true, reduction='mean')
-        # Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
+        # intersection = (pred * true).sum()
+        # # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
+        # dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        # BCE = F.binary_cross_entropy(pred, true, reduction='mean')
+        # # Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
         
         import pdb
         pdb.set_trace()
