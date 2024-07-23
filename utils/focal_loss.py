@@ -41,19 +41,13 @@ class DiceQDTLoss(nn.Module):
         value = torch.reshape(qdt_value,shape=(batch_size, fixed_length, -1))
         
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
-        # pred_value = pred*value
-        
         true = torch.reshape(targets, shape=(batch_size, fixed_length, -1))
-        true_value = true*value
-        
-        #flatten label and prediction tensors
-        pred = torch.flatten(pred)
-        true = torch.flatten(true_value)
-        
-        intersection = (pred * true).sum()
+        intersection = torch.sum(pred * true,dim=-1)
         dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        weighted_loss = torch.sum(dice_loss * value)
         
-        return dice_loss
+        
+        return weighted_loss
     
 class DiceBLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
