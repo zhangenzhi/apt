@@ -38,7 +38,7 @@ class DiceQDTLoss(nn.Module):
         
         inputs = torch.flatten(inputs[:,1:,:,:])
         targets = torch.flatten(targets[:,1:,:,:])
-        value = torch.reshape(qdt_value,shape=(batch_size, fixed_length))
+        value = torch.reshape(qdt_value,shape=(batch_size, fixed_length, -1))
         
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
         pred_value = pred*value
