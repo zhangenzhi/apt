@@ -41,13 +41,13 @@ class DiceQDTLoss(nn.Module):
         value = torch.reshape(qdt_value,shape=(batch_size, fixed_length, -1))
         
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
-        pred_value = pred*value
+        # pred_value = pred*value
         
         true = torch.reshape(targets, shape=(batch_size, fixed_length, -1))
         true_value = true*value
         
         #flatten label and prediction tensors
-        pred = torch.flatten(pred_value)
+        pred = torch.flatten(pred)
         true = torch.flatten(true_value)
         
         intersection = (pred * true).sum()
