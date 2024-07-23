@@ -33,13 +33,13 @@ class DiceQDTLoss(nn.Module):
         
         import pdb
         pdb.set_trace()
+        batch_size = inputs.shape[0]
+        fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
         
         inputs = torch.flatten(inputs[:,1:,:,:])
         targets = torch.flatten(targets[:,1:,:,:])
         value = torch.reshape(qdt_value,shape=(batch_size, fixed_length))
         
-        batch_size = inputs.shape[0]
-        fixed_length = inputs.shape[-1]//self.patch_size*inputs.shape[-1]//self.patch_size
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
         pred_value = pred*value
         
