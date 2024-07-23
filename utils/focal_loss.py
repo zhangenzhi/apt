@@ -25,6 +25,7 @@ class DiceQDTLoss(nn.Module):
         self.weight = weight
         self.num_class = num_class
         self.patch_size = patch_size
+        self.soft_max = torch.nn.Softmax(-1)
 
     def forward(self, inputs, targets, qdt_value, smooth=1):
         
@@ -38,14 +39,14 @@ class DiceQDTLoss(nn.Module):
         
         inputs = torch.flatten(inputs[:,1:,:,:])
         targets = torch.flatten(targets[:,1:,:,:])
-        value = torch.reshape(qdt_value,shape=(batch_size, fixed_length, -1))
+        value = torch.reshape(qdt_value,shape=(batch_size, fixed_length))
         
         pred = torch.reshape(inputs,shape=(batch_size, fixed_length, -1))
         true = torch.reshape(targets, shape=(batch_size, fixed_length, -1))
         intersection = torch.sum(pred * true,dim=-1)
-        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        dice_loss = 1 - (2.*intersection + smooth)/(torch.sum(pred,dim=-1) + torch.sum(true,dim=-1) + smooth)  
+        value = self.soft_max(value)
         weighted_loss = torch.sum(dice_loss * value)
-        
         
         return weighted_loss
     
