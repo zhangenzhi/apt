@@ -132,7 +132,7 @@ class PAIPTrans(Dataset):
         qdt_info = qdt.encode_nodes()
         qdt_value = qdt.nodes_value()
         
-        return image, qdt_img, mask, qdt_mask, qdt_info, qdt_value
+        return image, qdt_img, mask, qdt_mask, qdt_info, torch.Tensor(qdt_value)
 
     
 if __name__ == "__main__":
