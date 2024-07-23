@@ -46,7 +46,7 @@ class DiceQDTLoss(nn.Module):
         intersection = torch.sum(pred * true,dim=-1)
         dice_loss = 1 - (2.*intersection + smooth)/(torch.sum(pred,dim=-1) + torch.sum(true,dim=-1) + smooth)  
         # value = self.soft_max(value)
-        weighted_loss = torch.sum(dice_loss * value)
+        weighted_loss = torch.sum(dice_loss)
         
         return weighted_loss
     
