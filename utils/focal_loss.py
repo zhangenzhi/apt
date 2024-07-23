@@ -50,7 +50,7 @@ class DiceQDTLoss(nn.Module):
         pred_value = torch.sum(pred_value, dim=-1)
         intersection = (pred_value*qdt_value[:,:,0]*qdt_value[:,:,1]).sum()
         value_loss = 1 - (2.*intersection + smooth)/(pred_value * qdt_value[:,:,1] + qdt_value.sum() * qdt_value[:,:,1] + smooth)  
-        Dice_QDT = BCE + value_loss
+        Dice_QDT = value_loss
         
         return Dice_QDT
     
