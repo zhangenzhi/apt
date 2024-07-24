@@ -18,7 +18,7 @@ class Patchify(torch.nn.Module):
         
         self.smooth_factor = random.choice(self.sths)
         c = random.choice(self.cannys)
-        self.canny = [c, c+30]
+        self.canny = [c, c+50]
         
         grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
         edges = cv.Canny(grey_img, self.canny[0], self.canny[1])

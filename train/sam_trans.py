@@ -67,7 +67,7 @@ def main(args):
     num_class = 2 
     
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
-            patch_size=args.patch_size,
+            patch_size=args.patch_size//2,
             output_dim=num_class, 
             pretrain=args.pretrain)
     criterion = DiceBLoss()
@@ -172,8 +172,8 @@ def main(args):
             best_val_score = epoch_val_score
             torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
             logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, \
-                     Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}/{epoch_qmask_score:.4f}.")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
+            Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}/{epoch_qmask_score:.4f}.")
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
