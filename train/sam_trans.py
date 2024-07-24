@@ -141,6 +141,7 @@ def main(args):
         epoch_val_loss = 0.0
         epoch_val_score = 0.0
         epoch_qdt_score = 0.0
+        epoch_qmask_score = 0.0
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
                 image, qimages, mask, qmasks, qdt_info, qdt_value = batch
@@ -154,22 +155,25 @@ def main(args):
                 if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
                     qmasks = torch.reshape(qmasks, seq_shape)
-                    qdt_score = sub_trans_plot(image, mask, qmasks=qmasks, qdt_info=qdt_info, 
+                    qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, qdt_info=qdt_info, 
                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
                     epoch_qdt_score += qdt_score.item()
+                    epoch_qmask_score += qmask_score.item()
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
         epoch_qdt_score /= len(val_loader)
+        epoch_qmask_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
         # Save the best model based on validation accuracy
         if epoch_val_score > best_val_score:
             best_val_score = epoch_val_score
             torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
             logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}.")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},
+                     Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}/{epoch_qmask_score:.4f}.")
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -198,13 +202,24 @@ def main(args):
     logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
 
-def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, output_dir):
+def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, epoch, output_dir):
     true_score = 0 
+    best_score = 0
     for i in range(image.size(0)):
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
-        mask_pred = (qmasks[i].cpu() > 0.5).numpy()
-        mask_pred.astype(np.int32)
+        qmasks
+        qmasks = (qmasks[i].cpu() > 0.5).numpy()
+        qmasks.astype(np.int32)
+        
+        # print(mask_true.sum())
+        qmasks = qmasks[1]
+        patch_size = qmasks.shape[0]
+        qmasks = np.reshape(qmasks, (fixed_length, patch_size, patch_size))
+        qmasks = np.repeat(np.expand_dims(qmasks, axis=-1), 3, axis=-1)
+        
+        qmasks = (qmasks[i].cpu() > 0.5).numpy()
+        qmasks.astype(np.int32)
         
  
         # Squeeze the singleton dimension from mask_true
@@ -226,7 +241,10 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         
         qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
         deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=patch_size, channel=3)
+        decode_qmask = qdt.deserialize(seq=qmasks, patch_size=patch_size, channel=3)
+        
         true_score += dice_score_plot(mask_true, targets=deoced_mask_pred)
+        best_score += dice_score_plot(mask_true, targets=decode_qmask)
         
         mask_true = mask_true.astype(np.float64)
 
@@ -246,7 +264,7 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
         plt.close()
         # true_score /= image.size(0)
-        return true_score
+        return true_score, best_score
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
