@@ -66,7 +66,7 @@ def main(args, device_id):
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
     dataset = MICCAIDataset(data_path, args.resolution, normalize=False)
-    eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
+    # eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.7 * dataset_size)
     val_size = (dataset_size - train_size) // 2
@@ -82,7 +82,7 @@ def main(args, device_id):
     train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler)
     test_loader = DataLoader(test_set, batch_size=args.batch_size,  sampler=test_sampler)
-    eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False)
+    # eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False)
 
     # Training loop
     num_epochs = args.epoch
