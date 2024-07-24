@@ -26,6 +26,6 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --fixed_length=1024 \
         --patch_size=4 \
         --pretrain=sam-b \
-        --epoch=200 \
+        --epoch=400 \
         --batch_size=4 \
         --savefile=./sam-b-trans-res1k-f1024-pz4

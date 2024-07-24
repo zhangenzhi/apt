@@ -86,7 +86,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, normalize=False)
+    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
@@ -154,7 +154,7 @@ def main(args):
                 if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
                     qmasks = torch.reshape(qmasks, seq_shape)
-                    qdt_score = sub_trans_plot(image, mask, qmasks=outputs, qdt_info=qdt_info, 
+                    qdt_score = sub_trans_plot(image, mask, qmasks=qmasks, qdt_info=qdt_info, 
                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
                     epoch_qdt_score += qdt_score.item()
                 epoch_val_loss += loss.item()
@@ -217,7 +217,6 @@ def sub_trans_plot(image, mask, qmasks, qdt_info, fixed_length, bi, epoch, outpu
         mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
         mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
       
-        
         meta_info = []
         for nodes in qdt_info:
             n = []
