@@ -225,7 +225,8 @@ def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, e
         mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
         
         # print(mask_true.sum())
-        mask_pred = mask_pred[1]
+        pred_mask = (pred_mask[i].cpu() > 0.5).numpy()
+        mask_pred = pred_mask[1]
         patch_size = mask_pred.shape[0]
         mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
         mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
