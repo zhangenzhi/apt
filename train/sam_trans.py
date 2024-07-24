@@ -208,18 +208,16 @@ def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, e
     for i in range(image.size(0)):
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
-        qmasks
+
         qmasks = (qmasks[i].cpu() > 0.5).numpy()
         qmasks.astype(np.int32)
-        
-        # print(mask_true.sum())
         qmasks = qmasks[1]
         patch_size = qmasks.shape[0]
         qmasks = np.reshape(qmasks, (fixed_length, patch_size, patch_size))
         qmasks = np.repeat(np.expand_dims(qmasks, axis=-1), 3, axis=-1)
         
-        qmasks = (qmasks[i].cpu() > 0.5).numpy()
-        qmasks.astype(np.int32)
+        # qmasks = (qmasks[i].cpu() > 0.5).numpy()
+        # qmasks.astype(np.int32)
         
  
         # Squeeze the singleton dimension from mask_true
