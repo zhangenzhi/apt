@@ -22,10 +22,10 @@ module load rocm/5.7.0
 # exec
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans.py \
         --data_dir=../paip/output_images_and_masks \
-        --resolution=512 \
-        --fixed_length=1024 \
+        --resolution=1024 \
+        --fixed_length=512 \
         --patch_size=4 \
         --pretrain=sam-b \
-        --epoch=800 \
+        --epoch=200 \
         --batch_size=4 \
-        --savefile=./sam-b-trans-1024-pz1
+        --savefile=./sam-b-trans-res1k-f512-pz4
