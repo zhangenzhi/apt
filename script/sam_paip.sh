@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o sam-b-1k-pz8.o%J
+#SBATCH -o sam-b-4k-pz64.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -22,9 +22,9 @@ module load rocm/5.7.0
 # exec
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_paip.py \
         --data_dir=../paip/output_images_and_masks \
-        --resolution=1024 \
-        --patch_size=8 \
+        --resolution=4096 \
+        --patch_size=64 \
         --pretrain=sam-b \
         --epoch=200 \
-        --batch_size=1 \
+        --batch_size=4 \
         --savefile=./sam-b
