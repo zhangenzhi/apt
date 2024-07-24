@@ -112,8 +112,8 @@ def main(args):
         start_time = time.time()
         for batch in train_loader:
             images, masks = batch
-            images = torch.reshape(images,shape=(-1,3,512,512))
-            masks = torch.reshape(masks,shape=(-1,1,512,512))
+            images = torch.reshape(images,shape=(-1,3,args.resolution,args.resolution))
+            masks = torch.reshape(masks,shape=(-1,1,args.resolution,args.resolution))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             optimizer.zero_grad()
 
@@ -139,8 +139,8 @@ def main(args):
         with torch.no_grad():
             for batch in val_loader:
                 images, masks = batch
-                images = torch.reshape(images,shape=(-1,3,512,512))
-                masks = torch.reshape(masks,shape=(-1,1,512,512))
+                images = torch.reshape(images,shape=(-1,3,args.resolution,args.resolution))
+                masks = torch.reshape(masks,shape=(-1,1,args.resolution,args.resolution))
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
                 loss, score = criterion(outputs, masks)
@@ -201,8 +201,8 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             images, _, masks, _ = batch
-            images = torch.reshape(images,shape=(-1,3,512,512))
-            masks = torch.reshape(masks,shape=(-1,1,512,512))
+            images = torch.reshape(images,shape=(-1,3,args.resolution,args.resolution))
+            masks = torch.reshape(masks,shape=(-1,1,args.resolution,args.resolution))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             outputs = model(images)
             loss,_ = criterion(outputs, masks)
