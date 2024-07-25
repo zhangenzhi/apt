@@ -111,6 +111,9 @@ class SAM(nn.Module):
             nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
             LayerNorm2d(64),
             nn.GELU(),
+            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
+            LayerNorm2d(64),
+            nn.GELU(),
             nn.Conv2d(64, output_dim, 1)
         )
     def forward(self, x):
