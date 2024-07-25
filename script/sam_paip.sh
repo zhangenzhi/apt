@@ -23,8 +23,8 @@ module load rocm/5.7.0
 srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_paip.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=4096 \
-        --patch_size=64 \
+        --patch_size=128 \
         --pretrain=sam-b \
         --epoch=200 \
         --batch_size=1 \
-        --savefile=./sam-b-4k-pz64
+        --savefile=./sam-b-4k-pz128
