@@ -28,4 +28,4 @@ srun /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python 
         --pretrain=sam-b \
         --epoch=400 \
         --batch_size=4 \
-        --savefile=./sam-b-trans-res4k-f4k-pz16_2
+        --savefile=./sam-b-trans-res4k-f4k-pz8
