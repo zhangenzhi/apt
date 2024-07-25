@@ -270,6 +270,8 @@ if __name__ == '__main__':
                         help='patch size.')
     parser.add_argument('--pretrain', default="sam", type=str,
                         help='Use SAM pretrained weigths.')
+    parser.add_argument('--reload', default=True, type=bool,
+                        help='continue weigths training.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=4, type=int,
