@@ -18,6 +18,17 @@ from model.sam import SAM
 from dataset.paip import PAIPDataset
 # from torchmetrics.functional import dice_score
 
+import logging
+
+# Configure logging
+def log(args):
+    os.makedirs(args.savefile, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(args.savefile, "out.log"),
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
 # Define the Dice Loss
 class DiceLoss(nn.Module):
     def __init__(self, smooth=1):
@@ -68,6 +79,9 @@ class DiceBCELoss(nn.Module):
         return Dice_BCE, coeff
     
 def main(args):
+    log(args=args)
+    best_val_score = 0.0
+    
     # Create an instance of the U-Net model and other necessary components
     model = SAM(image_shape=(args.resolution,  args.resolution),
             patch_size=args.patch_size,
@@ -80,6 +94,9 @@ def main(args):
     
     # Move the model to GPU
     model.to(device)
+    if args.reload:
+        if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
     # Define the learning rate scheduler
     milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
@@ -150,6 +167,12 @@ def main(args):
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
         val_losses.append(epoch_val_loss)
+                # Save the best model based on validation accuracy
+        if epoch_val_score > best_val_score:
+            best_val_score = epoch_val_score
+            torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
+            logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}")
 
         print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
 
