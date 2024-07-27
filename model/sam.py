@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True):
+def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False,):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
@@ -16,9 +16,10 @@ def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True):
         patch_size=patch_size,
         image_size=image_size,
         pretrain=pretrain,
+        qdt=qdt,
     )
 
-def build_sam_vit_l(patch_size=8, image_size=[512, 512], pretrain=True):
+def build_sam_vit_l(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False,):
     return _build_sam_vit(
         encoder_embed_dim=1024,
         encoder_depth=24,
@@ -27,9 +28,10 @@ def build_sam_vit_l(patch_size=8, image_size=[512, 512], pretrain=True):
         patch_size=patch_size,
         image_size=image_size,
         pretrain=pretrain,
+        qdt=qdt
     )
     
-def build_sam_vit_h(patch_size=8, image_size=[512, 512], pretrain=True):
+def build_sam_vit_h(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False,):
     return _build_sam_vit(
         encoder_embed_dim=1280,
         encoder_depth=32,
@@ -38,6 +40,7 @@ def build_sam_vit_h(patch_size=8, image_size=[512, 512], pretrain=True):
         patch_size=patch_size,
         image_size=image_size,
         pretrain=pretrain,
+        qdt=qdt,
     )
 
 
@@ -49,6 +52,7 @@ def _build_sam_vit(
     patch_size,
     image_size,
     pretrain =True,
+    qdt=False,
 ):
     prompt_embed_dim = 256
     image_size = image_size
@@ -68,7 +72,8 @@ def _build_sam_vit(
             global_attn_indexes=encoder_global_attn_indexes,
             window_size=tokens,
             out_chans=prompt_embed_dim,
-            pretrain=pretrain
+            pretrain=pretrain,
+            qdt=qdt,
         )
     
     return image_encoder
@@ -128,7 +133,8 @@ class SAMQDT(nn.Module):
     def __init__(self, image_shape=(4*32, 4*32), 
                  patch_size=4,
                  output_dim=1, 
-                 pretrain="sam-b"):
+                 pretrain="sam-b",
+                 qdt=False,):
         super().__init__()
         self.patch_size = patch_size
         if pretrain== "sam-b":
@@ -137,20 +143,24 @@ class SAMQDT(nn.Module):
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
         elif pretrain=="sam-h":
              self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
-             
-        self.mask_header = \
-        nn.Sequential(
-            nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(128),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=128, out_channels=128, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(128),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=128, out_channels=128, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(128),
-            nn.GELU(),
-            nn.Conv2d(128, output_dim, 1)
-        )
+        if not qdt:
+            self.mask_header = \
+            nn.Sequential(
+                nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(128),
+                nn.GELU(),
+                nn.ConvTranspose2d(in_channels=128, out_channels=128, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(128),
+                nn.GELU(),
+                nn.ConvTranspose2d(in_channels=128, out_channels=128, kernel_size=2, stride=2, padding=0),
+                LayerNorm2d(128),
+                nn.GELU(),
+                nn.Conv2d(128, output_dim, 1)
+            )
+        else:
+            nn.Sequential(
+                nn.Conv2d(256, output_dim, 1)
+            )
     def forward(self, x):
         # print(x.shape)
         x = self.transformer(x) 
