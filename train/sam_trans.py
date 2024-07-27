@@ -69,7 +69,8 @@ def main(args):
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
             output_dim=num_class, 
-            pretrain=args.pretrain)
+            pretrain=args.pretrain,
+            qdt=True)
     criterion = DiceBLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
