@@ -143,6 +143,7 @@ class SAMQDT(nn.Module):
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain=="sam-h":
              self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
+             
         if not qdt:
             self.mask_header = \
             nn.Sequential(
@@ -158,10 +159,13 @@ class SAMQDT(nn.Module):
                 nn.Conv2d(128, output_dim, 1)
             )
         else:
-            self.mask_header = \
-            nn.Sequential(
-                nn.Conv2d(768, output_dim, 1)
-            )
+            if pretrain== "sam-b":
+                self.mask_header = nn.Sequential(nn.Conv2d(768, output_dim, 1))
+            elif pretrain== "sam-l":
+                self.mask_header = nn.Sequential(nn.Conv2d(1024, output_dim, 1))
+            elif pretrain== "sam-h":
+                self.mask_header = nn.Sequential(nn.Conv2d(1280, output_dim, 1))
+                
     def forward(self, x):
         # print(x.shape)
         x = self.transformer(x) 
