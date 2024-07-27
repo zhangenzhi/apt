@@ -134,7 +134,7 @@ class SAMQDT(nn.Module):
                  patch_size=4,
                  output_dim=1, 
                  pretrain="sam-b",
-                 qdt=False,):
+                 qdt=False):
         super().__init__()
         self.patch_size = patch_size
         if pretrain== "sam-b":
