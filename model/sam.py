@@ -138,11 +138,11 @@ class SAMQDT(nn.Module):
         super().__init__()
         self.patch_size = patch_size
         if pretrain== "sam-b":
-            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape)
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain== "sam-l":
-            self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape)
+            self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain=="sam-h":
-             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
+             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         if not qdt:
             self.mask_header = \
             nn.Sequential(
