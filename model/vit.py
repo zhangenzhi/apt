@@ -109,7 +109,7 @@ class ImageEncoderViT(nn.Module):
             self.neck = nn.Sequential(
                 nn.ConvTranspose2d(
                     embed_dim,
-                    embed_dim,
+                    out_chans,
                     kernel_size=(patch_size, patch_size),
                     stride=(patch_size, patch_size),
                     bias=False,
