@@ -160,7 +160,7 @@ class SAMQDT(nn.Module):
         else:
             self.mask_header = \
             nn.Sequential(
-                nn.Conv2d(256, output_dim, 1)
+                nn.Conv2d(768, output_dim, 1)
             )
     def forward(self, x):
         # print(x.shape)
