@@ -24,7 +24,7 @@ module load rocm/5.7.0
 srun -N 4 -n 32 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai_trans.py \
         --data_dir=../miccai_patches/ \
         --resolution=16384 \
-        --fixed_length=16384 \
+        --fixed_length=8281 \
         --lr=1e-4 \
         --epoch=120 \
         --batch_size=1 \
