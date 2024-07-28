@@ -73,7 +73,7 @@ def main(args):
             qdt=True)
     criterion = DiceBLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    device = torch.device("cuda" if torch.cuda.is_available() else "mps")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
     
     # Move the model to GPU
