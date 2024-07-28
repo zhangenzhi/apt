@@ -117,14 +117,14 @@ def main(args):
         epoch_train_loss = 0.0
         start_time = time.time()
         for batch in train_loader:
-            with torch.autocast(device_type='cuda', dtype=torch.float16):
-                _, qimages, _, qmasks, _, qdt_value = batch
-                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-                qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-                qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
-            
-                outputs = model(qimages)
-                loss = criterion(outputs, qmasks)
+            # with torch.autocast(device_type='cuda', dtype=torch.float16):
+            _, qimages, _, qmasks, _, qdt_value = batch
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+            qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+        
+            outputs = model(qimages)
+            loss = criterion(outputs, qmasks)
                 
             # print("train step loss:{}".format(loss))
             loss.backward()
@@ -147,14 +147,14 @@ def main(args):
         epoch_qmask_score = 0.0
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
-                with torch.autocast(device_type='cuda', dtype=torch.float16):
-                    image, qimages, mask, qmasks, qdt_info, qdt_value = batch
-                    seq_shape = qmasks.shape
-                    qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-                    qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-                    qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
-                    outputs = model(qimages)
-                    loss = criterion(outputs, qmasks)
+                # with torch.autocast(device_type='cuda', dtype=torch.float16):
+                image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+                seq_shape = qmasks.shape
+                qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+                qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+                qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+                outputs = model(qimages)
+                loss = criterion(outputs, qmasks)
                 score = dice_score(outputs, qmasks)
                 if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                     outputs = torch.reshape(outputs, seq_shape)
@@ -191,13 +191,13 @@ def main(args):
     epoch_test_score = 0
     with torch.no_grad():
         for batch in test_loader:
-            with torch.autocast(device_type='cuda', dtype=torch.float16):
-                _, qimages, _, qmasks, _, qdt_value = batch
-                qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-                qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-                qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
-                outputs = model(qimages)
-                loss = criterion(outputs, qmasks)
+            # with torch.autocast(device_type='cuda', dtype=torch.float16):
+            _, qimages, _, qmasks, _, qdt_value = batch
+            qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+            qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
+            outputs = model(qimages)
+            loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
             test_loss += loss.item()
             epoch_test_score += score.item()
