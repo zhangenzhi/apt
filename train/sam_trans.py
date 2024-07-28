@@ -73,7 +73,7 @@ def main(args):
             qdt=True)
     criterion = DiceBLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "mps")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
     
     # Move the model to GPU
@@ -147,7 +147,7 @@ def main(args):
         epoch_qmask_score = 0.0
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
-                with torch.autocast(device_type=device, dtype=torch.float16):
+                with torch.autocast(device_type='cuda', dtype=torch.float16):
                     image, qimages, mask, qmasks, qdt_info, qdt_value = batch
                     seq_shape = qmasks.shape
                     qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
@@ -191,7 +191,7 @@ def main(args):
     epoch_test_score = 0
     with torch.no_grad():
         for batch in test_loader:
-            with torch.autocast(device_type=device, dtype=torch.float16):
+            with torch.autocast(device_type='cuda', dtype=torch.float16):
                 _, qimages, _, qmasks, _, qdt_value = batch
                 qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))

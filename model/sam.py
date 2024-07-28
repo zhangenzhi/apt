@@ -68,7 +68,7 @@ def _build_sam_vit(
             num_heads=encoder_num_heads,
             patch_size=vit_patch_size,
             qkv_bias=True,
-            use_rel_pos=True,
+            use_rel_pos=False,
             global_attn_indexes=encoder_global_attn_indexes,
             window_size=tokens,
             out_chans=prompt_embed_dim,
