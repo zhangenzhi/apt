@@ -117,7 +117,7 @@ def main(args):
         epoch_train_loss = 0.0
         start_time = time.time()
         for batch in train_loader:
-            with torch.autocast(device_type=device, dtype=torch.float16):
+            with torch.autocast(device_type='cuda', dtype=torch.float16):
                 _, qimages, _, qmasks, _, qdt_value = batch
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
