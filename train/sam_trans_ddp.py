@@ -142,7 +142,6 @@ def main(args, device_id):
             model.eval()
             epoch_val_loss = 0.0
             epoch_val_score = 0.0
-
             epoch_qdt_score = 0.0
             epoch_qmask_score = 0.0
             with torch.no_grad():
@@ -179,10 +178,6 @@ def main(args, device_id):
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
                 Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}/{epoch_qmask_score:.4f}.")
 
-        # Visualize and save predictions on a few validation samples
-        if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
-            model.eval()
-            # sub_miccai_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
