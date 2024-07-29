@@ -142,8 +142,9 @@ def main(args, device_id):
             epoch_val_loss = 0.0
             epoch_val_score = 0.0
             with torch.no_grad():
-                for batch in val_loader:
+                for bi,batch in enumerate(val_loader):
                     image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+                    seq_shape = qmasks.shape
                     qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                     qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
