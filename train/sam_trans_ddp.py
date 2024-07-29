@@ -68,6 +68,7 @@ def main(args, device_id):
             pretrain=args.pretrain,
             qdt=True)
     criterion = DiceBLoss()
+    best_val_score = 0.0
     
     # Move the model to GPU
     model.to(device_id)
