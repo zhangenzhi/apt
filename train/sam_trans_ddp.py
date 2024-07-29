@@ -319,6 +319,7 @@ if __name__ == '__main__':
     args.world_size = int(os.environ['SLURM_NTASKS'])
     
     log(args=args)
+    
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
