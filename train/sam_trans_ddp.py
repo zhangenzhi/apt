@@ -141,6 +141,9 @@ def main(args, device_id):
             model.eval()
             epoch_val_loss = 0.0
             epoch_val_score = 0.0
+
+            epoch_qdt_score = 0.0
+            epoch_qmask_score = 0.0
             with torch.no_grad():
                 for bi,batch in enumerate(val_loader):
                     image, qimages, mask, qmasks, qdt_info, qdt_value = batch
@@ -163,6 +166,8 @@ def main(args, device_id):
 
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
+            epoch_qdt_score /= len(val_loader)
+            epoch_qmask_score /= len(val_loader)
             val_losses.append(epoch_val_loss)
         
             # Save the best model based on validation accuracy
