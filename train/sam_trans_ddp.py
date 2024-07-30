@@ -160,7 +160,7 @@ def main(args, device_id):
             epoch_val_score /= len(val_loader)
 
             # Visualize
-            if  epoch > 50 and epoch_val_score > best_val_score:  # Adjust the frequency of visualization
+            if  epoch > 100 and epoch_val_score > best_val_score:  # Adjust the frequency of visualization
                 with torch.no_grad():
                     for bi,batch in enumerate(val_loader):
                         outputs = torch.reshape(outputs, seq_shape)
