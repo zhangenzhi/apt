@@ -25,7 +25,7 @@ module load rocm/5.7.0
 # exec
 srun -N 4 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans_ddp.py \
         --data_dir=../paip/output_images_and_masks \
-        --resolution=4096 \
+        --resolution=8192 \
         --fixed_length=8281 \
         --patch_size=8 \
         --pretrain=sam-b \
