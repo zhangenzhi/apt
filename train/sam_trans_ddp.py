@@ -156,20 +156,22 @@ def main(args, device_id):
                     score = dice_score(outputs, qmasks)
                     epoch_val_loss += loss.item()
                     epoch_val_score += score.item()
-                    if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            epoch_val_loss /= len(val_loader)
+            epoch_val_score /= len(val_loader)
+
+            # Visualize
+            if  epoch > 50 and epoch_val_score > best_val_score:  # Adjust the frequency of visualization
+                with torch.no_grad():
+                    for bi,batch in enumerate(val_loader):
                         outputs = torch.reshape(outputs, seq_shape)
                         qmasks = torch.reshape(qmasks, seq_shape)
                         qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                    epoch_qdt_score += qdt_score.item()
-                    epoch_qmask_score += qmask_score.item()
-
-            epoch_val_loss /= len(val_loader)
-            epoch_val_score /= len(val_loader)
+                                                    fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                        epoch_qdt_score += qdt_score.item()
+                        epoch_qmask_score += qmask_score.item()
             epoch_qdt_score /= len(val_loader)
             epoch_qmask_score /= len(val_loader)
-            val_losses.append(epoch_val_loss)
-        
+            
             # Save the best model based on validation accuracy
             if epoch_val_score > best_val_score:
                 best_val_score = epoch_val_score
