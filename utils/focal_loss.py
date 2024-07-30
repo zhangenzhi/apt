@@ -57,10 +57,11 @@ class DiceBLoss(nn.Module):
         self.weight = weight
         self.num_class = num_class
 
-    def forward(self, inputs, targets, smooth=1):
+    def forward(self, inputs, targets, smooth=1, act=True):
         
         #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = F.sigmoid(inputs)       
+        if act:
+            inputs = F.sigmoid(inputs)       
         
         # pred = torch.flatten(inputs)
         # true = torch.flatten(targets)
