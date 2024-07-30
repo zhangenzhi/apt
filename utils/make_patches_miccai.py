@@ -97,6 +97,6 @@ if __name__ == "__main__":
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
                 # patch_size=8192,
                 # task="patches",
-                target_size=16384,
+                target_size=512,
                 task="rescale",
                 save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
