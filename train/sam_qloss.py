@@ -74,31 +74,31 @@ def main(args):
     
     # Move the model to GPU
     model.to(device)
-    # if args.reload:
-    #     if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
-    #         model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
-    # # Define the learning rate scheduler
-    # milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
-    # scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+    if args.reload:
+        if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
+    # Define the learning rate scheduler
+    milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
-    # # Split the dataset into train, validation, and test sets
-    # data_path = args.data_dir
-    # dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, normalize=False)
-    # dataset_size = len(dataset)
-    # train_size = int(0.85 * dataset_size)
-    # val_size = dataset_size - train_size
-    # test_size = val_size
-    # logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
+    # Split the dataset into train, validation, and test sets
+    data_path = args.data_dir
+    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, normalize=False)
+    dataset_size = len(dataset)
+    train_size = int(0.85 * dataset_size)
+    val_size = dataset_size - train_size
+    test_size = val_size
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
     
-    # train_indices = list(range(0, train_size))
-    # val_indices = list(range(train_size, dataset_size))
-    # train_set = Subset(dataset, train_indices)
-    # val_set = test_set = Subset(dataset, val_indices)
-    # # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
+    train_indices = list(range(0, train_size))
+    val_indices = list(range(train_size, dataset_size))
+    train_set = Subset(dataset, train_indices)
+    val_set = test_set = Subset(dataset, val_indices)
+    # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    # train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=8, shuffle=True)
-    # val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    # test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=8, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
     # # Training loop
     # num_epochs = args.epoch
