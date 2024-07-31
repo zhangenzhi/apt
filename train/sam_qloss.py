@@ -118,7 +118,6 @@ def main(args):
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks, qdt_value = qimages.to(device), qmasks.to(device),qdt_value.to(device)  # Move data to GPU
-            # print(epoch, qdt_value)
             optimizer.zero_grad()
             outputs = model(qimages)
             # loss = criterion(outputs, qmasks, qdt_value)
@@ -126,9 +125,9 @@ def main(args):
             # loss.backward()
             # optimizer.step()
 
-    #         epoch_train_loss += loss.item()
-    #     end_time = time.time()
-    #     logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+            # epoch_train_loss += loss.item()
+        end_time = time.time()
+        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
     #     epoch_train_loss /= len(train_loader)
     #     train_losses.append(epoch_train_loss)
