@@ -171,9 +171,6 @@ class SAMQDT(nn.Module):
                 
     def forward(self, x):
         # print(x.shape)
-        import pdb
-        pdb.set_trace()
-        
         x = self.transformer(x) 
         # print("vit shape:",x.shape)
         x = self.mask_header(x)
