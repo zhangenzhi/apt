@@ -101,23 +101,23 @@ def main(args):
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
-    # # Training loop
-    # num_epochs = args.epoch
-    # train_losses = []
-    # val_losses = []
-    # output_dir = args.savefile  # Change this to the desired directory
-    # os.makedirs(output_dir, exist_ok=True)
-    # import time
-    # import random
-    # for epoch in range(num_epochs):
-    #     model.train()
-    #     epoch_train_loss = 0.0
-    #     start_time = time.time()
-    #     for batch in train_loader:
-    #         _, qimages, _, qmasks, _, qdt_value = batch
-    #         qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-    #         qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-    #         qimages, qmasks, qdt_value = qimages.to(device), qmasks.to(device),qdt_value.to(device)  # Move data to GPU
+    # Training loop
+    num_epochs = args.epoch
+    train_losses = []
+    val_losses = []
+    output_dir = args.savefile  # Change this to the desired directory
+    os.makedirs(output_dir, exist_ok=True)
+    import time
+    import random
+    for epoch in range(num_epochs):
+        model.train()
+        epoch_train_loss = 0.0
+        start_time = time.time()
+        for batch in train_loader:
+            _, qimages, _, qmasks, _, qdt_value = batch
+            qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+            qimages, qmasks, qdt_value = qimages.to(device), qmasks.to(device),qdt_value.to(device)  # Move data to GPU
             
     #         optimizer.zero_grad()
     #         outputs = model(qimages)
