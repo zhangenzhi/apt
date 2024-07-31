@@ -66,9 +66,10 @@ def main(args):
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
             output_dim=num_class, 
-            pretrain=args.pretrain)
+            pretrain=args.pretrain,
+            qdt=True)
     criterion = DiceQDTLoss(patch_size=args.patch_size)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
     
@@ -119,6 +120,8 @@ def main(args):
             qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks, qdt_value = qimages.to(device), qmasks.to(device),qdt_value.to(device)  # Move data to GPU
             print(f"qimages:{qimages.shape}, qmasks:{qmasks.shape}, qdt_value:{qdt_value.shape}")
+            import pdb
+            pdb.set_trace()
             # optimizer.zero_grad()
             # outputs = model(qimages)
             # loss = criterion(outputs, qmasks, qdt_value)
