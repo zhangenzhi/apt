@@ -26,7 +26,7 @@ from utils.draw import sub_miccai_plot
 
 import logging
 
-def dice_score(inputs, targets, smooth=1):    
+def dice_score(inputs, targets, smooth=1e-7):    
     
     #flatten label and prediction tensors
     pred = torch.flatten(inputs[:,1:,:,:])
