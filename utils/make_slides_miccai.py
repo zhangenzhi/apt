@@ -63,3 +63,7 @@ if __name__ == "__main__":
                  patch_size=512,
                  patch_type="predict_patches-1-512",
                  save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
+    # make_slides(path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches", 
+    #              patch_size=512,
+    #              patch_type="predict_patches-1-512",
+    #              save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")

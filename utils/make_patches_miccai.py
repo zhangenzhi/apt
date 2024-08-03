@@ -94,9 +94,14 @@ def make_patches(path, patch_size=512, save_path="../miccai_patches/", target_si
     print(f"Done! Totoal {len(files)} file.")
 
 if __name__ == "__main__":
+    #make patches
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
-                # patch_size=8192,
-                # task="patches",
+                patch_size=8192,
+                task="patches",
+                save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
+    
+    #rescale image
+    make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
                 target_size=512,
                 task="rescale",
                 save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")

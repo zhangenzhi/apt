@@ -2,7 +2,7 @@
 #SBATCH -A bif146
 #SBATCH -o apt-sam-b.o%J
 #SBATCH -t 02:00:00
-#SBATCH -N 4
+#SBATCH -N 1
 #SBATCH -p batch
 
 export MIOPEN_DISABLE_CACHE=1 
@@ -21,13 +21,13 @@ module load rocm/5.7.0
 
 # exec
 
-srun -N 4 -n 32 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai_trans.py \
+srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_miccai_trans.py \
         --data_dir=../miccai_patches/ \
-        --resolution=16384 \
-        --fixed_length=8281 \
+        --resolution=512 \
+        --fixed_length=1024 \
         --lr=1e-4 \
         --epoch=120 \
-        --batch_size=1 \
+        --batch_size=4 \
         --patch_size=8 \
         --pretrain=sam-b \
-        --savefile=./sam_miccai_trans_n4_ac
+        --savefile=./sam_miccai_trans_res512_f512_n1
