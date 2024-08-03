@@ -25,9 +25,9 @@ srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/mi
         --data_dir=../miccai_patches/ \
         --resolution=512 \
         --fixed_length=1024 \
-        --lr=1e-3 \
-        --epoch=120 \
-        --batch_size=4 \
+        --lr=1e-4 \
+        --epoch=1000 \
+        --batch_size=1 \
         --patch_size=8 \
         --pretrain=sam-b \
         --savefile=./sam_miccai_trans_r512_f512_n1

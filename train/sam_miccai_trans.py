@@ -132,7 +132,8 @@ def main(args, device_id):
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
-        logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        if device_id == 0:
+            logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
