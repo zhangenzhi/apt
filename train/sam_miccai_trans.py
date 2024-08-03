@@ -83,8 +83,8 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
-    # eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
+    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
+ 
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
