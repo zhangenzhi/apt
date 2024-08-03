@@ -17,22 +17,29 @@ import math
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from model.sam import SAM
+from model.sam import SAMQDT
+from apt.quadtree import FixedQuadTree
+from dataset.paip_trans import PAIPTrans
 from dataset.miccai_trans import MICCAIDataset
 from utils.focal_loss import DiceBLoss
 from utils.draw import sub_miccai_plot
 
 import logging
 
-def dice_score(inputs, targets, smooth=1):
-    inputs = F.sigmoid(inputs)       
+def dice_score(inputs, targets, smooth=1):    
     
     #flatten label and prediction tensors
-    # pred = torch.flatten(inputs[:,1:,:,:])
-    # true = torch.flatten(targets[:,1:,:,:])
+    pred = torch.flatten(inputs[:,1:,:,:])
+    true = torch.flatten(targets[:,1:,:,:])
     
-    pred = torch.flatten(inputs)
-    true = torch.flatten(targets)
+    intersection = (pred * true).sum()
+    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
+    return coeff  
+
+def dice_score_plot(inputs, targets, smooth=1):     
+    #flatten label and prediction tensors
+    pred = inputs[...,0].flatten()
+    true = targets[...,0].flatten()
     
     intersection = (pred * true).sum()
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
@@ -48,15 +55,19 @@ def log(args):
     )
     
 def main(args, device_id):
+    log(args=args)
+    
+    # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 2 
-    # Create an instance of the U-Net model and other necessary components
-    model = SAM(image_shape=(patch_size*sqrt_len,  patch_size*sqrt_len),
-            patch_size=args.patch_size*2,
+    
+    model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
+            patch_size=args.patch_size,
             output_dim=num_class, 
-            pretrain=args.pretrain)
-    criterion = DiceBLoss().to(device_id)
+            pretrain=args.pretrain,
+            qdt=True)
+    criterion = DiceBLoss()
     best_val_score = 0.0
     
     # Move the model to GPU
@@ -72,7 +83,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=args.patch_size)
+    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
     # eval_set = MICCAIDataset(data_path, args.resolution, normalize=True, eval_mode=True)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
@@ -106,14 +117,15 @@ def main(args, device_id):
         start_time = time.time()
         step=1
         for batch in train_loader:
-            _, qimages, _, qmasks, _, qdt_value = batch
+            # with torch.autocast(device_type='cuda', dtype=torch.float16):
+            image, qimages, mask, qmasks, qdt_info, qdt_value = batch
             qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-            print(qimages.shape)
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks)
+            outputs = F.sigmoid(outputs)
+            loss = criterion(outputs, qmasks, act=False)
             loss.backward()
             optimizer.step()
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
@@ -131,33 +143,47 @@ def main(args, device_id):
             model.eval()
             epoch_val_loss = 0.0
             epoch_val_score = 0.0
+            epoch_qdt_score = 0.0
+            epoch_qmask_score = 0.0
             with torch.no_grad():
-                for batch in val_loader:
-                    _, qimages, _, qmasks, _, qdt_value = batch
+                for bi,batch in enumerate(val_loader):
+                    # with torch.autocast(device_type='cuda', dtype=torch.float16):
+                    image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+                    seq_shape = qmasks.shape
                     qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                     qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
-                    loss = criterion(outputs, qmasks)
+                    outputs = F.sigmoid(outputs)
+                    loss = criterion(outputs, qmasks, act=False)
                     score = dice_score(outputs, qmasks)
                     epoch_val_loss += loss.item()
                     epoch_val_score += score.item()
-
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
-            val_losses.append(epoch_val_loss)
-        
+
+            # Visualize
+            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                with torch.no_grad():
+                    for bi,batch in enumerate(val_loader):
+                        with torch.autocast(device_type='cuda', dtype=torch.float16):
+                            outputs = torch.reshape(outputs, seq_shape)
+                            qmasks = torch.reshape(qmasks, seq_shape)
+                            qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
+                                                        fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                            epoch_qdt_score += qdt_score.item()
+                            epoch_qmask_score += qmask_score.item()
+            epoch_qdt_score /= len(val_loader)
+            epoch_qmask_score /= len(val_loader)
+            
             # Save the best model based on validation accuracy
-            if epoch_val_score > best_val_score and dist.get_rank() == 0:
+            if epoch_val_score > best_val_score:
                 best_val_score = epoch_val_score
                 torch.save(model.module.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
                 logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-            logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}.")
+            logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
+                Score: {epoch_val_score:.4f} QDT Score: {epoch_qdt_score:.4f}/{epoch_qmask_score:.4f}.")
 
-        # Visualize and save predictions on a few validation samples
-        if epoch % (num_epochs//10) == (num_epochs//10-1) and dist.get_rank() == 0:  # Adjust the frequency of visualization
-            model.eval()
-            # sub_miccai_plot(model=model, eval_loader=eval_loader, epoch=epoch, device=dist.get_rank(), output_dir=args.savefile)
                         
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -172,55 +198,77 @@ def main(args, device_id):
 
         with torch.no_grad():
             for batch in test_loader:
+                # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 _, qimages, _, qmasks, _, qdt_value = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 outputs = model(qimages)
-                loss = criterion(outputs, qmasks)
+                outputs = F.sigmoid(outputs)
+                loss = criterion(outputs, qmasks, act=False)
                 test_loss += loss.item()
 
         test_loss /= len(test_loader)
         logging.info(f"Test Loss: {test_loss:.4f}")
         # draw_loss(output_dir=output_dir)
+
+def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, epoch, output_dir):
+    true_score = 0 
+    best_score = 0
+    for i in range(image.size(0)):
+        image = image[i].cpu().permute(1, 2, 0).numpy()
+        mask_true = mask[i].cpu().numpy()
+
+        qmasks = (qmasks[i].cpu() > 0.5).numpy()
+        qmasks.astype(np.int32)
+        qmasks = qmasks[1]
+        patch_size = qmasks.shape[0]
+        qmasks = np.reshape(qmasks, (fixed_length, patch_size, patch_size))
+        qmasks = np.repeat(np.expand_dims(qmasks, axis=-1), 3, axis=-1)
+ 
+        # Squeeze the singleton dimension from mask_true
+        mask_true = mask_true[1]
+        mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
         
-# def sub_plot(model, eval_loader, epoch, device, output_dir):
-#     # Visualize and save predictions on a few validation samples
-#         model.eval()
-#         for bi,batch in enumerate(eval_loader):
-#             with torch.no_grad():
-#                 _, qsample_images, _, qsample_masks, qdt_value = batch
-#                 qsample_images = torch.reshape(qsample_images, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
-#                 qsample_masks = torch.reshape(qsample_masks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
-#                 qsample_images, qsample_masks = qsample_images.to(device), qsample_masks.to(device)  # Move data to GPU
-#                 outputs = model(qsample_images)
-#                 qsample_outputs = torch.sigmoid(outputs)
+        # print(mask_true.sum())
+        pred_mask = (pred_mask[i].cpu() > 0.5).numpy()
+        mask_pred = pred_mask[1]
+        patch_size = mask_pred.shape[0]
+        mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
+        mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
+      
+        meta_info = []
+        for nodes in qdt_info:
+            n = []
+            for idx in range(len(nodes)):
+                n.append(nodes[idx][i].numpy())
+            meta_info.append(n)
+        
+        qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
+        deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=patch_size, channel=3)
+        decode_qmask = qdt.deserialize(seq=qmasks, patch_size=patch_size, channel=3)
+        
+        true_score += dice_score_plot(mask_true, targets=deoced_mask_pred)
+        best_score += dice_score_plot(mask_true, targets=decode_qmask)
+        
+        mask_true = mask_true.astype(np.float64)
 
-#                 for i in range(qsample_images.size(0)):
-#                     image = qsample_images[i].cpu().permute(1, 2, 0).numpy()
-#                     mask_true = qsample_masks[i].cpu().numpy()
-#                     mask_pred = (qsample_outputs[i, 0].cpu() > 0.5).numpy()
-                    
-#                     # Squeeze the singleton dimension from mask_true
-#                     mask_true = np.squeeze(mask_true, axis=0)
+        # Plot and save images
+        plt.figure(figsize=(12, 4))
+        plt.subplot(1, 3, 1)
+        plt.imshow(image)
+        plt.title("Input Image")
 
-#                     # Plot and save images
-#                     plt.figure(figsize=(12, 4))
-#                     plt.subplot(1, 3, 1)
-#                     plt.imshow(image)
-#                     plt.title("Input Image")
+        plt.subplot(1, 3, 2)
+        plt.imshow(mask_true, cmap='gray')
+        plt.title("True Mask")
 
-#                     plt.subplot(1, 3, 2)
-#                     plt.imshow(mask_true, cmap='gray')
-#                     plt.title("True Mask")
-
-#                     plt.subplot(1, 3, 3)
-#                     plt.imshow(mask_pred, cmap='gray')
-#                     plt.title("Predicted Mask")
-                    
-#                     basedir = os.path.join(output_dir, str(bi))
-#                     os.makedirs(basedir, exist_ok=True)
-#                     plt.savefig(os.path.join(basedir, f"epoch_{epoch + 1}_sample_{i + 1}.png"))
-#                     plt.close()
-                
+        plt.subplot(1, 3, 3)
+        plt.imshow(deoced_mask_pred, cmap='gray')
+        plt.title("Predicted Mask")
+        plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
+        plt.close()
+        # true_score /= image.size(0)
+        return true_score, best_score
+     
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     
@@ -271,6 +319,7 @@ if __name__ == '__main__':
     args.world_size = int(os.environ['SLURM_NTASKS'])
     
     log(args=args)
+    
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
