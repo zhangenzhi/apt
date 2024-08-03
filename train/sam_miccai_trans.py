@@ -36,7 +36,7 @@ def dice_score(inputs, targets, smooth=1e-7):
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
     return coeff  
 
-def dice_score_plot(inputs, targets, smooth=1):     
+def dice_score_plot(inputs, targets, smooth=1e-7):     
     #flatten label and prediction tensors
     pred = inputs[...,0].flatten()
     true = targets[...,0].flatten()
