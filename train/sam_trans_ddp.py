@@ -74,7 +74,7 @@ def main(args, device_id):
     if args.reload:
         if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
-    model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # Define the learning rate scheduler
     milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
@@ -200,6 +200,8 @@ def main(args, device_id):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 _, qimages, _, qmasks, _, qdt_value = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+                qimages = torch.reshape(qimages, shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
+                qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 outputs = model(qimages)
                 outputs = F.sigmoid(outputs)
                 loss = criterion(outputs, qmasks, act=False)
