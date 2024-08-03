@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o apt-sam-b.o%J
+#SBATCH -o sam_miccai_trans.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -30,4 +30,4 @@ srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/mi
         --batch_size=4 \
         --patch_size=8 \
         --pretrain=sam-b \
-        --savefile=./sam_miccai_trans_res512_f512_n1
+        --savefile=./sam_miccai_trans_r512_f512_n1
