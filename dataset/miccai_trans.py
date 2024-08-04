@@ -29,7 +29,7 @@ class MICCAITrans(Dataset):
         
         data_path_paip = "/lustre/orion/bif146/world-shared/enzhi/paip/output_images_and_masks"
         for subdir in os.listdir(data_path_paip):
-            subdir_path = os.path.join(data_path, subdir)
+            subdir_path = os.path.join(data_path_paip, subdir)
             if os.path.isdir(subdir_path):
                 image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
                 mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
