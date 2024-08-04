@@ -27,17 +27,17 @@ class MICCAITrans(Dataset):
         self.image_filenames = []
         self.mask_filenames = []
         
-        data_path_paip = "/lustre/orion/bif146/world-shared/enzhi/paip/output_images_and_masks"
-        for subdir in os.listdir(data_path_paip):
-            subdir_path = os.path.join(data_path_paip, subdir)
-            if os.path.isdir(subdir_path):
-                image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
-                mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
+        # data_path_paip = "/lustre/orion/bif146/world-shared/enzhi/paip/output_images_and_masks"
+        # for subdir in os.listdir(data_path_paip):
+        #     subdir_path = os.path.join(data_path_paip, subdir)
+        #     if os.path.isdir(subdir_path):
+        #         image = os.path.join(subdir_path, f"rescaled_image_0_{resolution}x{resolution}.png")
+        #         mask = os.path.join(subdir_path, f"rescaled_mask_0_{resolution}x{resolution}.png")
 
-                # Ensure the image exist
-                if os.path.exists(image) and os.path.exists(mask):
-                    self.image_filenames.extend([image])
-                    self.mask_filenames.extend([mask])
+        #         # Ensure the image exist
+        #         if os.path.exists(image) and os.path.exists(mask):
+        #             self.image_filenames.extend([image])
+        #             self.mask_filenames.extend([mask])
                     
         print("img tiles: ",len(self.image_filenames))
         for subdir in self.subslides:
