@@ -86,9 +86,9 @@ def main(args, device_id):
     dataset = MICCAITrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size)
  
     dataset_size = len(dataset)
-    train_size = int(0.85 * dataset_size)
-    val_size = dataset_size - train_size
-    test_size = val_size
+    train_size = len(dataset) - 5
+    val_size = 5 # 0.15
+    test_size = 5
     logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
     
     train_indices = list(range(0, train_size))
