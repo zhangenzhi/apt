@@ -57,7 +57,7 @@ class DiceBLoss(nn.Module):
         self.weight = weight
         self.num_class = num_class
 
-    def forward(self, inputs, targets, smooth=1, act=True):
+    def forward(self, inputs, targets, smooth=1e-4, act=True):
         
         #comment out if your model contains a sigmoid or equivalent activation layer
         if act:
@@ -74,9 +74,9 @@ class DiceBLoss(nn.Module):
         coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)                                        
         dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
         BCE = F.binary_cross_entropy(pred, true, reduction='mean')
-        Dice_BCE = self.weight*BCE + (1-self.weight)*dice_loss
+        dice_bce = self.weight*BCE + (1-self.weight)*dice_loss 
         
-        return Dice_BCE
+        return dice_loss
     
     
 class DiceBCELoss(nn.Module):
