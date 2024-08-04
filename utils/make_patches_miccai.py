@@ -102,6 +102,6 @@ if __name__ == "__main__":
     
     #rescale image
     make_patches(path="/lustre/orion/bif146/world-shared/enzhi/MICCAI", 
-                target_size=8192,
+                target_size=32768,
                 task="rescale",
                 save_path="/lustre/orion/bif146/world-shared/enzhi/miccai_patches/")
