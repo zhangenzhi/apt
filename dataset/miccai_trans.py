@@ -18,7 +18,7 @@ from apt.transforms import Patchify
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 PIL.Image.MAX_IMAGE_PIXELS = 933120000
 
-class MICCAIDataset(Dataset):
+class MICCAITrans(Dataset):
     def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 100], fixed_length=1024, patch_size=8, eval_mode=False):
         self.data_path = data_path
         self.subslides = os.listdir(data_path) if not eval_mode else ["08-368_01_"]
@@ -38,7 +38,8 @@ class MICCAIDataset(Dataset):
                 if os.path.exists(image) and os.path.exists(mask):
                     self.image_filenames.extend([image])
                     self.mask_filenames.extend([mask])
-
+                    
+        print("img tiles: ",len(self.image_filenames))
         for subdir in self.subslides:
             subdir_path = os.path.join(data_path, subdir)
             if os.path.isdir(subdir_path):

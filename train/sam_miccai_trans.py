@@ -20,7 +20,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from model.sam import SAMQDT
 from apt.quadtree import FixedQuadTree
 from dataset.paip_trans import PAIPTrans
-from dataset.miccai_trans import MICCAIDataset
+from dataset.miccai_trans import MICCAITrans
 from utils.focal_loss import DiceBLoss
 from utils.draw import sub_miccai_plot
 
@@ -83,7 +83,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = MICCAIDataset(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size)
+    dataset = MICCAITrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size)
  
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
