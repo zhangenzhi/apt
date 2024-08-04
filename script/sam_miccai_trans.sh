@@ -30,4 +30,4 @@ srun -N 4 -n 32 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/m
         --batch_size=4 \
         --patch_size=8 \
         --pretrain=sam-b \
-        --savefile=./sam_miccai_paip_trans_r8k_f4k_n4
+        --savefile=./sam_miccai_paip_trans_r8k_f4k_n4-2
