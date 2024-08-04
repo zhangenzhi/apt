@@ -26,7 +26,7 @@ from utils.draw import sub_miccai_plot
 
 import logging
 
-def dice_score(inputs, targets, smooth=1e-7):    
+def dice_score(inputs, targets, smooth=1e-4):    
     
     #flatten label and prediction tensors
     pred = torch.flatten(inputs[:,1:,:,:])
@@ -36,7 +36,7 @@ def dice_score(inputs, targets, smooth=1e-7):
     coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
     return coeff  
 
-def dice_score_plot(inputs, targets, smooth=1e-7):     
+def dice_score_plot(inputs, targets, smooth=1e-4):     
     #flatten label and prediction tensors
     pred = inputs[...,0].flatten()
     true = targets[...,0].flatten()
