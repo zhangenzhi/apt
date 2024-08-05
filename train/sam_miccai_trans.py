@@ -146,6 +146,7 @@ def main(args, device_id):
             epoch_val_score = 0.0
             epoch_qdt_score = 0.0
             epoch_qmask_score = 0.0
+            
             with torch.no_grad():
                 for bi,batch in enumerate(val_loader):
                     # with torch.autocast(device_type='cuda', dtype=torch.float16):
@@ -164,7 +165,7 @@ def main(args, device_id):
             epoch_val_score /= len(val_loader)
 
             # Visualize
-            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            if (epoch - 1) % 10 == 9 and args.resolution<=16384:  # Adjust the frequency of visualization
                 with torch.no_grad():
                     for bi,batch in enumerate(val_loader):
                         with torch.autocast(device_type='cuda', dtype=torch.float16):
