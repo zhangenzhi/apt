@@ -16,7 +16,7 @@ from apt.transforms import Patchify
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-PIL.Image.MAX_IMAGE_PIXELS = 933120000
+PIL.Image.MAX_IMAGE_PIXELS = 93312000000
 
 class MICCAITrans(Dataset):
     def __init__(self, data_path, resolution, sths=[1,3,5,7], cannys=[50, 100], fixed_length=1024, patch_size=8, eval_mode=False):
