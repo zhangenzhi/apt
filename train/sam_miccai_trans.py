@@ -21,7 +21,7 @@ from model.sam import SAMQDT
 from apt.quadtree import FixedQuadTree
 from dataset.paip_trans import PAIPTrans
 from dataset.miccai_trans import MICCAITrans
-from utils.focal_loss import DiceBLoss
+from utils.focal_loss import DiceCLoss
 from utils.draw import sub_miccai_plot
 
 import logging
@@ -29,11 +29,14 @@ import logging
 def dice_score(inputs, targets, smooth=1e-4):    
     
     #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    # pred = torch.flatten(inputs[:,1:,:,:])
+    # true = torch.flatten(targets[:,1:,:,:])
+    
+    pred = torch.flatten(inputs)
+    true = torch.flatten(targets)
     
     intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
+    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)/2   
     return coeff  
 
 def dice_score_plot(inputs, targets, smooth=1e-4):     
@@ -67,7 +70,7 @@ def main(args, device_id):
             output_dim=num_class, 
             pretrain=args.pretrain,
             qdt=True)
-    criterion = DiceBLoss()
+    criterion = DiceCLoss()
     best_val_score = 0.0
     
     # Move the model to GPU

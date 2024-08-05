@@ -50,6 +50,32 @@ class DiceQDTLoss(nn.Module):
         weighted_loss = torch.sum(dice_loss*value)/fixed_length
         
         return weighted_loss
+
+class DiceCLoss(nn.Module):
+    def __init__(self, weight=0.5, num_class=2, size_average=True):
+        super(DiceBLoss, self).__init__()
+        self.weight = weight
+        self.num_class = num_class
+
+    def forward(self, inputs, targets, smooth=1e-4, act=True):
+        
+        #comment out if your model contains a sigmoid or equivalent activation layer
+        if act:
+            inputs = F.sigmoid(inputs)       
+        
+        pred = torch.flatten(inputs)
+        true = torch.flatten(targets)
+        
+        # #flatten label and prediction tensors
+        # pred = torch.flatten(inputs[:,1:,:,:])
+        # true = torch.flatten(targets[:,1:,:,:])
+        
+        intersection = (pred * true).sum()
+        # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)/self.num_class                                        
+        dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
+        dice_bce = (1-self.weight)*dice_loss 
+        
+        return dice_bce
     
 class DiceBLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
