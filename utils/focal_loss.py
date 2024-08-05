@@ -53,7 +53,7 @@ class DiceQDTLoss(nn.Module):
 
 class DiceCLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
-        super(DiceBLoss, self).__init__()
+        super(DiceCLoss, self).__init__()
         self.weight = weight
         self.num_class = num_class
 
