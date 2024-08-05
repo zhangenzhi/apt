@@ -63,19 +63,27 @@ class DiceCLoss(nn.Module):
         if act:
             inputs = F.sigmoid(inputs)       
         
-        pred = torch.flatten(inputs)
-        true = torch.flatten(targets)
+        # pred = torch.flatten(inputs)
+        # true = torch.flatten(targets)
         
         # #flatten label and prediction tensors
-        # pred = torch.flatten(inputs[:,1:,:,:])
-        # true = torch.flatten(targets[:,1:,:,:])
+        pred = torch.flatten(inputs[:,1:,:,:])
+        true = torch.flatten(targets[:,1:,:,:])
         
         intersection = (pred * true).sum()
         # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)/self.num_class                                        
         dice_loss = 1 - (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)  
-        dice_bce = (1-self.weight)*dice_loss 
+        dice_bce1 = (1-self.weight)*dice_loss 
         
-        return dice_bce
+        pred1 = torch.flatten(inputs[:,0,:,:])
+        true1 = torch.flatten(targets[:,0,:,:])
+        
+        intersection1 = (pred1 * true1).sum()
+        # coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)/self.num_class                                        
+        dice_loss1 = 1 - (2.*intersection1 + smooth)/(pred1.sum() + true1.sum() + smooth)  
+        dice_bce2 = (1-self.weight)*dice_loss1 
+        
+        return dice_bce1+dice_bce2
     
 class DiceBLoss(nn.Module):
     def __init__(self, weight=0.5, num_class=2, size_average=True):
