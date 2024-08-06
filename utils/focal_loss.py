@@ -91,7 +91,7 @@ class DiceBLoss(nn.Module):
         self.weight = weight
         self.num_class = num_class
 
-    def forward(self, inputs, targets, smooth=1e-4, act=True):
+    def forward(self, inputs, targets, smooth=1, act=True):
         
         #comment out if your model contains a sigmoid or equivalent activation layer
         if act:

@@ -2,7 +2,7 @@
 #SBATCH -A bif146
 #SBATCH -o sam_trans_ddp.o%J
 #SBATCH -t 02:00:00
-#SBATCH -N 32
+#SBATCH -N 16
 #SBATCH -p batch
 #SBATCH --mail-user=zhangsuiyu657@gmail.com
 #SBATCH --mail-type=END
@@ -23,7 +23,7 @@ module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
 # exec
-srun -N 32 -n 256 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans_ddp.py \
+srun -N 16 -n 128 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans_ddp.py \
         --data_dir=../paip/output_images_and_masks \
         --resolution=8192 \
         --fixed_length=8281 \
@@ -31,5 +31,5 @@ srun -N 32 -n 256 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env
         --pretrain=sam-b \
         --epoch=400 \
         --batch_size=1 \
-        --savefile=./sam-b-trans-res8k-f8k-pz8-n32-nfp
+        --savefile=./sam-b-trans-res8k-f8k-pz8-n16
 # 8281
