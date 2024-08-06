@@ -29,7 +29,7 @@ srun -N 32 -n 256 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env
         --fixed_length=8281 \
         --patch_size=8 \
         --pretrain=sam-b \
-        --epoch=400 \
+        --epoch=1000 \
         --batch_size=1 \
-        --savefile=./sam-b-trans-res8k-f8k-pz8-n32-nfp
+        --savefile=./sam-b-trans-res8k-f8k-pz8-n32-2
 # 8281
