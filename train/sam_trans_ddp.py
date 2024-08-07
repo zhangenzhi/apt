@@ -176,7 +176,7 @@ def main(args, device_id):
             epoch_qmask_score /= len(val_loader)
             
             # Save the best model based on validation accuracy
-            if epoch_val_score > best_val_score:
+            if epoch_val_score > best_val_score and dist.get_rank()==0:
                 best_val_score = epoch_val_score
                 torch.save(model.module.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
                 logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
