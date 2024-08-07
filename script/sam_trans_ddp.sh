@@ -22,6 +22,7 @@ source export_ddp_envs.sh
 module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
+
 # exec
 srun -N 16 -n 128 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sam_trans_ddp.py \
         --data_dir=../paip/output_images_and_masks \
