@@ -223,7 +223,7 @@ def main(args):
 
     with torch.no_grad():
         for batch in test_loader:
-            images, _, masks, _ = batch
+            images, masks = batch
             images = torch.reshape(images,shape=(-1,3,args.resolution,args.resolution))
             masks = torch.reshape(masks,shape=(-1,1,args.resolution,args.resolution))
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
