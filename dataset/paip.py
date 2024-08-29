@@ -34,10 +34,6 @@ class PAIPDataset(Dataset):
                     self.timg_filenames.extend([image])
                     self.mask_filenames.extend([mask])
 
-        # Compute mean and std from the dataset (you need to implement this)
-        self.mean, self.std = self.compute_img_statistics()
-        self.mask_m, self.mask_std = self.compute_mask_statistics()
-
         self.transform= transforms.Compose([
             transforms.ToTensor(),
         ])
@@ -51,6 +47,9 @@ class PAIPDataset(Dataset):
         ])
 
         if normalize:
+            # Compute mean and std from the dataset (you need to implement this)
+            self.mean, self.std = self.compute_img_statistics()
+            self.mask_m, self.mask_std = self.compute_mask_statistics()
             self.transform_timg.transforms.append(transforms.Normalize(mean=self.mean, std=self.std))
             # self.transform_mask.transforms.append(transforms.Normalize(mean=self.mask_m, std=self.mask_std))
     

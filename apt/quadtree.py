@@ -41,6 +41,9 @@ class Rect:
     def get_size(self):
         return self.x2-self.x1, self.y2-self.y1
     
+    def get_center(self):
+        return (self.x2+self.x1)/2, (self.y2+self.y1)/2
+    
     def draw(self, ax, c='grey', lw=0.5, **kwargs):
         # Create a Rectangle patch
         import matplotlib.patches as patches
@@ -48,6 +51,33 @@ class Rect:
                                  width=self.x2-self.x1, 
                                  height=self.y2-self.y1, 
                                  linewidth=lw, edgecolor='w', facecolor='none')
+        ax.add_patch(rect)
+    
+    def draw_area(self, ax, c='green', lw=0.5, **kwargs):
+        # Create a Rectangle patch
+        import matplotlib.patches as patches
+        rect = patches.Rectangle((self.x1, self.y1), 
+                                 width=self.x2-self.x1, 
+                                 height=self.y2-self.y1, 
+                                 linewidth=lw, edgecolor='w', facecolor=c)
+        ax.add_patch(rect)
+    
+    def draw_rescale(self, ax, c='green', lw=0.5, **kwargs):
+        # Create a Rectangle patch
+        import matplotlib.patches as patches
+        rect = patches.Rectangle((self.x1, self.y1), 
+                                 width=16, 
+                                 height=16, 
+                                 linewidth=lw, edgecolor='w', facecolor=c)
+        ax.add_patch(rect)
+    
+    def draw_zorder(self, ax, c='red', lw=0.5, **kwargs):
+        # Create a Rectangle patch
+        import matplotlib.patches as patches
+        rect = patches.Rectangle((self.x1, self.y1), 
+                                 width=16, 
+                                 height=16, 
+                                 linewidth=lw, edgecolor='w', facecolor=c)
         ax.add_patch(rect)
     
                  
@@ -138,10 +168,12 @@ class FixedQuadTree:
 
         # import pdb
         # pdb.set_trace()
-        
+        H,W = self.domain.shape
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
-        mask = np.zeros(shape=self.domain.shape)
+        mask = np.zeros(shape=(H, W, channel))
+        print("de mask:", mask.shape)
+        
         # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
             pred_mask = seq[idx, ...]
@@ -151,5 +183,24 @@ class FixedQuadTree:
     def draw(self, ax, c='grey', lw=1):
         for bbox,value in self.nodes:
             bbox.draw(ax=ax)
+    
+    def draw_area(self, ax, c='green', lw=1):
+        for bbox,value in self.nodes:
+            bbox.draw_area(ax=ax, c=c, lw=lw)
+            
+    def draw_rescale(self, ax, c='green', lw=1):
+        for bbox,value in self.nodes:
+            bbox.draw_rescale(ax=ax, c=c, lw=lw)
+            
+    def draw_zorder(self, ax, c='red', lw=1):
+        xs = []
+        ys = []
+        for bbox,value in self.nodes:
+            x,y = bbox.get_center()
+            xs += [x]
+            ys += [y]
+        ax.plot(xs, ys, color='red', linewidth=1)
+
+        
     
                 

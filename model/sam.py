@@ -70,7 +70,7 @@ def _build_sam_vit(
             qkv_bias=True,
             use_rel_pos=False,
             global_attn_indexes=encoder_global_attn_indexes,
-            window_size=tokens,
+            window_size=14,
             out_chans=prompt_embed_dim,
             pretrain=pretrain,
             qdt=qdt,
@@ -95,40 +95,29 @@ class SAM(nn.Module):
             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
         else:
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
-             
-        self.mask_header = \
-        nn.Sequential(
-            nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), 
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #1k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #2k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.Conv2d(64, output_dim, 1)
-        )
+        
+        import math
+        upscaling_factor = image_shape[0]// (image_shape[0]/patch_size) if image_shape[0]<=4096 else 4096// (image_shape[0]/patch_size)
+        upscaling_factor = int(math.log2(upscaling_factor))
+        self.upscale_blocks = nn.ModuleList()
+        for i in range(upscaling_factor):
+            if i == 0:
+                self.upscale_blocks.append(nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0))
+            else:
+                self.upscale_blocks.append(nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0))
+            self.upscale_blocks.append(LayerNorm2d(64))
+            self.upscale_blocks.append(nn.GELU())
+        self.mask_header =  nn.Conv2d(64, output_dim, 1)
+        self.resize = nn.Upsample((image_shape[0],image_shape[1]))
+        
     def forward(self, x):
         # print(x.shape)
         x = self.transformer(x) 
         # print("vit shape:",x.shape)
+        for layer in self.upscale_blocks:
+            x = layer(x)
         x = self.mask_header(x)
+        x = self.resize(x)
         # print("mask shape:",x.shape)
         return x
 
