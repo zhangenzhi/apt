@@ -95,42 +95,31 @@ class SAM(nn.Module):
             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape)
         else:
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
-             
+        
+        import math
+
         upscaling_factor = image_shape[0]// (image_shape[0]/patch_size)
-        self.mask_header = \
-        nn.Sequential(
+        upscaling_factor = math.log2(upscaling_factor)
+        self.upscale_blocks = nn.ModuleList()
+        block =  nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
             LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
+            nn.GELU())
+        self.upscale_blocks.append(block)
+        for i in range(upscaling_factor-1):
+            block = nn.Sequential(nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
             LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), 
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #1k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #2k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0), #4k
-            LayerNorm2d(64),
-            nn.GELU(),
-            nn.Conv2d(64, output_dim, 1)
-        )
+            nn.GELU())
+            self.upscale_blocks.append(block)
+        self.mask_header =  nn.Conv2d(64, output_dim, 1)
+        
     def forward(self, x):
         print(x.shape)
         x = self.transformer(x) 
         print("vit shape:",x.shape)
+        x = self.upscale_blocks(x)
         x = self.mask_header(x)
-        # print("mask shape:",x.shape)
+        print("mask shape:",x.shape)
         return x
 
 class SAMQDT(nn.Module):
