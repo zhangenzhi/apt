@@ -99,7 +99,7 @@ class SAM(nn.Module):
         import math
 
         upscaling_factor = image_shape[0]// (image_shape[0]/patch_size)
-        upscaling_factor = math.log2(upscaling_factor)
+        upscaling_factor = int(math.log2(upscaling_factor))
         self.upscale_blocks = nn.ModuleList()
         block =  nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
