@@ -115,7 +115,8 @@ class SAM(nn.Module):
         print(x.shape)
         x = self.transformer(x) 
         print("vit shape:",x.shape)
-        x = self.upscale_blocks(x)
+        for layer in self.upscale_blocks:
+            x = layer(x)
         x = self.mask_header(x)
         print("mask shape:",x.shape)
         return x
