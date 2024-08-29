@@ -97,8 +97,7 @@ class SAM(nn.Module):
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
         
         import math
-
-        upscaling_factor = image_shape[0]// (image_shape[0]/patch_size)
+        upscaling_factor = image_shape[0]// (image_shape[0]/patch_size) if image_shape[0]<=4096 else 4096// (image_shape[0]/patch_size)
         upscaling_factor = int(math.log2(upscaling_factor))
         self.upscale_blocks = nn.ModuleList()
         for i in range(upscaling_factor):
@@ -109,8 +108,8 @@ class SAM(nn.Module):
             self.upscale_blocks.append(LayerNorm2d(64))
             self.upscale_blocks.append(nn.GELU())
             # self.upscale_blocks.append(nn.Upsample((image_shape[0],image_shape[1])))
-            
         self.mask_header =  nn.Conv2d(64, output_dim, 1)
+        self.resize = nn.Upsample((image_shape[0],image_shape[1]))
         
     def forward(self, x):
         print(x.shape)
@@ -121,6 +120,7 @@ class SAM(nn.Module):
         for layer in self.upscale_blocks:
             x = layer(x)
         x = self.mask_header(x)
+        x = self.resize(x)
         print("mask shape:",x.shape)
         return x
 
