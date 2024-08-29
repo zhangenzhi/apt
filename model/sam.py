@@ -96,7 +96,7 @@ class SAM(nn.Module):
         else:
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
              
-        # upscaling_factor = image_shape[0]
+        upscaling_factor = image_shape[0]// (image_shape[0]/patch_size)
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
