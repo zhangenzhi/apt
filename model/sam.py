@@ -115,6 +115,8 @@ class SAM(nn.Module):
         print(x.shape)
         x = self.transformer(x) 
         print("vit shape:",x.shape)
+        import pdb
+        pdb.set_trace()
         for layer in self.upscale_blocks:
             x = layer(x)
         x = self.mask_header(x)
