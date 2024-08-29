@@ -96,6 +96,7 @@ class SAM(nn.Module):
         else:
             self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False)
              
+        # upscaling_factor = image_shape[0]
         self.mask_header = \
         nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
@@ -125,9 +126,9 @@ class SAM(nn.Module):
             nn.Conv2d(64, output_dim, 1)
         )
     def forward(self, x):
-        # print(x.shape)
+        print(x.shape)
         x = self.transformer(x) 
-        # print("vit shape:",x.shape)
+        print("vit shape:",x.shape)
         x = self.mask_header(x)
         # print("mask shape:",x.shape)
         return x
