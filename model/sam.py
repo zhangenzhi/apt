@@ -108,6 +108,7 @@ class SAM(nn.Module):
                 self.upscale_blocks.append(nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0))
             self.upscale_blocks.append(LayerNorm2d(64))
             self.upscale_blocks.append(nn.GELU())
+            self.upscale_blocks.append(nn.Upsample((image_shape[0],image_shape[1])))
             
         self.mask_header =  nn.Conv2d(64, output_dim, 1)
         
