@@ -112,16 +112,14 @@ class SAM(nn.Module):
         self.resize = nn.Upsample((image_shape[0],image_shape[1]))
         
     def forward(self, x):
-        print(x.shape)
+        # print(x.shape)
         x = self.transformer(x) 
-        print("vit shape:",x.shape)
-        import pdb
-        pdb.set_trace()
+        # print("vit shape:",x.shape)
         for layer in self.upscale_blocks:
             x = layer(x)
         x = self.mask_header(x)
         x = self.resize(x)
-        print("mask shape:",x.shape)
+        # print("mask shape:",x.shape)
         return x
 
 class SAMQDT(nn.Module):
