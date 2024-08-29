@@ -101,16 +101,14 @@ class SAM(nn.Module):
         upscaling_factor = image_shape[0]// (image_shape[0]/patch_size)
         upscaling_factor = int(math.log2(upscaling_factor))
         self.upscale_blocks = nn.ModuleList()
-        block =  nn.Sequential(
-            nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU())
-        self.upscale_blocks.append(block)
-        for i in range(upscaling_factor-1):
-            block = nn.Sequential(nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0),
-            LayerNorm2d(64),
-            nn.GELU())
-            self.upscale_blocks.append(block)
+        for i in range(upscaling_factor):
+            if i == 0:
+                self.upscale_blocks.append(nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=2, stride=2, padding=0))
+            else:
+                self.upscale_blocks.append(nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, padding=0))
+            self.upscale_blocks.append(LayerNorm2d(64))
+            self.upscale_blocks.append(nn.GELU())
+            
         self.mask_header =  nn.Conv2d(64, output_dim, 1)
         
     def forward(self, x):
