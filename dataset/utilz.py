@@ -73,10 +73,10 @@ def save_3d_as_2d_slices(root_dir, output_dir, max_workers=4):
 # Example usage
 if __name__ == "__main__":
     # Input directory (original 3D volumes)
-    input_dir = "/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600/"
+    input_dir = "/lustre/orion/lrn075/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600/"
     
     # Output directory for 2D slices
-    output_dir = "/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600/"
+    output_dir = "/lustre/orion/lrn075/world-shared/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600/"
     
     # Process and save all slices
     save_3d_as_2d_slices(input_dir, output_dir)
