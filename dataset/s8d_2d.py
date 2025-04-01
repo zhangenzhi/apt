@@ -184,6 +184,7 @@ class S8DFinetune(Dataset):
         self.root_dir = root_dir
         self.fbp_dir = os.path.join(root_dir, 'FBPs')
         self.label_dir = os.path.join(root_dir, 'labels')
+        self.num_classes = 5
         self.transform = transform
         self.target_transform = target_transform
         
@@ -210,13 +211,13 @@ class S8DFinetune(Dataset):
         
         # Load FBP image
         fbp_path = os.path.join(self.fbp_dir, fbp_file)
-        fbp_image = Image.open(fbp_path)
-        fbp_array = np.array(fbp_image)
+        fbp_array = tifffile.imread(fbp_path)
+        # fbp_array = np.array(fbp_image)
         
         # Load label/mask
         label_path = os.path.join(self.label_dir, label_file)
-        label_image = Image.open(label_path)
-        label_array = np.array(label_image)
+        label_array = tifffile.imread(label_path)
+        # label_array = np.array(label_image)
         
         # Apply transforms if any
         if self.transform:
@@ -227,14 +228,15 @@ class S8DFinetune(Dataset):
         # Convert to tensors
         fbp_tensor = torch.from_numpy(fbp_array).float()
         label_tensor = torch.from_numpy(label_array).long()  # Assuming labels are integers
+        one_hot_label_tensor = F.one_hot(label_tensor, num_classes=self.num_classes).permute(2, 0, 1).float()
         
         # Add channel dimension if needed (for 2D images)
         if len(fbp_tensor.shape) == 2:
             fbp_tensor = fbp_tensor.unsqueeze(0)  # Shape: (1, H, W)
         if len(label_tensor.shape) == 2:
-            label_tensor = label_tensor.unsqueeze(0)  # Shape: (1, H, W)
+            one_hot_label_tensor = one_hot_label_tensor.unsqueeze(0)  # Shape: (1, H, W)
             
-        return fbp_tensor, label_tensor
+        return fbp_tensor, one_hot_label_tensor
     
     
 if __name__ == "__main__":
