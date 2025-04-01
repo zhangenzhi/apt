@@ -11,6 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from apt.transforms import ImagePatchify
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -240,7 +241,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default="s8d", 
                         help='base path of dataset.')
-    parser.add_argument('--data_dir', default="/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations", 
+    parser.add_argument('--data_dir', default="/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=8192, type=int,
                         help='resolution of img.')
