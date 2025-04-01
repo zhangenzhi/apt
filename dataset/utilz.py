@@ -32,7 +32,7 @@ def save_3d_as_2d_slices(root_dir, output_dir, max_workers=4):
     
     # Process each volume pair
     for fbp_file, label_file in tqdm(valid_pairs, desc="Processing volumes"):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         # Load volumes
         fbp_volume = tifffile.imread(os.path.join(fbp_dir, fbp_file))
