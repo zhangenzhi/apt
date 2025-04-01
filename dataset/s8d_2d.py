@@ -243,11 +243,9 @@ if __name__ == "__main__":
                         help='base path of dataset.')
     parser.add_argument('--data_dir', default="/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
-    parser.add_argument('--resolution', default=8192, type=int,
-                        help='resolution of img.')
     parser.add_argument('--epoch', default=1, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=128, type=int,
+    parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch_size for training')
     args = parser.parse_args()
 
@@ -264,5 +262,5 @@ if __name__ == "__main__":
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        images,_,_ = batch
+        images, _, = batch
         print(images.shape)
