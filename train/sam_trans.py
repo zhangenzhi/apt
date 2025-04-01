@@ -22,7 +22,6 @@ from dataset.paip_trans import PAIPTrans
 from utils.draw import draw_loss, sub_paip_plot
 from utils.focal_loss import DiceBCELoss, DiceBLoss
 from monai.losses import DiceLoss
-# from dataset.paip_mqdt import PAIPQDTDataset
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
