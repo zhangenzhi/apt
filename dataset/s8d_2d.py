@@ -228,15 +228,15 @@ class S8DFinetune(Dataset):
         # Convert to tensors
         fbp_tensor = torch.from_numpy(fbp_array).float()
         label_tensor = torch.from_numpy(label_array).long()  # Assuming labels are integers
-        one_hot_label_tensor = F.one_hot(label_tensor, num_classes=self.num_classes).permute(2, 0, 1).float()
+        # label_tensor = F.one_hot(label_tensor, num_classes=self.num_classes).permute(2, 0, 1).float()
         
-        # Add channel dimension if needed (for 2D images)
-        if len(fbp_tensor.shape) == 2:
-            fbp_tensor = fbp_tensor.unsqueeze(0)  # Shape: (1, H, W)
-        if len(label_tensor.shape) == 2:
-            one_hot_label_tensor = one_hot_label_tensor.unsqueeze(0)  # Shape: (1, H, W)
+        # # Add channel dimension if needed (for 2D images)
+        # if len(fbp_tensor.shape) == 2:
+        #     fbp_tensor = fbp_tensor.unsqueeze(0)  # Shape: (1, H, W)
+        # if len(label_tensor.shape) == 2:
+        #     one_hot_label_tensor = one_hot_label_tensor.unsqueeze(0)  # Shape: (1, H, W)
             
-        return fbp_tensor, one_hot_label_tensor
+        return fbp_tensor, label_tensor
     
     
 if __name__ == "__main__":
