@@ -282,7 +282,11 @@ class S8DFinetune2D(Dataset):
         img_tensor = torch.from_numpy(img).float().unsqueeze(0)  # Add channel dim
         label_tensor = torch.from_numpy(label).long().unsqueeze(0)
         
-        return img_tensor, label_tensor, record['slice_id']
+        img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1)
+        label_tensor = F.one_hot(label_tensor, num_classes=self.num_classes)
+        label_onehot = label_tensor.permute(2, 0, 1).float()  # (C, H, W)
+        
+        return img_tensor, label_onehot, record['slice_id']
     
     def get_volume_ids(self):
         """Get list of all unique volume IDs"""
