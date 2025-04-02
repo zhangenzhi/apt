@@ -57,8 +57,8 @@ def main(args):
     best_val_score = 0.0
     
     # Move the model to GPU
+    model = model.to(device)
     model = nn.DataParallel(model)
-    model.to(device)
     if args.reload:
         if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
@@ -101,7 +101,7 @@ def main(args):
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             images, masks, _ = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
-            
+            optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, masks)
             print(f"Train Step Loss: {loss}")
@@ -109,7 +109,6 @@ def main(args):
             # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
 
             epoch_train_loss += loss.item()
         end_time = time.time()
