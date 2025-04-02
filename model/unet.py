@@ -50,7 +50,6 @@ class Unet(nn.Module):
 
     def forward(self, input):
         # input = self.up_first(input)
-        import pdb;pdb.set_trace()
         
         e1 = self.layer1(input)  # 64,16,385*16
         e2 = self.layer2(e1)     # 64,8,385*8
@@ -60,9 +59,13 @@ class Unet(nn.Module):
         d4 = self.decode4(f, e4) # 256,32,32
         d3 = self.decode3(d4, e3) # 256,64,64
         d2 = self.decode2(d3, e2) # 128,128,128
+        import pdb;pdb.set_trace()
         d1 = self.decode1(d2, e1) # 64,256,256
         input = self.decode0(d1)     # 64,512,512
         out = self.conv_last(input)  # 1,512,512
+        
+        import pdb;pdb.set_trace()
+        
         return out
     
 if __name__ == '__main__':
