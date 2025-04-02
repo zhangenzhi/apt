@@ -35,7 +35,7 @@ class XCTSliceCreator:
             
         num_slices = fbp_volume.shape[1]
         base_name = fbp_file.split('_reconFBPsimul_')[0]
-        volume_id = base_name.split('_')[-1]  # Extract unique volume ID
+        volume_id = base_name  # TODO: Extract unique volume ID
         
         slice_records = []
         
