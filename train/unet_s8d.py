@@ -81,7 +81,7 @@ def main(args):
     val_set = test_set = Subset(dataset, val_indices)
     # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=0, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
@@ -101,9 +101,10 @@ def main(args):
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             images, masks, _ = batch
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
-        
+            
             outputs = model(images)
             loss = criterion(outputs, masks)
+            print(f"Train Step Loss: {loss}")
                 
             # print("train step loss:{}".format(loss))
             loss.backward()
