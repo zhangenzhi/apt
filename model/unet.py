@@ -40,13 +40,13 @@ class Unet(nn.Module):
         self.decode4 = Decoder(512, 256+256, 256)
         self.decode3 = Decoder(256, 256+128, 256)
         self.decode2 = Decoder(256, 128+64, 128)
-        self.decode1 = Decoder(128, 64+64, 64)
+        self.decode1 = Decoder(128, 16+64, 16)
         self.decode0 = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            nn.Conv2d(64, 32, kernel_size=3, padding=1, bias=False),
-            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False)
+            # nn.Conv2d(64, 32, kernel_size=3, padding=1, bias=False),
+            # nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False)
         )
-        self.conv_last = nn.Conv2d(64, n_class, 1, 2)
+        self.conv_last = nn.Conv2d(16, n_class, 1, 2)
 
     def forward(self, input):
         # input = self.up_first(input)
