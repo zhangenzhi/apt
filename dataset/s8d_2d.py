@@ -237,13 +237,67 @@ class S8DFinetune(Dataset):
         #     one_hot_label_tensor = one_hot_label_tensor.unsqueeze(0)  # Shape: (1, H, W)
             
         return fbp_tensor, label_tensor
+
+class S8DFinetune2D(Dataset):
+    """PyTorch Dataset for loading 2D slices"""
     
+    def __init__(self, slice_dir, transform=None, target_transform=None, subset=None):
+        """
+        Args:
+            slice_dir: Directory containing the slices
+            transform: Transformations for images
+            target_transform: Transformations for labels
+            subset: Optional subset of slices to use (list of slice_ids)
+        """
+        self.slice_dir = slice_dir
+        self.transform = transform
+        self.target_transform = target_transform
+        self.manifest = self._load_manifest()
+        
+        if subset is not None:
+            self.manifest = self.manifest[self.manifest['slice_id'].isin(subset)]
+        
+    def _load_manifest(self):
+        import pandas as pd
+        manifest_path = os.path.join(self.slice_dir, 'slice_manifest.csv')
+        return pd.read_csv(manifest_path)
+    
+    def __len__(self):
+        return len(self.manifest)
+    
+    def __getitem__(self, idx):
+        record = self.manifest.iloc[idx]
+        
+        # Load image and label
+        img = tifffile.imread(os.path.join(self.slice_dir, record['image_path']))
+        label = tifffile.imread(os.path.join(self.slice_dir, record['label_path']))
+        
+        # Apply transforms
+        if self.transform:
+            img = self.transform(img)
+        if self.target_transform:
+            label = self.target_transform(label)
+        
+        # Convert to tensors
+        img_tensor = torch.from_numpy(img).float().unsqueeze(0)  # Add channel dim
+        label_tensor = torch.from_numpy(label).long().unsqueeze(0)
+        
+        return img_tensor, label_tensor, record['slice_id']
+    
+    def get_volume_ids(self):
+        """Get list of all unique volume IDs"""
+        return sorted(self.manifest['volume_id'].unique())
+    
+    def get_slices_for_volume(self, volume_id):
+        """Get all slices for a specific volume"""
+        return self.manifest[self.manifest['volume_id'] == volume_id]['slice_id'].tolist()
+
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default="s8d", 
                         help='base path of dataset.')
-    parser.add_argument('--data_dir', default="/lustre/orion/world-shared/lrn075/Riken_XCT_Simulated_Data/8192x8192xN_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
+    parser.add_argument('--data_dir', default="/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
     parser.add_argument('--epoch', default=1, type=int,
                         help='Epoch of training.')
@@ -255,7 +309,10 @@ if __name__ == "__main__":
     # dataset = Spring8Dataset(args.data_dir, args.resolution)
     # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     
-    dataset = S8DFinetune(args.data_dir)
+    # dataset = S8DFinetune(args.data_dir)
+    # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    
+    dataset = S8DFinetune2D(args.data_dir)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     
     # # S8DAP  usage
