@@ -65,7 +65,7 @@ def main(args, device_id):
     if args.reload:
         if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
-    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=True)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # Define the learning rate scheduler
     milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
