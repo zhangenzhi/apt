@@ -49,7 +49,8 @@ class Unet(nn.Module):
         self.conv_last = nn.Conv2d(64, n_class, 1, 2)
 
     def forward(self, input):
-        input = self.up_first(input)
+        # input = self.up_first(input)
+        import pdb;pdb.set_trace()
         
         e1 = self.layer1(input)  # 64,16,385*16
         e2 = self.layer2(e1)     # 64,8,385*8
