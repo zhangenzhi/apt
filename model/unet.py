@@ -61,8 +61,8 @@ class Unet(nn.Module):
         d3 = self.decode3(d4, e3) # 256,64,64
         d2 = self.decode2(d3, e2) # 128,128,128
         d1 = self.decode1(d2, e1) # 64,256,256
-        d0 = self.decode0(d1)     # 64,512,512
-        out = self.conv_last(d0)  # 1,512,512
+        input = self.decode0(d1)     # 64,512,512
+        out = self.conv_last(input)  # 1,512,512
         return out
     
 if __name__ == '__main__':
