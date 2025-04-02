@@ -11,7 +11,6 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 from model.unet import Unet
 from dataset.s8d_2d import S8DFinetune2D
@@ -49,7 +48,7 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     num_class = 5
     
-    model = Unet(n_class=num_class, pretrain=False)
+    model = Unet(n_class=num_class, in_channels=1, pretrain=True)
     criterion = MulticlassDiceLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
