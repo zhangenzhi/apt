@@ -241,7 +241,7 @@ class S8DFinetune(Dataset):
 class S8DFinetune2D(Dataset):
     """PyTorch Dataset for loading 2D slices"""
     
-    def __init__(self, slice_dir, transform=None, target_transform=None, subset=None):
+    def __init__(self, slice_dir, num_classes=5, transform=None, target_transform=None, subset=None):
         """
         Args:
             slice_dir: Directory containing the slices
@@ -251,6 +251,7 @@ class S8DFinetune2D(Dataset):
         """
         self.slice_dir = slice_dir
         self.transform = transform
+        self.num_classes = num_classes
         self.target_transform = target_transform
         self.manifest = self._load_manifest()
         
