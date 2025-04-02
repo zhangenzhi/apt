@@ -166,3 +166,27 @@ class FocalLoss(nn.Module):
         loss = -1 * (1-pt)**self.gamma * logpt
         if self.size_average: return loss.mean()
         else: return loss.sum()
+        
+class MulticlassDiceLoss(torch.nn.Module):
+    def __init__(self, smooth=1e-6):
+        super(MulticlassDiceLoss, self).__init__()
+        self.smooth = smooth
+    
+    def forward(self, pred, target):
+        # pred: (N, C, H, W) - raw logits
+        # target: (N, C, H, W) - one-hot encoded
+        
+        # Apply softmax to get probabilities
+        pred = torch.softmax(pred, dim=1)
+        
+        # Calculate dice per channel
+        intersection = torch.sum(pred * target, dim=(2, 3))
+        union = torch.sum(pred + target, dim=(2, 3))
+        
+        dice = (2. * intersection + self.smooth) / (union + self.smooth)
+        
+        # Average across channels
+        loss = 1. - dice.mean()
+        
+        return loss
+    
