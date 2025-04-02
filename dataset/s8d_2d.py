@@ -281,7 +281,7 @@ class S8DFinetune2D(Dataset):
         
         # Convert to tensors
         img_tensor = torch.from_numpy(img).float().unsqueeze(0)  # Add channel dim
-        label_tensor = torch.from_numpy(label).long().unsqueeze(0)
+        label_tensor = torch.from_numpy(label).long()
         
         img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1)
         label_tensor = F.one_hot(label_tensor, num_classes=self.num_classes)
