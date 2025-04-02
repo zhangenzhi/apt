@@ -4,6 +4,7 @@
 #SBATCH -t 02:00:00
 #SBATCH -N 8
 #SBATCH -p batch
+#SBATCH -q debug
 #SBATCH --mail-user=zhangsuiyu657@gmail.com
 #SBATCH --mail-type=END
 

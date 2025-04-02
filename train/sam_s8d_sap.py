@@ -14,7 +14,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-from model.apt import APT
 from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
 from model.unet import Unet

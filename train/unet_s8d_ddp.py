@@ -184,7 +184,6 @@ def main(args, device_id):
 
         test_loss /= len(test_loader)
         logging.info(f"Test Loss: {test_loss:.4f}")
-        # draw_loss(output_dir=output_dir)
 
 def sub_trans_plot(image, mask, pred_mask, bi, epoch, output_dir):
     for i in range(image.size(0)):
@@ -243,19 +242,13 @@ def draw_loss(output_dir):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
-    parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
+    parser.add_argument('--dataset', type=str,  default="s8d", help='name of the dataset.')
+    parser.add_argument('--data_dir', default="./lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
     parser.add_argument('--resolution', default=512, type=int,
                         help='resolution of img.')
     parser.add_argument('--lr', default=1e-4, type=float,
                         help='resolution of img.')
-    parser.add_argument('--patch_size', default=8, type=int,
-                        help='patch size.')
-    parser.add_argument('--fixed_length', default=512, type=int,
-                        help='length of sequence.')
-    parser.add_argument('--pretrain', default="sam-b", type=str,
-                        help='Use SAM pretrained weigths.')
     parser.add_argument('--reload', default=True, type=bool,
                         help='Use reload val weigths.')
     parser.add_argument('--epoch', default=10, type=int,
