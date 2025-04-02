@@ -322,5 +322,5 @@ if __name__ == "__main__":
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
         images, label, slice_id = batch
-        # import pdb;pdb.set_trace()
-        print(images.shape, label.shape, slice_id)
+        import pdb;pdb.set_trace()
+        print(images.shape, label.shape)
