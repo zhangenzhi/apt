@@ -30,7 +30,7 @@ class Unet(nn.Module):
         
         self.base_layers = list(self.base_model.children())
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False),
+            nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False),
             self.base_layers[1],
             self.base_layers[2])
         self.layer2 = nn.Sequential(*self.base_layers[3:5])
