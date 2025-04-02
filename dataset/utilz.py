@@ -69,7 +69,7 @@ class XCTSliceCreator:
                 'image_path': os.path.join('images', img_filename),
                 'label_path': os.path.join('labels', label_filename)
             })
-        
+        print(f"Finished:{fbp_file}/{label_file}")
         return slice_records
 
     def create_slices(self, num_workers=4):
