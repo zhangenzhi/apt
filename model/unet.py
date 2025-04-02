@@ -42,7 +42,7 @@ class Unet(nn.Module):
         self.decode2 = Decoder(256, 128+64, 128)
         self.decode1 = Decoder(128, 16+64, 16)
         self.decode0 = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+            nn.Upsample(scale_factor=4, mode='bilinear', align_corners=True),
             # nn.Conv2d(64, 32, kernel_size=3, padding=1, bias=False),
             # nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False)
         )
@@ -59,7 +59,6 @@ class Unet(nn.Module):
         d4 = self.decode4(f, e4) # 256,32,32
         d3 = self.decode3(d4, e3) # 256,64,64
         d2 = self.decode2(d3, e2) # 128,128,128
-        import pdb;pdb.set_trace()
         d1 = self.decode1(d2, e1) # 64,256,256
         input = self.decode0(d1)     # 64,512,512
         out = self.conv_last(input)  # 1,512,512
