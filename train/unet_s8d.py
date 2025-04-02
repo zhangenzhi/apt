@@ -16,7 +16,7 @@ import math
 from model.unet import Unet
 from dataset.s8d_2d import S8DFinetune2D
 from utils.focal_loss import MulticlassDiceLoss
-from utils.draw import draw_loss,
+from utils.draw import draw_loss
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -201,15 +201,13 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
     parser.add_argument('--data_dir', default="/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
-    parser.add_argument('--pretrain', default="sam", type=str,
-                        help='Use SAM pretrained weigths.')
     parser.add_argument('--reload', default=True, type=bool,
                         help='Use SAM pretrained weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./output",
+    parser.add_argument('--savefile', default="./unet_output",
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
