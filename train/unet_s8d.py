@@ -104,13 +104,12 @@ def main(args):
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, masks)
-            print(f"Train Step Loss: {loss}")
+            print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
                 
-            # print("train step loss:{}".format(loss))
             loss.backward()
             optimizer.step()
-
             epoch_train_loss += loss.item()
+            
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
@@ -124,7 +123,6 @@ def main(args):
         epoch_val_score = 0.0
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
-                # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 images, masks, _ = batch
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)

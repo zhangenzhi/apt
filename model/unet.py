@@ -37,10 +37,10 @@ class Unet(nn.Module):
         self.layer3 = self.base_layers[5]
         self.layer4 = self.base_layers[6]
         self.layer5 = self.base_layers[7]
-        self.decode4 = Decoder(512, 256+256, 256)
-        self.decode3 = Decoder(256, 256+128, 256)
-        self.decode2 = Decoder(256, 128+64, 128)
-        self.decode1 = Decoder(128, 16+64, 16)
+        self.decode4 = Decoder(512, 128+256, 128)
+        self.decode3 = Decoder(128, 128+128, 128)
+        self.decode2 = Decoder(128, 64+64, 64)
+        self.decode1 = Decoder(64, 16+64, 16)
         self.conv_last = nn.Conv2d(16, n_class, 1, 2)
         self.upscale = nn.Sequential(
             nn.Upsample(scale_factor=4, mode='bilinear', align_corners=True),

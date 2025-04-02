@@ -115,9 +115,8 @@ def main(args, device_id):
             outputs = F.sigmoid(outputs)
             loss = criterion(outputs, masks)
             loss.backward()
-            print(f"Train Step Loss: {loss}")
             optimizer.step()
-            # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
+            print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
