@@ -112,7 +112,7 @@ def main(args, device_id):
             images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(images)
-            outputs = F.sigmoid(outputs)
+            # outputs = F.sigmoid(outputs)
             loss = criterion(outputs, masks)
             loss.backward()
             optimizer.step()
@@ -137,7 +137,7 @@ def main(args, device_id):
                     images, masks, _= batch
                     images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                     outputs = model(images)
-                    outputs = F.sigmoid(outputs)
+                    # outputs = F.sigmoid(outputs)
                     loss = criterion(outputs, masks)
                     score = dice_score(outputs, masks)
                     epoch_val_loss += loss.item()
@@ -176,7 +176,7 @@ def main(args, device_id):
                 images, masks, _ = batch
                 images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                 outputs = model(images)
-                outputs = F.sigmoid(outputs)
+                # outputs = F.sigmoid(outputs)
                 loss = criterion(outputs, masks, act=False)
                 test_loss += loss.item()
 
