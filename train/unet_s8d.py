@@ -1,4 +1,6 @@
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+
 import sys
 sys.path.append("./")
 import argparse
@@ -59,9 +61,9 @@ def main(args):
     # Move the model to GPU
     model = model.to(device)
     model = nn.DataParallel(model)
-    # if args.reload:
-    #     if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
-    #         model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
+    if args.reload:
+        if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
     # Define the learning rate scheduler
     milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
@@ -96,54 +98,54 @@ def main(args):
     for epoch in range(num_epochs):
         model.train()
         epoch_train_loss = 0.0
-        start_time = time.time()
-        for batch in train_loader:
-            # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            images, masks, _ = batch
-            images, masks = images.to(device), masks.to(device)  # Move data to GPU
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, masks)
-            print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
+    #     start_time = time.time()
+    #     for batch in train_loader:
+    #         # with torch.autocast(device_type='cuda', dtype=torch.float16):
+    #         images, masks, _ = batch
+    #         images, masks = images.to(device), masks.to(device)  # Move data to GPU
+    #         optimizer.zero_grad()
+    #         outputs = model(images)
+    #         loss = criterion(outputs, masks)
+    #         print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
                 
-            loss.backward()
-            optimizer.step()
-            epoch_train_loss += loss.item()
+    #         loss.backward()
+    #         optimizer.step()
+    #         epoch_train_loss += loss.item()
             
-        end_time = time.time()
-        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+    #     end_time = time.time()
+    #     logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
-        epoch_train_loss /= len(train_loader)
-        train_losses.append(epoch_train_loss)
-        scheduler.step()
+    #     epoch_train_loss /= len(train_loader)
+    #     train_losses.append(epoch_train_loss)
+    #     scheduler.step()
 
-        # Validation
-        model.eval()
-        epoch_val_loss = 0.0
-        epoch_val_score = 0.0
-        with torch.no_grad():
-            for bi,batch in enumerate(val_loader):
-                images, masks, _ = batch
-                images, masks = images.to(device), masks.to(device)  # Move data to GPU
-                outputs = model(images)
-                loss = criterion(outputs, masks)
-                score = dice_score(outputs, masks)
-                epoch_val_loss += loss.item()
-                epoch_val_score += score.item()
+        # # Validation
+        # model.eval()
+        # epoch_val_loss = 0.0
+        # epoch_val_score = 0.0
+        # with torch.no_grad():
+        #     for bi,batch in enumerate(val_loader):
+        #         images, masks, _ = batch
+        #         images, masks = images.to(device), masks.to(device)  # Move data to GPU
+        #         outputs = model(images)
+        #         loss = criterion(outputs, masks)
+        #         score = dice_score(outputs, masks)
+        #         epoch_val_loss += loss.item()
+        #         epoch_val_score += score.item()
 
-        epoch_val_loss /= len(val_loader)
-        epoch_val_score /= len(val_loader)
-        val_losses.append(epoch_val_loss)
-        # Save the best model based on validation accuracy
-        if epoch_val_score > best_val_score:
-            best_val_score = epoch_val_score
-            torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
-            logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
-            Score: {epoch_val_score:.4f}")
+        # epoch_val_loss /= len(val_loader)
+        # epoch_val_score /= len(val_loader)
+        # val_losses.append(epoch_val_loss)
+        # # Save the best model based on validation accuracy
+        # if epoch_val_score > best_val_score:
+        #     best_val_score = epoch_val_score
+        #     torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
+        #     logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
+        # logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
+        #     Score: {epoch_val_score:.4f}")
         
-        # if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-        #     sub_trans_plot(images, masks, output_dir=args.savefile)
+        if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            sub_trans_plot(images, masks, output_dir=args.savefile)
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
@@ -173,6 +175,9 @@ def main(args):
 
 def sub_trans_plot(image, mask, pred, bi, epoch, output_dir):
     # only one sample
+    
+    import pdb;pdb.set_trace()
+    
     for i in range(image.size(0)):
         image = image[i].cpu().permute(1, 2, 0).numpy()
         mask_true = mask[i].cpu().numpy()
