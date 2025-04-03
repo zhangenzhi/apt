@@ -143,8 +143,7 @@ def main(args):
             best_val_score = epoch_val_score
             torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
             logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
-            Score: {epoch_val_score:.4f}")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f}, Score: {epoch_val_score:.4f}")
         
         if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
             sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)

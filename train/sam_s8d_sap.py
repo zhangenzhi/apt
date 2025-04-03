@@ -19,8 +19,7 @@ from model.sam import SAMQDT
 from model.unet import Unet
 from dataset.paip_trans import PAIPTrans
 from utils.draw import draw_loss, sub_paip_plot
-from utils.focal_loss import DiceBCELoss, DiceBLoss
-from monai.losses import DiceLoss
+from utils.focal_loss import MulticlassDiceLoss
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -62,14 +61,14 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
     sqrt_len=int(math.sqrt(args.fixed_length))
-    num_class = 2 
+    num_class = 5
     
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
             output_dim=num_class, 
             pretrain=args.pretrain,
             qdt=True)
-    criterion = DiceBLoss()
+    criterion = MulticlassDiceLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
