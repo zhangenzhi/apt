@@ -1,5 +1,4 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 
 import sys
 sys.path.append("./")
@@ -13,9 +12,6 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import torch.nn as nn
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 from model.unet import Unet
 from dataset.s8d_2d import S8DFinetune2D
 from utils.focal_loss import MulticlassDiceLoss
@@ -24,16 +20,50 @@ from utils.draw import draw_loss
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-def dice_score(inputs, targets, smooth=1):
-    inputs = F.sigmoid(inputs)       
+def dice_score(
+    inputs: torch.Tensor,
+    targets: torch.Tensor,
+    smooth: float = 1e-6,
+    eps: float = 1e-7,
+    reduction: str = "mean"
+) -> torch.Tensor:
+    """
+    Compute Dice score for multi-class segmentation.
     
-    #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    Args:
+        inputs: (N, C, H, W) tensor of logits/probabilities
+        targets: (N, C, H, W) one-hot encoded targets OR (N, H, W) class indices
+        smooth: Laplace smoothing factor
+        eps: Numerical stability term
+        reduction: "mean"|"none"|"sum"
     
-    intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
-    return coeff  
+    Returns:
+        Dice score (scalar or per-class scores)
+    """
+    # Convert targets to one-hot if needed
+    if targets.dim() == 3:
+        targets = torch.eye(inputs.shape[1], device=targets.device)[targets].permute(0,3,1,2)
+    
+    # Normalize inputs if needed (assumes inputs are logits)
+    if inputs.size(1) > 1:
+        probs = torch.softmax(inputs, dim=1)
+    else:
+        probs = torch.sigmoid(inputs)
+    
+    # Compute intersection and union
+    dims = (0, 2, 3)  # Batch and spatial dims
+    intersection = torch.sum(probs * targets, dim=dims)
+    cardinality = torch.sum(probs + targets, dim=dims)
+    
+    # Compute dice per class
+    dice = (2. * intersection + smooth) / (cardinality + smooth + eps)
+    
+    if reduction == "mean":
+        return dice.mean()
+    elif reduction == "sum":
+        return dice.sum()
+    return dice  # per-class scores
+
 
 import logging
 
@@ -105,7 +135,6 @@ def main(args):
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(images)
-            outputs = F.sigmoid(outputs)
             loss = criterion(outputs, masks)
             print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
                 
@@ -129,7 +158,6 @@ def main(args):
                 images, masks, _ = batch
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
-                outputs = F.sigmoid(outputs)
                 loss = criterion(outputs, masks)
                 score = dice_score(outputs, masks)
                 epoch_val_loss += loss.item()

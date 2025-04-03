@@ -139,13 +139,14 @@ def main(args, device_id):
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, masks)
+            score = dice_score(outputs, masks)
             loss.backward()
             optimizer.step()
-            print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
-        logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        # logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -162,7 +163,6 @@ def main(args, device_id):
                     images, masks, _= batch
                     images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                     outputs = model(images)
-                    # outputs = F.sigmoid(outputs)
                     loss = criterion(outputs, masks)
                     score = dice_score(outputs, masks)
                     epoch_val_loss += loss.item()
