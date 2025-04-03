@@ -59,9 +59,9 @@ def main(args):
     # Move the model to GPU
     model = model.to(device)
     model = nn.DataParallel(model)
-    if args.reload:
-        if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
-            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
+    # if args.reload:
+    #     if os.path.exists(os.path.join(args.savefile, "best_score_model.pth")):
+    #         model.load_state_dict(torch.load(os.path.join(args.savefile, "best_score_model.pth")))
     # Define the learning rate scheduler
     milestones =[int(args.epoch*r) for r in [0.5, 0.75, 0.875]]
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
