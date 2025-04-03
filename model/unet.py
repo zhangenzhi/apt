@@ -3,7 +3,7 @@ sys.path.append("./")
 import torch
 import torchvision
 import torch.nn as nn
-
+import torch.nn.functional as F
 from torchvision.models import resnet18, ResNet18_Weights
 
 # class Decoder(nn.Module):
@@ -86,7 +86,7 @@ class Decoder(nn.Module):
         x = torch.cat([x, skip], dim=1)
         return self.conv(x)
 
-class UNet(nn.Module):
+class Unet(nn.Module):
     def __init__(self, n_class=5, in_channels=1, pretrained=True):
         super().__init__()
         
