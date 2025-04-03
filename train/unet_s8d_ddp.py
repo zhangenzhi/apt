@@ -153,10 +153,10 @@ def main(args, device_id):
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
                 Score: {epoch_val_score:.4f}.")
             
-            # # Visualize
-            # if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-            #     with torch.no_grad():
-            #         sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
+            # Visualize
+            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                with torch.no_grad():
+                    sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
 
                         
     # Save train and validation losses
@@ -183,38 +183,25 @@ def main(args, device_id):
         test_loss /= len(test_loader)
         logging.info(f"Test Loss: {test_loss:.4f}")
 
-def sub_trans_plot(image, mask, pred_mask, bi, epoch, output_dir):
-    for i in range(image.size(0)):
-        image = image[i].cpu().permute(1, 2, 0).numpy()
-        mask_true = mask[i].cpu().numpy()
- 
-        # Squeeze the singleton dimension from mask_true
-        mask_true = mask_true[1]
-        mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
-        mask_true = mask_true.astype(np.float64)
-        
-        # print(mask_true.sum())
-        pred_mask = (pred_mask[i].cpu() > 0.5).numpy()
-        mask_pred = pred_mask[1]
-        mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
+def sub_trans_plot(image, mask, pred, bi, epoch, output_dir):
+    # only one sample
+    
+    import pdb;pdb.set_trace()
+    
+    image = image[0]
+    true_mask = mask[0]
+    pred_mask = pred[0]
+  
+    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
+    filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_pred = f"pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
 
-        # Plot and save images
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 3, 1)
-        plt.imshow(image)
-        plt.title("Input Image")
-
-        plt.subplot(1, 3, 2)
-        plt.imshow(mask_true, cmap='gray')
-        plt.title("True Mask")
-
-        plt.subplot(1, 3, 3)
-        plt.imshow(mask_pred, cmap='gray')
-        plt.title("Predicted Mask")
-        plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
-        plt.close()
-
-        break
+    from dataset.utilz import save_input_as_image, save_pred_as_mask
+    
+    save_input_as_image(image, os.path.join(output_dir, filename_image))
+    save_pred_as_mask(true_mask, os.path.join(output_dir, filename_mask))
+    save_pred_as_mask(pred_mask, os.path.join(output_dir, filename_pred))
+    print(f"Visualized for {epoch}-{bi}, Done!")
      
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)

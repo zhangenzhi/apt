@@ -98,54 +98,53 @@ def main(args):
     for epoch in range(num_epochs):
         model.train()
         epoch_train_loss = 0.0
-    #     start_time = time.time()
-    #     for batch in train_loader:
-    #         # with torch.autocast(device_type='cuda', dtype=torch.float16):
-    #         images, masks, _ = batch
-    #         images, masks = images.to(device), masks.to(device)  # Move data to GPU
-    #         optimizer.zero_grad()
-    #         outputs = model(images)
-            # outputs = F.sigmoid(outputs)
-    #         loss = criterion(outputs, masks)
-    #         print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
+        start_time = time.time()
+        for batch in train_loader:
+            # with torch.autocast(device_type='cuda', dtype=torch.float16):
+            images, masks, _ = batch
+            images, masks = images.to(device), masks.to(device)  # Move data to GPU
+            optimizer.zero_grad()
+            outputs = model(images)
+            outputs = F.sigmoid(outputs)
+            loss = criterion(outputs, masks)
+            print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
                 
-    #         loss.backward()
-    #         optimizer.step()
-    #         epoch_train_loss += loss.item()
+            loss.backward()
+            optimizer.step()
+            epoch_train_loss += loss.item()
             
-    #     end_time = time.time()
-    #     logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        end_time = time.time()
+        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
 
-    #     epoch_train_loss /= len(train_loader)
-    #     train_losses.append(epoch_train_loss)
-    #     scheduler.step()
+        epoch_train_loss /= len(train_loader)
+        train_losses.append(epoch_train_loss)
+        scheduler.step()
 
-        # # Validation
-        # model.eval()
-        # epoch_val_loss = 0.0
-        # epoch_val_score = 0.0
+        # Validation
+        model.eval()
+        epoch_val_loss = 0.0
+        epoch_val_score = 0.0
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
                 images, masks, _ = batch
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
                 outputs = F.sigmoid(outputs)
-                break
-        #         loss = criterion(outputs, masks)
-        #         score = dice_score(outputs, masks)
-        #         epoch_val_loss += loss.item()
-        #         epoch_val_score += score.item()
+                loss = criterion(outputs, masks)
+                score = dice_score(outputs, masks)
+                epoch_val_loss += loss.item()
+                epoch_val_score += score.item()
 
-        # epoch_val_loss /= len(val_loader)
-        # epoch_val_score /= len(val_loader)
-        # val_losses.append(epoch_val_loss)
-        # # Save the best model based on validation accuracy
-        # if epoch_val_score > best_val_score:
-        #     best_val_score = epoch_val_score
-        #     torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
-        #     logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
-        # logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
-        #     Score: {epoch_val_score:.4f}")
+        epoch_val_loss /= len(val_loader)
+        epoch_val_score /= len(val_loader)
+        val_losses.append(epoch_val_loss)
+        # Save the best model based on validation accuracy
+        if epoch_val_score > best_val_score:
+            best_val_score = epoch_val_score
+            torch.save(model.state_dict(), os.path.join(args.savefile, "best_score_model.pth"))
+            logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
+        logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
+            Score: {epoch_val_score:.4f}")
         
         if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
             sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
