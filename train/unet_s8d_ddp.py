@@ -156,7 +156,7 @@ def main(args, device_id):
             # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                 with torch.no_grad():
-                    sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
+                    sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
 
                         
     # Save train and validation losses
