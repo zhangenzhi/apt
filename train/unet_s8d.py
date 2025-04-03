@@ -123,10 +123,11 @@ def main(args):
         # model.eval()
         # epoch_val_loss = 0.0
         # epoch_val_score = 0.0
-        # with torch.no_grad():
-        #     for bi,batch in enumerate(val_loader):
-        #         images, masks, _ = batch
-        #         images, masks = images.to(device), masks.to(device)  # Move data to GPU
+        with torch.no_grad():
+            for bi,batch in enumerate(val_loader):
+                images, masks, _ = batch
+                images, masks = images.to(device), masks.to(device)  # Move data to GPU
+                break
         #         outputs = model(images)
         #         loss = criterion(outputs, masks)
         #         score = dice_score(outputs, masks)
