@@ -142,8 +142,8 @@ def main(args):
         logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
             Score: {epoch_val_score:.4f}")
         
-        if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-            sub_trans_plot(images, masks, output_dir=args.savefile)
+        # if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+        #     sub_trans_plot(images, masks, output_dir=args.savefile)
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
