@@ -91,7 +91,8 @@ class UNet(nn.Module):
         super().__init__()
         
         # Encoder (ResNet18 backbone)
-        base_model = torchvision.models.resnet18(pretrained=pretrained)
+        base_model = torchvision.models.resnet18(pretrained=False)
+        base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
         
         # Modify first conv for 1-channel input
         self.encoder1 = nn.Sequential(
