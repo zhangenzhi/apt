@@ -16,7 +16,7 @@ import math
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from model.unet import Unet
+from model.unet import Unet, LightweightUNet
 from dataset.s8d_2d import S8DFinetune2D
 from utils.focal_loss import MulticlassDiceLoss
 
@@ -82,7 +82,7 @@ def main(args, device_id):
     # Create an instance of the U-Net model and other necessary components
     num_class = 5
     
-    model =  Unet(n_class=num_class, in_channels=1, pretrain=True)
+    model =  LightweightUNet(n_class=num_class, in_channels=1, pretrain=True)
     criterion = MulticlassDiceLoss()
     best_val_score = 0.0
     
@@ -145,7 +145,7 @@ def main(args, device_id):
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
-        # logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
 
         epoch_train_loss /= len(train_loader)
@@ -180,8 +180,7 @@ def main(args, device_id):
             
             # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                with torch.no_grad():
-                    sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
+                sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
 
                         
     # Save train and validation losses
