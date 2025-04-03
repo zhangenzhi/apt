@@ -144,13 +144,6 @@ def main(args, device_id):
                     epoch_val_score += score.item()
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
-
-            # Visualize
-            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                with torch.no_grad():
-                    for bi,batch in enumerate(val_loader):
-                        sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
-            epoch_qmask_score /= len(val_loader)
             
             # Save the best model based on validation accuracy
             if epoch_val_score > best_val_score and dist.get_rank()==0:
@@ -159,6 +152,11 @@ def main(args, device_id):
                 logging.info(f"Model save with dice score {best_val_score} at epoch {epoch}")
             logging.info(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {epoch_train_loss:.4f}, Validation Loss: {epoch_val_loss:.4f},\
                 Score: {epoch_val_score:.4f}.")
+            
+            # Visualize
+            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                with torch.no_grad():
+                    sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
 
                         
     # Save train and validation losses
