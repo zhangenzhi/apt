@@ -1,5 +1,6 @@
 import os
 import tifffile
+from PIL import Image
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
@@ -117,3 +118,54 @@ if __name__ == "__main__":
         output_dir=output_dir
     )
     creator.create_slices(num_workers=8)  # Use multiple cores
+    
+
+def save_pred_as_mask(pred_tensor, filename):
+    """
+    Save 5-class prediction tensor as colored mask image
+    Args:
+        pred_tensor: torch.Size([5, 8192, 8192])
+        filename: Output path (.tiff or .png)
+    """
+    # Convert to class indices (argmax)
+    pred_mask = pred_tensor.argmax(0).cpu().numpy()  # (8192, 8192)
+    
+    # Create color palette (5 classes + background)
+    palette = np.array([
+        [0, 0, 0],       # Class 0 - Black
+        [255, 0, 0],     # Class 1 - Red
+        [0, 255, 0],     # Class 2 - Green
+        [0, 0, 255],     # Class 3 - Blue
+        [255, 255, 0],   # Class 4 - Yellow
+        [255, 0, 255]    # Class 5 - Magenta (if needed)
+    ], dtype=np.uint8)
+    
+    # Apply color mapping
+    colored_mask = palette[pred_mask]
+    
+    # Save based on extension
+    if filename.endswith('.tiff') or filename.endswith('.tif'):
+        tifffile.imwrite(filename, colored_mask, compression='zlib')
+    else:
+        Image.fromarray(colored_mask).save(filename)
+        
+def save_input_as_image(input_tensor, filename):
+    """
+    Save 1-channel input tensor as TIFF/PNG image
+    Args:
+        input_tensor: torch.Size([1, 8192, 8192])
+        filename: Output path (use .tiff or .png extension)
+    """
+    # Convert tensor to numpy and squeeze
+    img_array = input_tensor.squeeze().cpu().numpy()  # Now (8192, 8192)
+    
+    # Normalize to 0-255 if needed
+    if img_array.dtype != np.uint8:
+        img_array = ((img_array - img_array.min()) / 
+                    (img_array.max() - img_array.min()) * 255).astype(np.uint8)
+    
+    # Save based on extension
+    if filename.endswith('.tiff') or filename.endswith('.tif'):
+        tifffile.imwrite(filename, img_array, compression='zlib')
+    else:
+        Image.fromarray(img_array).save(filename)

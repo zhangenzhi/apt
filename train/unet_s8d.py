@@ -181,29 +181,20 @@ def sub_trans_plot(image, mask, pred, bi, epoch, output_dir):
     
     import pdb;pdb.set_trace()
     
-    for i in range(image.size(0)):
-        image = image[i].cpu().permute(1, 2, 0).numpy()
-        mask_true = mask[i].cpu().numpy()
-        pred = pred[i].cpu().numpy()
-        
-        # Plot and save images
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 3, 1)
-        plt.imshow(image)
-        plt.title("Input Image")
+    image = image[0]
+    true_mask = mask[0]
+    pred_mask = pred[0]
+  
+    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
+    filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_pred = f"pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
 
-        plt.subplot(1, 3, 2)
-        plt.imshow(mask_true, cmap='gray')
-        plt.title("True Mask")
-        
-        plt.subplot(1, 3, 3)
-        plt.imshow(pred, cmap='gray')
-        plt.title("True Mask")
-        
-        plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
-        plt.close()
-        
-        break
+    from dataset.utilz import save_input_as_image, save_pred_as_mask
+    
+    save_input_as_image(image, os.path.join(output_dir,filename_image))
+    save_pred_as_mask(true_mask, os.path.join(output_dir,filename_mask))
+    save_pred_as_mask(pred_mask, os.path.join(output_dir,filename_pred))
+    print(f"Visualized for {epoch}-{bi}, Done!")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
