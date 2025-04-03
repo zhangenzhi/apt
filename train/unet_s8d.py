@@ -146,7 +146,7 @@ def main(args):
         #     Score: {epoch_val_score:.4f}")
         
         if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-            sub_trans_plot(images, masks, output_dir=args.savefile)
+            sub_trans_plot(images, masks, bi=bi,epoch=epoch, output_dir=args.savefile)
 
     # Save train and validation losses
     train_losses_path = os.path.join(output_dir, 'train_losses.pth')
