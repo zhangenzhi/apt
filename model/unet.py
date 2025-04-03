@@ -27,7 +27,8 @@ class Unet(nn.Module):
         # self.up_first = nn.ConvTranspose2d(in_channels=in_channels, out_channels=3, kernel_size=2, stride=2)
         self.base_model = torchvision.models.resnet18()
         self.base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
-        
+        for param in self.base_model.parameters():
+            param.requires_grad = False  # freeze
         self.base_layers = list(self.base_model.children())
         self.layer1 = nn.Sequential(
             nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False),
@@ -41,11 +42,9 @@ class Unet(nn.Module):
         self.decode3 = Decoder(128, 128+128, 128)
         self.decode2 = Decoder(128, 64+64, 64)
         self.decode1 = Decoder(64, 16+64, 16)
-        self.conv_last = nn.Conv2d(16, n_class, 1, 2)
+        self.conv_last = nn.Conv2d(16, n_class, 1, 1)
         self.upscale = nn.Sequential(
-            nn.Upsample(scale_factor=4, mode='bilinear', align_corners=True),
-            # nn.Conv2d(64, 32, kernel_size=3, padding=1, bias=False),
-            # nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False)
+            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
         )
 
     def forward(self, input):
@@ -63,8 +62,6 @@ class Unet(nn.Module):
         # d0 = self.decode0(d1)     # 64,512,512
         out = self.conv_last(d1)  # 1,256,256
         out = self.upscale(out)
-        
-        # import pdb;pdb.set_trace()
         
         return out
     
