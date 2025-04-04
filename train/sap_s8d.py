@@ -136,24 +136,27 @@ def main(args):
         model.train()
         epoch_train_loss = 0.0
         start_time = time.time()
+        step=1
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            _, qimages, _, qmasks, _, qdt_value = batch
+            qimages, qmasks, seq_size, seq_pos = batch
             qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
         
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
-                
-            # print("train step loss:{}".format(loss))
+            score = dice_score(outputs, qmasks)
+            
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
 
             epoch_train_loss += loss.item()
+            step+=1
         end_time = time.time()
-        logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -168,7 +171,7 @@ def main(args):
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+                qimages, qmasks, seq_size, seq_pos = batch
                 seq_shape = qmasks.shape
                 qimages = torch.reshape(qimages,shape=(-1,3,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
@@ -176,13 +179,13 @@ def main(args):
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
                 score = dice_score(outputs, qmasks)
-                if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                    outputs = torch.reshape(outputs, seq_shape)
-                    qmasks = torch.reshape(qmasks, seq_shape)
-                    qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-                                               fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                    epoch_qdt_score += qdt_score.item()
-                    epoch_qmask_score += qmask_score.item()
+                # if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                #     outputs = torch.reshape(outputs, seq_shape)
+                #     qmasks = torch.reshape(qmasks, seq_shape)
+                #     qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
+                #                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                #     epoch_qdt_score += qdt_score.item()
+                #     epoch_qmask_score += qmask_score.item()
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
 
@@ -226,7 +229,8 @@ def main(args):
     epoch_test_score /= len(test_loader)
     logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
-
+    
+    
 def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, epoch, output_dir):
     true_score = 0 
     best_score = 0
