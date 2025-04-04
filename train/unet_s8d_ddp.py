@@ -16,30 +16,56 @@ import math
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from model.unet import Unet
+from model.unet import Unet, LightweightUNet
 from dataset.s8d_2d import S8DFinetune2D
 from utils.focal_loss import MulticlassDiceLoss
 
 import logging
 
-def dice_score(inputs, targets, smooth=1):    
+def dice_score(
+    inputs: torch.Tensor,
+    targets: torch.Tensor,
+    smooth: float = 1e-6,
+    eps: float = 1e-7,
+    reduction: str = "mean"
+) -> torch.Tensor:
+    """
+    Compute Dice score for multi-class segmentation.
     
-    #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    Args:
+        inputs: (N, C, H, W) tensor of logits/probabilities
+        targets: (N, C, H, W) one-hot encoded targets OR (N, H, W) class indices
+        smooth: Laplace smoothing factor
+        eps: Numerical stability term
+        reduction: "mean"|"none"|"sum"
     
-    intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
-    return coeff  
+    Returns:
+        Dice score (scalar or per-class scores)
+    """
+    # Convert targets to one-hot if needed
+    if targets.dim() == 3:
+        targets = torch.eye(inputs.shape[1], device=targets.device)[targets].permute(0,3,1,2)
+    
+    # Normalize inputs if needed (assumes inputs are logits)
+    if inputs.size(1) > 1:
+        probs = torch.softmax(inputs, dim=1)
+    else:
+        probs = torch.sigmoid(inputs)
+    
+    # Compute intersection and union
+    dims = (0, 2, 3)  # Batch and spatial dims
+    intersection = torch.sum(probs * targets, dim=dims)
+    cardinality = torch.sum(probs + targets, dim=dims)
+    
+    # Compute dice per class
+    dice = (2. * intersection + smooth) / (cardinality + smooth + eps)
+    
+    if reduction == "mean":
+        return dice.mean()
+    elif reduction == "sum":
+        return dice.sum()
+    return dice  # per-class scores
 
-def dice_score_plot(inputs, targets, smooth=1):     
-    #flatten label and prediction tensors
-    pred = inputs[...,0].flatten()
-    true = targets[...,0].flatten()
-    
-    intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
-    return coeff  
 
 # Configure logging
 def log(args):
@@ -57,6 +83,7 @@ def main(args, device_id):
     num_class = 5
     
     model =  Unet(n_class=num_class, in_channels=1, pretrain=True)
+    # model =  LightweightUNet(n_class=num_class, in_channels=1)
     criterion = MulticlassDiceLoss()
     best_val_score = 0.0
     
@@ -112,15 +139,15 @@ def main(args, device_id):
             images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(images)
-            outputs = F.sigmoid(outputs)
             loss = criterion(outputs, masks)
+            score = dice_score(outputs, masks)
             loss.backward()
             optimizer.step()
-            print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
             epoch_train_loss += loss.item()
             step+=1
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -137,7 +164,6 @@ def main(args, device_id):
                     images, masks, _= batch
                     images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                     outputs = model(images)
-                    outputs = F.sigmoid(outputs)
                     loss = criterion(outputs, masks)
                     score = dice_score(outputs, masks)
                     epoch_val_loss += loss.item()
@@ -155,8 +181,7 @@ def main(args, device_id):
             
             # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                with torch.no_grad():
-                    sub_trans_plot(images, masks, pred_mask=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
+                sub_trans_plot(images, masks, pred=outputs, bi=bi, epoch=epoch, output_dir=args.savefile)
 
                         
     # Save train and validation losses
@@ -176,7 +201,7 @@ def main(args, device_id):
                 images, masks, _ = batch
                 images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                 outputs = model(images)
-                outputs = F.sigmoid(outputs)
+                # outputs = F.sigmoid(outputs)
                 loss = criterion(outputs, masks, act=False)
                 test_loss += loss.item()
 
@@ -185,8 +210,6 @@ def main(args, device_id):
 
 def sub_trans_plot(image, mask, pred, bi, epoch, output_dir):
     # only one sample
-    
-    import pdb;pdb.set_trace()
     
     image = image[0]
     true_mask = mask[0]
