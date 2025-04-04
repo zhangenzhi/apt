@@ -105,7 +105,6 @@ def main(args):
             images, masks = images.to(device), masks.to(device)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(images)
-            outputs = F.sigmoid(outputs)
             loss = criterion(outputs, masks)
             print(f"Train Step Loss: {loss}, time cost: {time.time() - start_time}")
                 
@@ -129,7 +128,6 @@ def main(args):
                 images, masks, _ = batch
                 images, masks = images.to(device), masks.to(device)  # Move data to GPU
                 outputs = model(images)
-                outputs = F.sigmoid(outputs)
                 loss = criterion(outputs, masks)
                 score = dice_score(outputs, masks)
                 epoch_val_loss += loss.item()
