@@ -95,26 +95,25 @@ class Unet(nn.Module):
         base_model = torchvision.models.resnet18(pretrained=False)
         base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
         
-        # Initial convolution with reduced channels
         self.encoder1 = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=7, stride=2, padding=3, bias=False),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(in_channels, 16, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(16),
             nn.ReLU(inplace=True))
         
-        # Create modified ResNet layers
-        self.encoder2 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=32, planes=32)
-        self.encoder3 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=32, planes=64, stride=2)
-        self.encoder4 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=64, planes=96, stride=2)
-        self.encoder5 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=96, planes=128, stride=2)
+        # Tiny ResNet-style layers
+        self.encoder2 = self._make_res_layer(BasicBlock, num_blocks=2, inplanes=16, planes=16)
+        self.encoder3 = self._make_res_layer(BasicBlock, num_blocks=2, inplanes=16, planes=32, stride=2)
+        self.encoder4 = self._make_res_layer(BasicBlock, num_blocks=2, inplanes=32, planes=48, stride=2)
+        self.encoder5 = self._make_res_layer(BasicBlock, num_blocks=2, inplanes=48, planes=64, stride=2)
         
-        # Decoder
-        self.decoder4 = Decoder(128, 96, 96)
-        self.decoder3 = Decoder(96, 64, 64)
-        self.decoder2 = Decoder(64, 32, 32)
-        self.decoder1 = Decoder(32, 32, 16)
+        # Minimal decoder
+        self.decoder4 = Decoder(64, 48, 48)
+        self.decoder3 = Decoder(48, 32, 32)
+        self.decoder2 = Decoder(32, 16, 16)
+        self.decoder1 = Decoder(16, 16, 8)  # Final features reduced to 8 channels
         
-        # Final layers
-        self.final_conv = nn.Conv2d(16, n_class, kernel_size=1)
+        # Final output
+        self.final_conv = nn.Conv2d(8, n_class, kernel_size=1)
         self.mega_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
     def _make_res_layer(self, block, num_blocks, inplanes, planes, stride=1):
@@ -150,7 +149,7 @@ class Unet(nn.Module):
         d1 = self.decoder1(d2, e1)    # [1, 16, 8192, 8192]
         
         out = self.final_conv(d1)     # [1, 5, 8192, 8192]
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         if out.size()[-2:] != x.size()[-2:]:
             out = self.mega_upsample(out)
         return out
