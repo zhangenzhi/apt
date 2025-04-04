@@ -74,13 +74,12 @@ class Decoder(nn.Module):
         self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
         self.conv = nn.Sequential(
             nn.Conv2d(out_channels + skip_channels, out_channels, kernel_size=3, padding=1),
-            nn.GroupNorm(4, out_channels),  # Reduced group count
+            nn.GroupNorm(4, out_channels),
             nn.ReLU(inplace=True)
         )
 
     def forward(self, x, skip):
         x = self.up(x)
-        # Handle potential size mismatches
         diffY = skip.size()[2] - x.size()[2]
         diffX = skip.size()[3] - x.size()[3]
         x = F.pad(x, [diffX // 2, diffX - diffX // 2,
@@ -92,46 +91,48 @@ class Unet(nn.Module):
     def __init__(self, n_class=5, in_channels=1, pretrained=True):
         super().__init__()
         
-        # Modified ResNet18 backbone with reduced channels
+        # Load base model
         base_model = torchvision.models.resnet18(pretrained=False)
         base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
         
-        # Halve all channel counts
+        # Initial convolution with reduced channels
         self.encoder1 = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=7, stride=2, padding=3, bias=False),  # 64->32
+            nn.Conv2d(in_channels, 32, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True))
         
-        # Modify ResNet layers to reduce channels
-        self.encoder2 = self._make_res_layer(base_model.layer1, 32)   # Original: 64
-        self.encoder3 = self._make_res_layer(base_model.layer2, 64)   # Original: 128
-        self.encoder4 = self._make_res_layer(base_model.layer3, 96)   # Original: 256
-        self.encoder5 = self._make_res_layer(base_model.layer4, 128)  # Original: 512
+        # Create modified ResNet layers
+        self.encoder2 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=32, planes=32)
+        self.encoder3 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=32, planes=64, stride=2)
+        self.encoder4 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=64, planes=96, stride=2)
+        self.encoder5 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=96, planes=128, stride=2)
         
-        # Decoder with proportional reduction
-        self.decoder4 = Decoder(128, 96, 96)    # Original: 512,256,256
-        self.decoder3 = Decoder(96, 64, 64)     # Original: 256,128,128
-        self.decoder2 = Decoder(64, 32, 32)     # Original: 128,64,64
-        self.decoder1 = Decoder(32, 32, 16)     # Original: 64,64,32
+        # Decoder
+        self.decoder4 = Decoder(128, 96, 96)
+        self.decoder3 = Decoder(96, 64, 64)
+        self.decoder2 = Decoder(64, 32, 32)
+        self.decoder1 = Decoder(32, 32, 16)
         
         # Final layers
         self.final_conv = nn.Conv2d(16, n_class, kernel_size=1)
-        
-        # Simplified upsampling
         self.mega_upsample = nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True)
 
-    def _make_res_layer(self, original_layer, out_channels):
-        """Modify a ResNet layer to have reduced output channels"""
-        layers = []
-        for i, block in enumerate(original_layer.children()):
-            # Create a copy with reduced channels
-            new_block = BasicBlock(
-                block.conv1.in_channels if i==0 else out_channels,
-                out_channels,
-                stride=block.stride,
-                downsample=block.downsample
+    def _make_res_layer(self, block, layers, inplanes, planes, stride=1):
+        """Build a ResNet layer with custom channels"""
+        downsample = None
+        if stride != 1 or inplanes != planes * block.expansion:
+            downsample = nn.Sequential(
+                nn.Conv2d(inplanes, planes * block.expansion,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes * block.expansion),
             )
-            layers.append(new_block)
+
+        layers = []
+        layers.append(block(inplanes, planes, stride, downsample))
+        inplanes = planes * block.expansion
+        for _ in range(1, layers):
+            layers.append(block(inplanes, planes))
+
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -149,7 +150,6 @@ class Unet(nn.Module):
         d1 = self.decoder1(d2, e1)    # [1, 16, 8192, 8192]
         
         out = self.final_conv(d1)     # [1, 5, 8192, 8192]
-        
         if out.size()[-2:] != x.size()[-2:]:
             out = self.mega_upsample(out)
         return out
