@@ -340,6 +340,7 @@ class S8DFinetune2DAP(Dataset):
             label = self.target_transform(label)
         
         img = (img / 65535 * 255).astype(np.uint8)
+        img = np.expand_dims(img, axis=-1) 
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
         seq_mask = qdt.serialzie(label)
         
