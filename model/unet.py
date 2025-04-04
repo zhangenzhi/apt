@@ -159,13 +159,18 @@ class LightDecoder(nn.Module):
             nn.GroupNorm(8, out_channels),  # Replaces BatchNorm for stability with small batches
             nn.ReLU(inplace=True)
         )
+    def _custom_checkpoint(self, module, input):
+        input = input.detach()
+        input.requires_grad_(True)
+        output = module(input)
+        return output
 
     def forward(self, x, skip):
         x = self.up(x)
         # Handle size mismatches (critical for high-res)
         x = F.interpolate(x, size=skip.shape[2:], mode='bilinear', align_corners=True)
         x = torch.cat([x, skip], dim=1)
-        return checkpoint(self.conv, x)  # Gradient checkpointing saves memory
+        return self._custom_checkpoint(self.conv, x)  # Gradient checkpointing saves memory
 
 class LightweightUNet(nn.Module):
     def __init__(self, n_class=5, in_channels=1):
@@ -200,12 +205,18 @@ class LightweightUNet(nn.Module):
             nn.ReLU(inplace=True)
         )
 
+    def _custom_checkpoint(self, module, input):
+        input = input.detach()
+        input.requires_grad_(True)
+        output = module(input)
+        return output
+    
     def forward(self, x):
         # Encoder (with gradient checkpointing)
-        e1 = checkpoint(self.encoder1, x)      # [1, 32, 4096, 4096]
-        e2 = checkpoint(self.encoder2, e1)     # [1, 64, 2048, 2048]
-        e3 = checkpoint(self.encoder3, e2)     # [1, 96, 1024, 1024]
-        e4 = checkpoint(self.encoder4, e3)     # [1, 128, 512, 512]
+        e1 = self._custom_checkpoint(self.encoder1, x)      # [1, 32, 4096, 4096]
+        e2 = self._custom_checkpoint(self.encoder2, e1)     # [1, 64, 2048, 2048]
+        e3 = self._custom_checkpoint(self.encoder3, e2)     # [1, 96, 1024, 1024]
+        e4 = self._custom_checkpoint(self.encoder4, e3)     # [1, 128, 512, 512]
         
         # Decoder
         d3 = self.decoder3(e4, e3)            # [1, 96, 1024, 1024]

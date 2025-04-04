@@ -13,9 +13,9 @@ export HOME="/tmp/srun"
 
 source export_ddp_envs.sh
 
-module load PrgEnv-gnu
+module load PrgEnv-gnu/8.5.0
 module load gcc/12.2.0
-module load rocm/5.7.0
+module load rocm/6.2.0
 
 # exec
 srun -N 32 -n 256 --ntasks-per-node 8 python ./train/unet_s8d_ddp.py \
