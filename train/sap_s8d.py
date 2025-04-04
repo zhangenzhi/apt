@@ -18,7 +18,7 @@ from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
 from dataset.s8d_2d import S8DFinetune2DAP
 from utils.draw import draw_loss, sub_paip_plot
-from utils.focal_loss import MulticlassDiceLoss
+from utils.focal_loss import DiceCELoss
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -92,7 +92,7 @@ def main(args):
             in_chans = 1, 
             pretrain=args.pretrain,
             qdt=True)
-    criterion = MulticlassDiceLoss()
+    criterion = DiceCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     best_val_score = 0.0
