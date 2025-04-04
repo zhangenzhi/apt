@@ -379,12 +379,15 @@ if __name__ == "__main__":
     # dataset = S8DFinetune(args.data_dir)
     # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     
-    dataset = S8DFinetune2D(args.data_dir)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
-    
     # # S8DAP  usage
     # dataset = Spring8DatasetAP(args.data_dir, args.resolution)
     # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    
+    # dataset = S8DFinetune2D(args.data_dir)
+    # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    
+    dataset = S8DFinetune2D(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8, normalize=False)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
