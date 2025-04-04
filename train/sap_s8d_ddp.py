@@ -142,13 +142,13 @@ def main(args, device_id):
         step=1
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+            qimages, qmasks, seq_size, seq_pos = batch
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
             optimizer.zero_grad()
             outputs = model(qimages)
-            loss = criterion(outputs, qmasks, act=False)
+            loss = criterion(outputs, qmasks)
             loss.backward()
             optimizer.step()
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
@@ -171,32 +171,32 @@ def main(args, device_id):
             with torch.no_grad():
                 for bi,batch in enumerate(val_loader):
                     # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                    image, qimages, mask, qmasks, qdt_info, qdt_value = batch
+                    qimages, qmasks, seq_size, seq_pos = batch
                     seq_shape = qmasks.shape
                     qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                     qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                     outputs = model(qimages)
-                    loss = criterion(outputs, qmasks, act=False)
+                    loss = criterion(outputs, qmasks)
                     score = dice_score(outputs, qmasks)
                     epoch_val_loss += loss.item()
                     epoch_val_score += score.item()
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
 
-            # Visualize
-            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                with torch.no_grad():
-                    for bi,batch in enumerate(val_loader):
-                        # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                        outputs = torch.reshape(outputs, seq_shape)
-                        qmasks = torch.reshape(qmasks, seq_shape)
-                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-                                                    fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                        epoch_qdt_score += qdt_score.item()
-                        epoch_qmask_score += qmask_score.item()
-            epoch_qdt_score /= len(val_loader)
-            epoch_qmask_score /= len(val_loader)
+            # # Visualize
+            # if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            #     with torch.no_grad():
+            #         for bi,batch in enumerate(val_loader):
+            #             # with torch.autocast(device_type='cuda', dtype=torch.float16):
+            #             outputs = torch.reshape(outputs, seq_shape)
+            #             qmasks = torch.reshape(qmasks, seq_shape)
+            #             qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
+            #                                         fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+            #             epoch_qdt_score += qdt_score.item()
+            #             epoch_qmask_score += qmask_score.item()
+            # epoch_qdt_score /= len(val_loader)
+            # epoch_qmask_score /= len(val_loader)
             
             # Save the best model based on validation accuracy
             if epoch_val_score > best_val_score and dist.get_rank()==0:
@@ -221,12 +221,12 @@ def main(args, device_id):
         with torch.no_grad():
             for batch in test_loader:
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                _, qimages, _, qmasks, _, qdt_value = batch
+                qimages, qmasks, seq_size, seq_pos = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
                 outputs = model(qimages)
-                loss = criterion(outputs, qmasks, act=False)
+                loss = criterion(outputs, qmasks)
                 test_loss += loss.item()
 
         test_loss /= len(test_loader)

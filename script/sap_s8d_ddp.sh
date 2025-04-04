@@ -20,7 +20,7 @@ module load rocm/6.2.0
 # exec
 srun -N 32 -n 256 --ntasks-per-node 8 python ./train/sap_s8d_ddp.py \
         --data_dir=/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600 \
-        --epoch=100 \
+        --epoch=1000 \
         --resolution=8192 \
         --fixed_length=10201 \
         --patch_size=8 \
