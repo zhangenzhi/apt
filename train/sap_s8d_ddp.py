@@ -90,6 +90,7 @@ def main(args, device_id):
             patch_size=args.patch_size,
             output_dim=num_classes, 
             pretrain=args.pretrain,
+            in_chans = 1, 
             qdt=True)
     criterion = DiceCELoss()
     best_val_score = 0.0
