@@ -62,4 +62,4 @@ class ImagePatchify(torch.nn.Module):
         seq_img = np.asarray(seq_img)
         seq_img = np.reshape(seq_img, [self.patch_size*self.patch_size, -1, self.num_channels])
 
-        return seq_img, seq_size, seq_pos
+        return seq_img, seq_size, seq_pos, qdt

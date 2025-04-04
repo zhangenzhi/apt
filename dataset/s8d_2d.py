@@ -340,7 +340,7 @@ class S8DFinetune2DAP(Dataset):
             label = self.target_transform(label)
         img = (img - img.min()) / (img.max() - img.min()+1e-4)
         
-        seq_img, seq_size, seq_pos,qdt = self.patchify(img)
+        seq_img, seq_size, seq_pos, qdt = self.patchify(img)
         seq_mask = qdt.serialzie(label)
         
         # Convert to tensors
@@ -385,12 +385,18 @@ if __name__ == "__main__":
     
     # dataset = S8DFinetune2D(args.data_dir)
     # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
-    
-    dataset = S8DFinetune2D(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8, normalize=False)
+
+    # # Now you can iterate over the dataloader to get batches of images and masks
+    # for batch in dataloader:
+    #     images, label, slice_id = batch
+    #     import pdb;pdb.set_trace()
+    #     print(images.shape, label.shape)
+        
+    dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8, normalize=False)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        images, label, slice_id = batch
+        seq_img, seq_mask, seq_size, seq_pos = batch
         import pdb;pdb.set_trace()
-        print(images.shape, label.shape)
+        print(seq_img.shape, seq_mask.shape)
