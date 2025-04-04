@@ -338,7 +338,6 @@ class S8DFinetune2DAP(Dataset):
             img = self.transform(img)
         if self.target_transform:
             label = self.target_transform(label)
-        img = (img - img.min()) / (img.max() - img.min()+1e-4)
         
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
         seq_mask = qdt.serialzie(label)
@@ -346,6 +345,7 @@ class S8DFinetune2DAP(Dataset):
         # Convert to tensors
         seq_img = torch.from_numpy(seq_img).float().unsqueeze(0)  # Add channel dim
         seq_mask = torch.from_numpy(seq_mask).long()
+        img = (img - img.min()) / (img.max() - img.min()+1e-4)
         
         seq_mask = F.one_hot(seq_mask, num_classes=self.num_classes)
         seq_mask = seq_mask.permute(2, 0, 1).float()  # (C, H, W)
