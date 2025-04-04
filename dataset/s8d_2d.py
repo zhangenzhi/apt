@@ -344,6 +344,7 @@ class S8DFinetune2DAP(Dataset):
         img = (img / 65535 * 255).astype(np.uint8)
         img = np.expand_dims(img, axis=-1) 
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
+        label = np.expand_dims(label, axis=-1) 
         seq_mask = qdt.serialize(label, size=(self.patch_size, self.patch_size, self.num_channels))
         
         # Convert to tensors
