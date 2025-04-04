@@ -82,7 +82,7 @@ def main(args, device_id):
     # Create an instance of the U-Net model and other necessary components
     num_class = 5
     
-    model =  Unet(n_class=num_class, in_channels=1, pretrain=True)
+    model =  Unet(n_class=num_class, in_channels=1, pretrained=True)
     # model =  LightweightUNet(n_class=num_class, in_channels=1)
     criterion = MulticlassDiceLoss()
     best_val_score = 0.0
