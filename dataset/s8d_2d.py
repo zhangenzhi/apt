@@ -313,7 +313,9 @@ class S8DFinetune2DAP(Dataset):
         self.num_classes = num_classes
         self.target_transform = target_transform
         self.manifest = self._load_manifest()
-        self.patchify = ImagePatchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size, num_channels=1)
+        self.patch_size = patch_size
+        self.num_channels = 1
+        self.patchify = ImagePatchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size, num_channels=self.num_channels)
         
         if subset is not None:
             self.manifest = self.manifest[self.manifest['slice_id'].isin(subset)]
@@ -342,7 +344,7 @@ class S8DFinetune2DAP(Dataset):
         img = (img / 65535 * 255).astype(np.uint8)
         img = np.expand_dims(img, axis=-1) 
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
-        seq_mask = qdt.serialzie(label)
+        seq_mask = qdt.serialize(label, size=(self.patch_size, self.patch_size, self.num_channels))
         
         # Convert to tensors
         seq_img = torch.from_numpy(seq_img).float()  # Add channel dim

@@ -54,7 +54,7 @@ class ImagePatchify(torch.nn.Module):
             # edges = np.random.uniform(low=0,high=1, size=(256,256))
         else:
             grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
-            import pdb;pdb.set_trace()
+            # import pdb;pdb.set_trace()
             edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
 
         qdt = FixedQuadTree(domain=edges, fixed_length=self.fixed_length)
