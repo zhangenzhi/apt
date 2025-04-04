@@ -21,7 +21,7 @@ from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
 from dataset.s8d_2d import S8DFinetune2DAP
 from utils.draw import draw_loss, sub_paip_plot
-from utils.focal_loss import MulticlassDiceLoss
+from utils.focal_loss import DiceCELoss
 
 import logging
 
@@ -91,7 +91,7 @@ def main(args, device_id):
             output_dim=num_classes, 
             pretrain=args.pretrain,
             qdt=True)
-    criterion = DiceBLoss()
+    criterion = DiceCELoss()
     best_val_score = 0.0
     
     # Move the model to GPU
