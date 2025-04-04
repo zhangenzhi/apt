@@ -350,10 +350,10 @@ class S8DFinetune2DAP(Dataset):
         seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
         
         # Convert to tensors
-        seq_img = torch.from_numpy(seq_img).float()  # Add channel dim
-        seq_mask = torch.from_numpy(seq_mask).long()
+        seq_img = torch.from_numpy(seq_img).permute(2, 0, 1).float()  # Add channel dim
         seq_img = (seq_img - seq_img.min()) / (seq_img.max() - seq_img.min()+1e-4)
         
+        seq_mask = torch.from_numpy(seq_mask).long()
         seq_mask = F.one_hot(seq_mask.squeeze(-1), num_classes=self.num_classes)
         seq_mask = seq_mask.permute(2, 0, 1).float()  # (C, H, W)
         
