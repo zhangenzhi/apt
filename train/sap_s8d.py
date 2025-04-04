@@ -292,10 +292,11 @@ def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, e
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
-    parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
+    parser.add_argument('--dataset', default="s8d", 
                         help='base path of dataset.')
-    parser.add_argument('--fixed_length', default=8194, type=int,
+    parser.add_argument('--data_dir', default="/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
+                        help='base path of dataset.')
+    parser.add_argument('--fixed_length', default=10201, type=int,
                         help='length of sequence.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')
@@ -305,9 +306,9 @@ if __name__ == '__main__':
                         help='Use SAM pretrained weigths.')
     parser.add_argument('--epoch', default=10, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=4, type=int,
+    parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./output",
+    parser.add_argument('--savefile', default="./sap_s8d",
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
