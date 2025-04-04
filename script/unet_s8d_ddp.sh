@@ -22,5 +22,5 @@ srun -N 32 -n 256 --ntasks-per-node 8 python ./train/unet_s8d_ddp.py \
         --data_dir=/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600 \
         --epoch=100 \
         --batch_size=1 \
-        --savefile=./unet-s8d-n32-l1
+        --savefile=./unet-s8d-n32-s3
 # 8281

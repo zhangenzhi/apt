@@ -73,7 +73,7 @@ class Decoder(nn.Module):
         self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
         self.conv = nn.Sequential(
             nn.Conv2d(out_channels + skip_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(8, out_channels),
             nn.ReLU(inplace=True)
         )
 
@@ -116,7 +116,7 @@ class Unet(nn.Module):
         self.final_upscale = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
             nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+            nn.GroupNorm(8, 32),
             nn.ReLU(inplace=True)
         )
         
@@ -150,71 +150,71 @@ class Unet(nn.Module):
             out = self.mega_upsample(out)
 
 
-class Decoder(nn.Module):
-    def __init__(self, in_channels, skip_channels, out_channels):
-        super().__init__()
-        self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
-        self.conv = nn.Sequential(
-            nn.Conv2d(out_channels + skip_channels, out_channels, kernel_size=3, padding=1),
-            nn.GroupNorm(8, out_channels),  # Replaces BatchNorm for stability with small batches
-            nn.ReLU(inplace=True)
-        )
+# class Decoder(nn.Module):
+#     def __init__(self, in_channels, skip_channels, out_channels):
+#         super().__init__()
+#         self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
+#         self.conv = nn.Sequential(
+#             nn.Conv2d(out_channels + skip_channels, out_channels, kernel_size=3, padding=1),
+#             nn.GroupNorm(8, out_channels),  # Replaces BatchNorm for stability with small batches
+#             nn.ReLU(inplace=True)
+#         )
 
-    def forward(self, x, skip):
-        x = self.up(x)
-        # Handle size mismatches (critical for high-res)
-        x = F.interpolate(x, size=skip.shape[2:], mode='bilinear', align_corners=True)
-        x = torch.cat([x, skip], dim=1)
-        return checkpoint(self.conv, x)  # Gradient checkpointing saves memory
+#     def forward(self, x, skip):
+#         x = self.up(x)
+#         # Handle size mismatches (critical for high-res)
+#         x = F.interpolate(x, size=skip.shape[2:], mode='bilinear', align_corners=True)
+#         x = torch.cat([x, skip], dim=1)
+#         return checkpoint(self.conv, x)  # Gradient checkpointing saves memory
 
-class LightweightUNet(nn.Module):
-    def __init__(self, n_class=5, in_channels=1):
-        super().__init__()
+# class LightweightUNet(nn.Module):
+#     def __init__(self, n_class=5, in_channels=1):
+#         super().__init__()
         
-        # Encoder (fewer channels in deeper layers)
-        self.encoder1 = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=3, stride=1, padding=1),
-            nn.GroupNorm(8, 32),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2)  # Downsample to 4096x4096
-        )
-        self.encoder2 = self._make_layer(32, 64, stride=2)   # 2048x2048
-        self.encoder3 = self._make_layer(64, 96, stride=2)   # 1024x1024  [Reduced from 128]
-        self.encoder4 = self._make_layer(96, 128, stride=2)  # 512x512    [Reduced from 256]
+#         # Encoder (fewer channels in deeper layers)
+#         self.encoder1 = nn.Sequential(
+#             nn.Conv2d(in_channels, 32, kernel_size=3, stride=1, padding=1),
+#             nn.GroupNorm(8, 32),
+#             nn.ReLU(inplace=True),
+#             nn.MaxPool2d(2)  # Downsample to 4096x4096
+#         )
+#         self.encoder2 = self._make_layer(32, 64, stride=2)   # 2048x2048
+#         self.encoder3 = self._make_layer(64, 96, stride=2)   # 1024x1024  [Reduced from 128]
+#         self.encoder4 = self._make_layer(96, 128, stride=2)  # 512x512    [Reduced from 256]
         
-        # Decoder (matching reduced channels)
-        self.decoder3 = Decoder(128, 96, 96)    # 1024x1024
-        self.decoder2 = Decoder(96, 64, 64)     # 2048x2048
-        self.decoder1 = Decoder(64, 32, 32)     # 4096x4096
+#         # Decoder (matching reduced channels)
+#         self.decoder3 = Decoder(128, 96, 96)    # 1024x1024
+#         self.decoder2 = Decoder(96, 64, 64)     # 2048x2048
+#         self.decoder1 = Decoder(64, 32, 32)     # 4096x4096
         
-        # Final upsampling and output
-        self.final_upsample = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            nn.Conv2d(32, n_class, kernel_size=1)
-        )
+#         # Final upsampling and output
+#         self.final_upsample = nn.Sequential(
+#             nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+#             nn.Conv2d(32, n_class, kernel_size=1)
+#         )
 
-    def _make_layer(self, in_channels, out_channels, stride):
-        return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
-            nn.GroupNorm(8, out_channels),
-            nn.ReLU(inplace=True)
-        )
+#     def _make_layer(self, in_channels, out_channels, stride):
+#         return nn.Sequential(
+#             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
+#             nn.GroupNorm(8, out_channels),
+#             nn.ReLU(inplace=True)
+#         )
 
-    def forward(self, x):
-        # Encoder (with gradient checkpointing)
-        e1 = checkpoint(self.encoder1, x)      # [1, 32, 4096, 4096]
-        e2 = checkpoint(self.encoder2, e1)     # [1, 64, 2048, 2048]
-        e3 = checkpoint(self.encoder3, e2)     # [1, 96, 1024, 1024]
-        e4 = checkpoint(self.encoder4, e3)     # [1, 128, 512, 512]
+#     def forward(self, x):
+#         # Encoder (with gradient checkpointing)
+#         e1 = checkpoint(self.encoder1, x)      # [1, 32, 4096, 4096]
+#         e2 = checkpoint(self.encoder2, e1)     # [1, 64, 2048, 2048]
+#         e3 = checkpoint(self.encoder3, e2)     # [1, 96, 1024, 1024]
+#         e4 = checkpoint(self.encoder4, e3)     # [1, 128, 512, 512]
         
-        # Decoder
-        d3 = self.decoder3(e4, e3)            # [1, 96, 1024, 1024]
-        d2 = self.decoder2(d3, e2)            # [1, 64, 2048, 2048]
-        d1 = self.decoder1(d2, e1)             # [1, 32, 4096, 4096]
+#         # Decoder
+#         d3 = self.decoder3(e4, e3)            # [1, 96, 1024, 1024]
+#         d2 = self.decoder2(d3, e2)            # [1, 64, 2048, 2048]
+#         d1 = self.decoder1(d2, e1)             # [1, 32, 4096, 4096]
         
-        # Final upsampling to original resolution
-        out = self.final_upsample(d1)          # [1, 5, 8192, 8192]
-        return out 
+#         # Final upsampling to original resolution
+#         out = self.final_upsample(d1)          # [1, 5, 8192, 8192]
+#         return out 
             
 if __name__ == '__main__':
     import torch
