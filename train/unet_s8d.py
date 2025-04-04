@@ -145,6 +145,8 @@ def main(args):
             
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}".format(end_time-start_time,(end_time-start_time)/train_size))
+        if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            sub_trans_plot(images, masks, pred=outputs, bi=-1, epoch=epoch, output_dir=args.savefile)
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)

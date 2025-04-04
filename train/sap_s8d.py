@@ -16,33 +16,56 @@ import math
 
 from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
-from model.unet import Unet
-from dataset.paip_trans import PAIPTrans
+from dataset.s8d_2d import S8DFinetune2DAP
 from utils.draw import draw_loss, sub_paip_plot
 from utils.focal_loss import MulticlassDiceLoss
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-def dice_score(inputs, targets, smooth=1):
-    inputs = F.sigmoid(inputs)       
+def dice_score(
+    inputs: torch.Tensor,
+    targets: torch.Tensor,
+    smooth: float = 1e-6,
+    eps: float = 1e-7,
+    reduction: str = "mean"
+) -> torch.Tensor:
+    """
+    Compute Dice score for multi-class segmentation.
     
-    #flatten label and prediction tensors
-    pred = torch.flatten(inputs[:,1:,:,:])
-    true = torch.flatten(targets[:,1:,:,:])
+    Args:
+        inputs: (N, C, H, W) tensor of logits/probabilities
+        targets: (N, C, H, W) one-hot encoded targets OR (N, H, W) class indices
+        smooth: Laplace smoothing factor
+        eps: Numerical stability term
+        reduction: "mean"|"none"|"sum"
     
-    intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
-    return coeff  
-
-def dice_score_plot(inputs, targets, smooth=1):     
-    #flatten label and prediction tensors
-    pred = inputs[...,0].flatten()
-    true = targets[...,0].flatten()
+    Returns:
+        Dice score (scalar or per-class scores)
+    """
+    # Convert targets to one-hot if needed
+    if targets.dim() == 3:
+        targets = torch.eye(inputs.shape[1], device=targets.device)[targets].permute(0,3,1,2)
     
-    intersection = (pred * true).sum()
-    coeff = (2.*intersection + smooth)/(pred.sum() + true.sum() + smooth)   
-    return coeff  
+    # Normalize inputs if needed (assumes inputs are logits)
+    if inputs.size(1) > 1:
+        probs = torch.softmax(inputs, dim=1)
+    else:
+        probs = torch.sigmoid(inputs)
+    
+    # Compute intersection and union
+    dims = (0, 2, 3)  # Batch and spatial dims
+    intersection = torch.sum(probs * targets, dim=dims)
+    cardinality = torch.sum(probs + targets, dim=dims)
+    
+    # Compute dice per class
+    dice = (2. * intersection + smooth) / (cardinality + smooth + eps)
+    
+    if reduction == "mean":
+        return dice.mean()
+    elif reduction == "sum":
+        return dice.sum()
+    return dice  # per-class scores  
 
 import logging
 
@@ -84,7 +107,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = PAIPTrans(data_path, args.resolution, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
+    dataset = S8DFinetune2DAP(data_path, num_classes=num_class, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
@@ -272,9 +295,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
     parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
                         help='base path of dataset.')
-    parser.add_argument('--resolution', default=1024, type=int,
-                        help='resolution of img.')
-    parser.add_argument('--fixed_length', default=512, type=int,
+    parser.add_argument('--fixed_length', default=8194, type=int,
                         help='length of sequence.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')

@@ -297,6 +297,68 @@ class S8DFinetune2D(Dataset):
         """Get all slices for a specific volume"""
         return self.manifest[self.manifest['volume_id'] == volume_id]['slice_id'].tolist()
 
+class S8DFinetune2DAP(Dataset):
+    """PyTorch Dataset for loading 2D slices"""
+    
+    def __init__(self, slice_dir, num_classes=5, fixed_length=8194, sths=[0,1,3,5,7], cannys=[50, 100], patch_size=8, transform=None, target_transform=None, subset=None):
+        """
+        Args:
+            slice_dir: Directory containing the slices
+            transform: Transformations for images
+            target_transform: Transformations for labels
+            subset: Optional subset of slices to use (list of slice_ids)
+        """
+        self.slice_dir = slice_dir
+        self.transform = transform
+        self.num_classes = num_classes
+        self.target_transform = target_transform
+        self.manifest = self._load_manifest()
+        self.patchify = ImagePatchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size, num_channels=1)
+        
+        if subset is not None:
+            self.manifest = self.manifest[self.manifest['slice_id'].isin(subset)]
+        
+    def _load_manifest(self):
+        import pandas as pd
+        manifest_path = os.path.join(self.slice_dir, 'slice_manifest.csv')
+        return pd.read_csv(manifest_path)
+    
+    def __len__(self):
+        return len(self.manifest)
+    
+    def __getitem__(self, idx):
+        record = self.manifest.iloc[idx]
+        
+        # Load image and label
+        img = tifffile.imread(os.path.join(self.slice_dir, record['image_path']))
+        label = tifffile.imread(os.path.join(self.slice_dir, record['label_path']))
+        
+        # Apply transforms
+        if self.transform:
+            img = self.transform(img)
+        if self.target_transform:
+            label = self.target_transform(label)
+        img = (img - img.min()) / (img.max() - img.min()+1e-4)
+        
+        seq_img, seq_size, seq_pos,qdt = self.patchify(img)
+        seq_mask = qdt.serialzie(label)
+        
+        # Convert to tensors
+        seq_img = torch.from_numpy(seq_img).float().unsqueeze(0)  # Add channel dim
+        seq_mask = torch.from_numpy(seq_mask).long()
+        
+        seq_mask = F.one_hot(seq_mask, num_classes=self.num_classes)
+        seq_mask = seq_mask.permute(2, 0, 1).float()  # (C, H, W)
+        
+        return seq_img, seq_mask, seq_size, seq_pos
+    
+    def get_volume_ids(self):
+        """Get list of all unique volume IDs"""
+        return sorted(self.manifest['volume_id'].unique())
+    
+    def get_slices_for_volume(self, volume_id):
+        """Get all slices for a specific volume"""
+        return self.manifest[self.manifest['volume_id'] == volume_id]['slice_id'].tolist()
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
