@@ -5,6 +5,7 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models.resnet import BasicBlock 
 from torch.utils.checkpoint import checkpoint  # For gradient checkpointing
 
 # class Decoder(nn.Module):
