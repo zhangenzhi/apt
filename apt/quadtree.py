@@ -156,7 +156,7 @@ class FixedQuadTree:
         for i in range(len(seq_patch)):
             h1, w1, c1 = seq_patch[i].shape
             assert h1==w1, "Need squared input."
-            seq_patch[i] = cv.resize(seq_patch[i], (h2, w2), interpolation=cv.INTER_CUBIC)
+            seq_patch[i] = cv.resize(seq_patch[i], (h2, w2), interpolation=cv.INTER_NEAREST)
             # assert seq_patch[i].shape == (h2,w2,c2), "Wrong shape {} get, need {}".format(seq_patch[i].shape, (h2,w2,c2))
         if len(seq_patch)<self.fixed_length:
             # import pdb
