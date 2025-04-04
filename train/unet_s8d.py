@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import torch.nn as nn
 
-from model.unet import Unet
+from model.unet import Unet, LightweightUNet
 from dataset.s8d_2d import S8DFinetune2D
 from utils.focal_loss import MulticlassDiceLoss
 from utils.draw import draw_loss
@@ -82,7 +82,8 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     num_class = 5
     
-    model = Unet(n_class=num_class, in_channels=1, pretrained=True)
+    # model = Unet(n_class=num_class, in_channels=1, pretrained=True)
+    model = LightweightUNet(n_class=num_class, in_channels=1)
     criterion = MulticlassDiceLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")

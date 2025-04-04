@@ -189,4 +189,18 @@ class MulticlassDiceLoss(torch.nn.Module):
         loss = 1. - dice.mean()
         
         return loss
+
+class DiceCELoss(nn.Module):
+    """Combination of CrossEntropy and Dice loss"""
+    def __init__(self, weight_ce=1.0, weight_dice=1.0):
+        super(DiceCELoss, self).__init__()
+        self.ce = nn.CrossEntropyLoss()
+        self.dice = MulticlassDiceLoss()
+        self.weight_ce = weight_ce
+        self.weight_dice = weight_dice
     
+    def forward(self, inputs, targets):
+        ce_loss = self.ce(inputs, targets)
+        dice_loss = self.dice(inputs, targets)
+        total_loss = self.weight_ce * ce_loss + self.weight_dice * dice_loss
+        return total_loss
