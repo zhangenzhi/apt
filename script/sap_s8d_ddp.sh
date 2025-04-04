@@ -18,7 +18,7 @@ module load gcc/12.2.0
 module load rocm/5.7.0
 
 # exec
-srun -N 32 -n 64 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sap_s8d_ddp.py \
+srun -N 32 -n 256 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/sap_s8d_ddp.py \
         --data_dir=/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600 \
         --epoch=100 \
         --resolution=8192 \
