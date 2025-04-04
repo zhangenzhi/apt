@@ -346,6 +346,8 @@ class S8DFinetune2DAP(Dataset):
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
         label = np.expand_dims(label, axis=-1) 
         seq_mask = qdt.serialize(label, size=(self.patch_size, self.patch_size, self.num_channels))
+        seq_mask = np.asarray(seq_mask)
+        seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
         
         # Convert to tensors
         seq_img = torch.from_numpy(seq_img).float()  # Add channel dim
