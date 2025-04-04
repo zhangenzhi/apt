@@ -107,7 +107,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = S8DFinetune2DAP(data_path, num_classes=num_class, fixed_length=args.fixed_length, patch_size=patch_size, normalize=False)
+    dataset = S8DFinetune2DAP(data_path, num_classes=num_class, fixed_length=args.fixed_length, patch_size=patch_size)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
@@ -231,69 +231,6 @@ def main(args):
     draw_loss(output_dir=output_dir)
     
     
-def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, epoch, output_dir):
-    true_score = 0 
-    best_score = 0
-    for i in range(image.size(0)):
-        image = image[i].cpu().permute(1, 2, 0).numpy()
-        mask_true = mask[i].cpu().numpy()
-
-        qmasks = (qmasks[i].cpu() > 0.5).numpy()
-        qmasks.astype(np.int32)
-        qmasks = qmasks[1]
-        patch_size = qmasks.shape[0]
-        qmasks = np.reshape(qmasks, (fixed_length, patch_size, patch_size))
-        qmasks = np.repeat(np.expand_dims(qmasks, axis=-1), 3, axis=-1)
-        
-        # qmasks = (qmasks[i].cpu() > 0.5).numpy()
-        # qmasks.astype(np.int32)
-        
- 
-        # Squeeze the singleton dimension from mask_true
-        mask_true = mask_true[1]
-        mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
-        
-        # print(mask_true.sum())
-        pred_mask = (pred_mask[i].cpu() > 0.5).numpy()
-        mask_pred = pred_mask[1]
-        patch_size = mask_pred.shape[0]
-        mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
-        mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
-      
-        meta_info = []
-        for nodes in qdt_info:
-            n = []
-            for idx in range(len(nodes)):
-                n.append(nodes[idx][i].numpy())
-            meta_info.append(n)
-        
-        qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
-        deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=patch_size, channel=3)
-        decode_qmask = qdt.deserialize(seq=qmasks, patch_size=patch_size, channel=3)
-        
-        true_score += dice_score_plot(mask_true, targets=deoced_mask_pred)
-        best_score += dice_score_plot(mask_true, targets=decode_qmask)
-        
-        mask_true = mask_true.astype(np.float64)
-
-        # Plot and save images
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 3, 1)
-        plt.imshow(image)
-        plt.title("Input Image")
-
-        plt.subplot(1, 3, 2)
-        plt.imshow(mask_true, cmap='gray')
-        plt.title("True Mask")
-
-        plt.subplot(1, 3, 3)
-        plt.imshow(deoced_mask_pred, cmap='gray')
-        plt.title("Predicted Mask")
-        plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
-        plt.close()
-        # true_score /= image.size(0)
-        return true_score, best_score
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default="s8d", 
