@@ -102,10 +102,10 @@ class Unet(nn.Module):
             nn.ReLU(inplace=True))
         
         # Create modified ResNet layers
-        self.encoder2 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=32, planes=32)
-        self.encoder3 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=32, planes=64, stride=2)
-        self.encoder4 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=64, planes=96, stride=2)
-        self.encoder5 = self._make_res_layer(block=BasicBlock, layers=2, inplanes=96, planes=128, stride=2)
+        self.encoder2 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=32, planes=32)
+        self.encoder3 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=32, planes=64, stride=2)
+        self.encoder4 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=64, planes=96, stride=2)
+        self.encoder5 = self._make_res_layer(block=BasicBlock, num_blocks=2, inplanes=96, planes=128, stride=2)
         
         # Decoder
         self.decoder4 = Decoder(128, 96, 96)
