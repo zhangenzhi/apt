@@ -115,7 +115,7 @@ class Unet(nn.Module):
         
         # Final layers
         self.final_conv = nn.Conv2d(16, n_class, kernel_size=1)
-        self.mega_upsample = nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True)
+        self.mega_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
     def _make_res_layer(self, block, num_blocks, inplanes, planes, stride=1):
         """Build a ResNet layer with custom channels"""
