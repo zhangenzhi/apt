@@ -205,7 +205,7 @@ def main(args):
 def sub_trans_plot(image, mask, pred, bi, epoch, output_dir):
     # only one sample
     
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     
     image = image[0]
     true_mask = mask[0]
