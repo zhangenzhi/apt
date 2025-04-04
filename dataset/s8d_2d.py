@@ -392,7 +392,7 @@ if __name__ == "__main__":
     #     import pdb;pdb.set_trace()
     #     print(images.shape, label.shape)
         
-    dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8, normalize=False)
+    dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
