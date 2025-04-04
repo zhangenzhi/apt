@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False,):
+def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False, in_chans=3,):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
@@ -16,6 +16,7 @@ def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=Fals
         patch_size=patch_size,
         image_size=image_size,
         pretrain=pretrain,
+        in_chans=in_chans,
         qdt=qdt,
     )
 
@@ -52,6 +53,7 @@ def _build_sam_vit(
     patch_size,
     image_size,
     pretrain =True,
+    in_chans=3,
     qdt=False,
 ):
     prompt_embed_dim = 256
@@ -60,6 +62,7 @@ def _build_sam_vit(
     tokens = image_size[0]//patch_size * image_size[1]//patch_size
     
     image_encoder=ImageEncoderViT(
+            in_chans=in_chans,
             depth=encoder_depth,
             embed_dim=encoder_embed_dim,
             img_size=image_size,
@@ -124,13 +127,14 @@ class SAM(nn.Module):
 class SAMQDT(nn.Module):
     def __init__(self, image_shape=(4*32, 4*32), 
                  patch_size=4,
+                 in_chans=3,
                  output_dim=1, 
                  pretrain="sam-b",
                  qdt=False):
         super().__init__()
         self.patch_size = patch_size
         if pretrain== "sam-b":
-            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, qdt=qdt, in_chans=in_chans)
         elif pretrain== "sam-l":
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain=="sam-h":

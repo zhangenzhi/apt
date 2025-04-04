@@ -88,7 +88,8 @@ def main(args):
     
     model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
             patch_size=args.patch_size,
-            output_dim=num_class, 
+            output_dim=num_class,
+            in_chans = 1, 
             pretrain=args.pretrain,
             qdt=True)
     criterion = MulticlassDiceLoss()
