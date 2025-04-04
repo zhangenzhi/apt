@@ -23,7 +23,7 @@ from torch.utils.checkpoint import checkpoint  # For gradient checkpointing
 #         return x1
 
 # class Unet(nn.Module):
-#     def __init__(self, n_class, in_channels=3, pretrain=True):
+#     def __init__(self, n_class, in_channels=3, pretrained=True):
 #         super().__init__()
 #         # self.up_first = nn.ConvTranspose2d(in_channels=in_channels, out_channels=3, kernel_size=2, stride=2)
 #         self.base_model = torchvision.models.resnet18()

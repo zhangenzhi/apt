@@ -82,7 +82,7 @@ def main(args):
     # Create an instance of the U-Net model and other necessary components
     num_class = 5
     
-    model = Unet(n_class=num_class, in_channels=1, pretrain=True)
+    model = Unet(n_class=num_class, in_channels=1, pretrained=True)
     criterion = MulticlassDiceLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
