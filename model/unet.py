@@ -117,20 +117,20 @@ class Unet(nn.Module):
         self.final_conv = nn.Conv2d(16, n_class, kernel_size=1)
         self.mega_upsample = nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True)
 
-    def _make_res_layer(self, block, layers, inplanes, planes, stride=1):
+    def _make_res_layer(self, block, num_blocks, inplanes, planes, stride=1):
         """Build a ResNet layer with custom channels"""
         downsample = None
         if stride != 1 or inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                        kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
         layers = []
         layers.append(block(inplanes, planes, stride, downsample))
         inplanes = planes * block.expansion
-        for _ in range(1, layers):
+        for _ in range(1, num_blocks):
             layers.append(block(inplanes, planes))
 
         return nn.Sequential(*layers)
