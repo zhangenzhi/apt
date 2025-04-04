@@ -150,6 +150,7 @@ class Unet(nn.Module):
         d1 = self.decoder1(d2, e1)    # [1, 16, 8192, 8192]
         
         out = self.final_conv(d1)     # [1, 5, 8192, 8192]
+        import pdb;pdb.set_trace()
         if out.size()[-2:] != x.size()[-2:]:
             out = self.mega_upsample(out)
         return out
