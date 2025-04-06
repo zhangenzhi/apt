@@ -185,19 +185,19 @@ def main(args, device_id):
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
 
-            # # Visualize
-            # if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-            #     with torch.no_grad():
-            #         for bi,batch in enumerate(val_loader):
-            #             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            #             outputs = torch.reshape(outputs, seq_shape)
-            #             qmasks = torch.reshape(qmasks, seq_shape)
-            #             qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-            #                                         fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-            #             epoch_qdt_score += qdt_score.item()
-            #             epoch_qmask_score += qmask_score.item()
-            # epoch_qdt_score /= len(val_loader)
-            # epoch_qmask_score /= len(val_loader)
+            # Visualize
+            if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                with torch.no_grad():
+                    for bi,batch in enumerate(val_loader):
+                        # with torch.autocast(device_type='cuda', dtype=torch.float16):
+                        outputs = torch.reshape(outputs, seq_shape)
+                        qmasks = torch.reshape(qmasks, seq_shape)
+                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
+                                                    fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                        epoch_qdt_score += qdt_score.item()
+                        epoch_qmask_score += qmask_score.item()
+            epoch_qdt_score /= len(val_loader)
+            epoch_qmask_score /= len(val_loader)
             
             # Save the best model based on validation accuracy
             if epoch_val_score > best_val_score and dist.get_rank()==0:
@@ -234,64 +234,31 @@ def main(args, device_id):
         logging.info(f"Test Loss: {test_loss:.4f}")
         # draw_loss(output_dir=output_dir)
 
-def sub_trans_plot(image, mask, qmasks, pred_mask, qdt_info, fixed_length, bi, epoch, output_dir):
-    true_score = 0 
-    best_score = 0
-    for i in range(image.size(0)):
-        image = image[i].cpu().permute(1, 2, 0).numpy()
-        mask_true = mask[i].cpu().numpy()
+def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, output_dir):
+    # only one sample
+    
+    image = image[0]
+    true_mask = mask[0]
+    true_seq_mask = qmasks[0]
+    pred_seq_mask = pred[0]
+    
+    decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
+    decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
+    
+    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
+    filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    # filename_pred = f"pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_decoded_mask = f"decoded_mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_decoded_pred = f"decoded_pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
 
-        qmasks = (qmasks[i].cpu() > 0.5).numpy()
-        qmasks.astype(np.int32)
-        qmasks = qmasks[1]
-        patch_size = qmasks.shape[0]
-        qmasks = np.reshape(qmasks, (fixed_length, patch_size, patch_size))
-        qmasks = np.repeat(np.expand_dims(qmasks, axis=-1), 3, axis=-1)
- 
-        # Squeeze the singleton dimension from mask_true
-        mask_true = mask_true[1]
-        mask_true = np.repeat(np.expand_dims(mask_true, axis=-1), 3, axis=-1)
-        
-        # print(mask_true.sum())
-        pred_mask = (pred_mask[i].cpu() > 0.5).numpy()
-        mask_pred = pred_mask[1]
-        patch_size = mask_pred.shape[0]
-        mask_pred = np.reshape(mask_pred, (fixed_length, patch_size, patch_size))
-        mask_pred = np.repeat(np.expand_dims(mask_pred, axis=-1), 3, axis=-1)
-      
-        meta_info = []
-        for nodes in qdt_info:
-            n = []
-            for idx in range(len(nodes)):
-                n.append(nodes[idx][i].numpy())
-            meta_info.append(n)
-        
-        qdt = FixedQuadTree(domain=mask_true, fixed_length=fixed_length, build_from_info=True, meta_info=meta_info)
-        deoced_mask_pred = qdt.deserialize(seq=mask_pred, patch_size=patch_size, channel=3)
-        decode_qmask = qdt.deserialize(seq=qmasks, patch_size=patch_size, channel=3)
-        
-        true_score += dice_score_plot(mask_true, targets=deoced_mask_pred)
-        best_score += dice_score_plot(mask_true, targets=decode_qmask)
-        
-        mask_true = mask_true.astype(np.float64)
-
-        # Plot and save images
-        plt.figure(figsize=(12, 4))
-        plt.subplot(1, 3, 1)
-        plt.imshow(image)
-        plt.title("Input Image")
-
-        plt.subplot(1, 3, 2)
-        plt.imshow(mask_true, cmap='gray')
-        plt.title("True Mask")
-
-        plt.subplot(1, 3, 3)
-        plt.imshow(deoced_mask_pred, cmap='gray')
-        plt.title("Predicted Mask")
-        plt.savefig(os.path.join(output_dir, f"epoch_{epoch + 1}_sample_{bi + 1}.png"))
-        plt.close()
-        # true_score /= image.size(0)
-        return true_score, best_score
+    from dataset.utilz import save_input_as_image, save_pred_as_mask
+    
+    save_input_as_image(image, os.path.join(output_dir, filename_image))
+    save_input_as_image(true_mask, os.path.join(output_dir, filename_mask))
+    save_pred_as_mask(decoded_true_mask, os.path.join(output_dir, filename_decoded_mask))
+    save_pred_as_mask(decoded_pred_mask, os.path.join(output_dir, filename_decoded_pred))
+    print(f"Visualized for {epoch}-{bi}, Done!")
+    
      
 def draw_loss(output_dir):
     os.makedirs(output_dir, exist_ok=True)
