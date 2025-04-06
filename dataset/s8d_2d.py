@@ -357,7 +357,13 @@ class S8DFinetune2DAP(Dataset):
         seq_mask = F.one_hot(seq_mask.squeeze(-1), num_classes=self.num_classes)
         seq_mask = seq_mask.permute(2, 0, 1).float()  # (C, H, W)
         
-        return seq_img, seq_mask, seq_size, seq_pos
+        # Convert to tensors
+        img_tensor = torch.from_numpy(img).float()
+        label_tensor = torch.from_numpy(label).long()
+        
+        img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1e-4)
+        
+        return img_tensor, label_tensor, seq_img, seq_mask, qdt
     
     def get_volume_ids(self):
         """Get list of all unique volume IDs"""

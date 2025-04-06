@@ -147,9 +147,12 @@ def main(args, device_id):
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+            
             optimizer.zero_grad()
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
+            score = dice_score(outputs, qmasks)
+            
             loss.backward()
             optimizer.step()
             # print("train step loss:{}, sec/step:{}".format(loss, (time.time()-start_time)/step))
@@ -157,6 +160,7 @@ def main(args, device_id):
             step+=1
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
+        logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -172,8 +176,7 @@ def main(args, device_id):
             with torch.no_grad():
                 for bi,batch in enumerate(val_loader):
                     # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                    qimages, qmasks, seq_size, seq_pos = batch
-                    seq_shape = qmasks.shape
+                    image, mask, qimages, qmasks, qdt = batch
                     qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                     qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
@@ -185,17 +188,19 @@ def main(args, device_id):
             epoch_val_loss /= len(val_loader)
             epoch_val_score /= len(val_loader)
 
-            # Visualize
+            # # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                 with torch.no_grad():
                     for bi,batch in enumerate(val_loader):
-                        # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                        outputs = torch.reshape(outputs, seq_shape)
-                        qmasks = torch.reshape(qmasks, seq_shape)
-                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-                                                    fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                        epoch_qdt_score += qdt_score.item()
-                        epoch_qmask_score += qmask_score.item()
+                        image, mask, qimages, qmasks, qdt = batch
+                        qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+                        qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
+                        qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+                        break
+                    qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                    epoch_qdt_score += qdt_score.item()
+                    epoch_qmask_score += qmask_score.item()
             epoch_qdt_score /= len(val_loader)
             epoch_qmask_score /= len(val_loader)
             
@@ -222,7 +227,7 @@ def main(args, device_id):
         with torch.no_grad():
             for batch in test_loader:
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                qimages, qmasks, seq_size, seq_pos = batch
+                image, mask, qimages, qmasks, seq_size, seq_pos = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
