@@ -189,12 +189,10 @@ def main(args):
                 score = dice_score(outputs, qmasks)
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
-                
+                break
             if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                        outputs = torch.reshape(outputs, seq_shape)
-                        qmasks = torch.reshape(qmasks, seq_shape)
-                        sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
-                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
+                                        fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
@@ -253,6 +251,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
+    import pdb;pdb.set_trace()
     
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
     decoded_true_mask = np.transpose(decoded_true_mask, (2, 1, 0))
@@ -269,7 +268,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     from dataset.utilz import save_input_as_image, save_pred_as_mask
     
     save_input_as_image(image, os.path.join(output_dir, filename_image))
-    save_input_as_image(true_mask, os.path.join(output_dir, filename_mask))
+    save_pred_as_mask(true_mask, os.path.join(output_dir, filename_mask))
     save_pred_as_mask(decoded_true_mask, os.path.join(output_dir, filename_decoded_mask))
     save_pred_as_mask(decoded_pred_mask, os.path.join(output_dir, filename_decoded_pred))
     print(f"Visualized for {epoch}-{bi}, Done!")
