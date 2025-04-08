@@ -140,7 +140,7 @@ def main(args):
         step=1
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            qimages, qmasks, seq_size, seq_pos = batch
+            image, mask, qimages, qmasks, qdt = batch
             qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -172,7 +172,7 @@ def main(args):
         with torch.no_grad():
             for bi,batch in enumerate(val_loader):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                qimages, qmasks, seq_size, seq_pos = batch
+                image, mask, qimages, qmasks, qdt = batch
                 seq_shape = qmasks.shape
                 qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
@@ -216,7 +216,7 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            _, qimages, _, qmasks, _, qdt_value = batch
+            image, mask, qimages, qmasks, qdt = batch
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU

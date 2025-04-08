@@ -363,7 +363,7 @@ class S8DFinetune2DAP(Dataset):
         
         img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1e-4)
         
-        return img_tensor, label_tensor, seq_img, seq_mask, qdt
+        return img_tensor, label_tensor, seq_img, seq_mask, [qdt]
     
     def get_volume_ids(self):
         """Get list of all unique volume IDs"""

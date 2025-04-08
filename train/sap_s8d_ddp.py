@@ -222,7 +222,7 @@ def main(args, device_id):
         with torch.no_grad():
             for batch in test_loader:
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
-                image, mask, qimages, qmasks, seq_size, seq_pos = batch
+                image, mask, qimages, qmasks, qdt = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
                 qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
