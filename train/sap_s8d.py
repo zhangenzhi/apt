@@ -77,6 +77,41 @@ def log(args):
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
+
+import torch
+from torch.utils.data.dataloader import default_collate
+
+def collate_fn(batch):
+    """
+    Custom collate function for S8DFinetune2DAP dataset.
+    Handles:
+    - img_tensor: stack into batch tensor
+    - label_tensor: stack into batch tensor
+    - seq_img: stack into batch tensor
+    - seq_mask: stack into batch tensor
+    - qdt: keep as list of FixedQuadTree objects
+    """
+    # Unzip the batch (list of tuples → tuple of lists)
+    img_tensors, label_tensors, seq_imgs, seq_masks, qdts = zip(*batch)
+    
+    # Stack tensors that can be batched normally
+    batch_img_tensor = torch.stack(img_tensors)
+    batch_label_tensor = torch.stack(label_tensors)
+    batch_seq_img = torch.stack(seq_imgs)
+    batch_seq_mask = torch.stack(seq_masks)
+    
+    # For the quadtrees, we just keep them as a list (since they're custom objects)
+    # We had [qdt] per sample, now we concatenate those single-item lists
+    batch_qdts = [qdt[0] for qdt in qdts]
+    
+    return (
+        batch_img_tensor,
+        batch_label_tensor,
+        batch_seq_img,
+        batch_seq_mask,
+        batch_qdts  # Now a list of FixedQuadTree objects
+    )
+    
     
 def main(args):
     
@@ -121,7 +156,7 @@ def main(args):
     val_set = test_set = Subset(dataset, val_indices)
     # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=0, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=1, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
