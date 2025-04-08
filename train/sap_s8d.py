@@ -243,6 +243,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = mask[0]
     true_seq_mask = qmasks[0]
     pred_seq_mask = pred[0]
+    qdt = qdt[0]
     
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
     decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
