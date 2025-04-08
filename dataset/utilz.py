@@ -128,7 +128,17 @@ def save_pred_as_mask(pred_tensor, filename):
         filename: Output path (.tiff or .png)
     """
     # Convert to class indices (argmax)
-    pred_mask = pred_tensor.argmax(0).cpu().numpy()  # (8192, 8192)
+    if torch.is_tensor(pred_tensor):
+        pred_tensor = pred_tensor.cpu().numpy()  # Convert PyTorch tensor to numpy
+    elif not isinstance(pred_tensor, np.ndarray):
+        raise TypeError(f"Input must be torch.Tensor or np.ndarray, got {type(pred_tensor)}")
+    
+    # Validate input shape
+    if pred_tensor.ndim != 3 or pred_tensor.shape[0] != 5:
+        raise ValueError(f"Expected shape [5, H, W], got {pred_tensor.shape}")
+    
+    # Convert to class indices (argmax along channel dimension)
+    pred_mask = pred_tensor.argmax(axis=0)  # (H, W)
     
     # Create color palette (5 classes + background)
     palette = np.array([
@@ -157,7 +167,12 @@ def save_input_as_image(input_tensor, filename):
         filename: Output path (use .tiff or .png extension)
     """
     # Convert tensor to numpy and squeeze
-    img_array = input_tensor.squeeze().cpu().numpy()  # Now (8192, 8192)
+    if torch.is_tensor(input_tensor):
+        img_array = input_tensor.squeeze().cpu().numpy()  # Handle PyTorch tensor
+    elif isinstance(input_tensor, np.ndarray):
+        img_array = input_tensor.squeeze()  # Handle NumPy array
+    else:
+        raise TypeError(f"Input must be torch.Tensor or np.ndarray, got {type(input_tensor)}")
     
     # Normalize to 0-255 if needed
     if img_array.dtype != np.uint8:
