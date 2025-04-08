@@ -143,7 +143,7 @@ def main(args, device_id):
         step=1
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            qimages, qmasks, seq_size, seq_pos = batch
+            image, mask, qimages, qmasks, qdt = batch
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
@@ -161,6 +161,9 @@ def main(args, device_id):
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
+        if (epoch - 1) % 10 == 9 and device_id == 0:  # Adjust the frequency of visualization
+            sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                            fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
@@ -190,17 +193,9 @@ def main(args, device_id):
 
             # # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                with torch.no_grad():
-                    for bi,batch in enumerate(val_loader):
-                        image, mask, qimages, qmasks, qdt = batch
-                        qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
-                        qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
-                        qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
-                        break
-                    qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
-                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                    epoch_qdt_score += qdt_score.item()
-                    epoch_qmask_score += qmask_score.item()
+                sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+
             epoch_qdt_score /= len(val_loader)
             epoch_qmask_score /= len(val_loader)
             
