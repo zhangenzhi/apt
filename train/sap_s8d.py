@@ -16,7 +16,7 @@ import math
 
 from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
-from dataset.s8d_2d import S8DFinetune2DAP
+from dataset.s8d_2d import S8DFinetune2DAP, collate_fn
 from utils.draw import draw_loss, sub_paip_plot
 from utils.focal_loss import DiceCELoss
 
@@ -78,39 +78,6 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-import torch
-from torch.utils.data.dataloader import default_collate
-
-def collate_fn(batch):
-    """
-    Custom collate function for S8DFinetune2DAP dataset.
-    Handles:
-    - img_tensor: stack into batch tensor
-    - label_tensor: stack into batch tensor
-    - seq_img: stack into batch tensor
-    - seq_mask: stack into batch tensor
-    - qdt: keep as list of FixedQuadTree objects
-    """
-    # Unzip the batch (list of tuples → tuple of lists)
-    img_tensors, label_tensors, seq_imgs, seq_masks, qdts = zip(*batch)
-    
-    # Stack tensors that can be batched normally
-    batch_img_tensor = torch.stack(img_tensors)
-    batch_label_tensor = torch.stack(label_tensors)
-    batch_seq_img = torch.stack(seq_imgs)
-    batch_seq_mask = torch.stack(seq_masks)
-    
-    # For the quadtrees, we just keep them as a list (since they're custom objects)
-    # We had [qdt] per sample, now we concatenate those single-item lists
-    batch_qdts = [qdt[0] for qdt in qdts]
-    
-    return (
-        batch_img_tensor,
-        batch_label_tensor,
-        batch_seq_img,
-        batch_seq_mask,
-        batch_qdts  # Now a list of FixedQuadTree objects
-    )
     
     
 def main(args):
@@ -157,8 +124,8 @@ def main(args):
     # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=1, shuffle=True, collate_fn=collate_fn)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
 
     # Training loop
     num_epochs = args.epoch
@@ -190,6 +157,12 @@ def main(args):
 
             epoch_train_loss += loss.item()
             step+=1
+            break
+        
+        # Visualize
+        if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+            sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                            fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
@@ -215,15 +188,16 @@ def main(args):
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
                 score = dice_score(outputs, qmasks)
-                # if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                #     outputs = torch.reshape(outputs, seq_shape)
-                #     qmasks = torch.reshape(qmasks, seq_shape)
-                #     qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt_info, 
-                #                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
-                #     epoch_qdt_score += qdt_score.item()
-                #     epoch_qmask_score += qmask_score.item()
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
+                
+            if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                        outputs = torch.reshape(outputs, seq_shape)
+                        qmasks = torch.reshape(qmasks, seq_shape)
+                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                                                fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                        epoch_qdt_score += qdt_score.item()
+                        epoch_qmask_score += qmask_score.item()
 
         epoch_val_loss /= len(val_loader)
         epoch_val_score /= len(val_loader)
@@ -265,7 +239,31 @@ def main(args):
     epoch_test_score /= len(test_loader)
     logging.info(f"Test Loss: {test_loss:.4f}, Test Score: {epoch_test_score:.4f}")
     draw_loss(output_dir=output_dir)
+
+def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, output_dir):
+    # only one sample
     
+    image = image[0]
+    true_mask = mask[0]
+    true_seq_mask = qmasks[0]
+    pred_seq_mask = pred[0]
+    
+    decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
+    decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
+    
+    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
+    filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    # filename_pred = f"pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_decoded_mask = f"decoded_mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
+    filename_decoded_pred = f"decoded_pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
+
+    from dataset.utilz import save_input_as_image, save_pred_as_mask
+    
+    save_input_as_image(image, os.path.join(output_dir, filename_image))
+    save_input_as_image(true_mask, os.path.join(output_dir, filename_mask))
+    save_pred_as_mask(decoded_true_mask, os.path.join(output_dir, filename_decoded_mask))
+    save_pred_as_mask(decoded_pred_mask, os.path.join(output_dir, filename_decoded_pred))
+    print(f"Visualized for {epoch}-{bi}, Done!")
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -163,7 +163,7 @@ def main(args, device_id):
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
         if (epoch - 1) % 10 == 9 and device_id == 0:  # Adjust the frequency of visualization
             sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
-                            fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
+                            fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
