@@ -258,6 +258,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     # decoded_true_mask = np.transpose(decoded_true_mask, (1, 2, 0)) 
     decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
     # decoded_pred_mask = np.transpose(decoded_pred_mask, (1, 2, 0)) 
+    import pdb;pdb.set_trace()
     
     filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
     filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
