@@ -240,9 +240,17 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     # only one sample
     
     image = image[0]
+    image = image.squeeze().cpu().numpy()
+    
     true_mask = mask[0]
+    true_mask = true_mask.squeeze().cpu().numpy()
+    
     true_seq_mask = qmasks[0]
+    true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
+    
     pred_seq_mask = pred[0]
+    pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
+    
     qdt = qdt[0]
     
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)

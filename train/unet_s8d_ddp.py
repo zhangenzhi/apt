@@ -206,7 +206,7 @@ def main(args, device_id):
                 images, masks = images.to(device_id), masks.to(device_id)  # Move data to GPU
                 outputs = model(images)
                 # outputs = F.sigmoid(outputs)
-                loss = criterion(outputs, masks, act=False)
+                loss = criterion(outputs, masks)
                 test_loss += loss.item()
 
         test_loss /= len(test_loader)
