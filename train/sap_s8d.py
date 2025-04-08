@@ -77,8 +77,6 @@ def log(args):
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-
-    
     
 def main(args):
     
@@ -161,7 +159,7 @@ def main(args):
         
         # Visualize
         if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-            sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+            sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt_info=qdt, 
                             fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
@@ -194,7 +192,7 @@ def main(args):
             if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                         outputs = torch.reshape(outputs, seq_shape)
                         qmasks = torch.reshape(qmasks, seq_shape)
-                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred_mask=outputs, qdt_info=qdt, 
+                        qdt_score, qmask_score = sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt_info=qdt, 
                                                 fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
                         epoch_qdt_score += qdt_score.item()
                         epoch_qmask_score += qmask_score.item()
