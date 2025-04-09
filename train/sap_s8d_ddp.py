@@ -245,14 +245,15 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = true_mask.squeeze().cpu().numpy()
     
     true_seq_mask = qmasks[0]
+    true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
+    pred_seq_mask = torch.reshape(pred_seq_mask, (fixed_length, 8*8*5))
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
     # import pdb;pdb.set_trace()
-    
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
     decoded_true_mask = np.transpose(decoded_true_mask, (2, 1, 0))
     decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
