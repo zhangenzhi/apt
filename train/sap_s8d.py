@@ -108,7 +108,7 @@ def main(args):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = S8DFinetune2DAP(data_path, num_classes=num_class, fixed_length=args.fixed_length, patch_size=patch_size)
+    dataset = S8DFinetune2DAP(data_path, num_classes=num_class, fixed_length=args.fixed_length, patch_size=patch_size, collate_fn=collate_fn)
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
     val_size = dataset_size - train_size
@@ -252,7 +252,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
     decoded_true_mask = np.transpose(decoded_true_mask, (2, 1, 0))

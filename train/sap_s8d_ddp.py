@@ -19,7 +19,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from apt.quadtree import FixedQuadTree
 from model.sam import SAMQDT
-from dataset.s8d_2d import S8DFinetune2DAP
+from dataset.s8d_2d import S8DFinetune2DAP,collate_fn
 from utils.draw import draw_loss, sub_paip_plot
 from utils.focal_loss import DiceCELoss
 
@@ -108,7 +108,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = S8DFinetune2DAP(data_path, num_classes=num_classes, fixed_length=args.fixed_length, patch_size=patch_size)
+    dataset = S8DFinetune2DAP(data_path, num_classes=num_classes, fixed_length=args.fixed_length, patch_size=patch_size, collate_fn=collate_fn)
     
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
