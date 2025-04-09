@@ -23,11 +23,14 @@ class Rect:
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
-        import pdb; pdb.set_trace()
+        import pdb;pdb.set_trace()
+        
         patch_size = self.get_size()
         # patch = np.resize(patch, patch_size)
         patch = patch.astype('float32')
         patch = cv.resize(patch, interpolation=cv.INTER_CUBIC , dsize=patch_size)
+        patch = np.expand_dims(patch, axis=-1)
+
         mask[self.y1:self.y2, self.x1:self.x2, :] = patch
         return mask
     
@@ -171,13 +174,14 @@ class FixedQuadTree:
         return seq_patch, seq_size, seq_pos
     
     def deserialize(self, seq, patch_size, channel):
-        import pdb;pdb.set_trace()
+
         H,W = self.domain.shape
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
         mask = np.zeros(shape=(H, W, channel))
         print("demask:", mask.shape)
         
+        import pdb;pdb.set_trace()
         # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
             pred_mask = seq[idx, ...]
