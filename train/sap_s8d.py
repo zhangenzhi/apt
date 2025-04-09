@@ -221,7 +221,6 @@ def main(args):
     epoch_test_score = 0
     with torch.no_grad():
         for batch in test_loader:
-            # with torch.autocast(device_type='cuda', dtype=torch.float16):
             image, mask, qimages, qmasks, qdt = batch
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))

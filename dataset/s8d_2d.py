@@ -343,6 +343,8 @@ class S8DFinetune2DAP(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         
+        import pdb;pdb.set_trace()
+        
         img = (img / 65535 * 255).astype(np.uint8)
         img = np.expand_dims(img, axis=-1) 
         seq_img, seq_size, seq_pos, qdt = self.patchify(img)
@@ -437,9 +439,9 @@ if __name__ == "__main__":
     #     images, label, slice_id = batch
     #     import pdb;pdb.set_trace()
     #     print(images.shape, label.shape)
-        
+    
     dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
