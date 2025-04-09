@@ -161,9 +161,10 @@ def main(args, device_id):
         end_time = time.time()
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
-        if (epoch - 1) % 10 == 9 and device_id == 0:  # Adjust the frequency of visualization
-            sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
-                            fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
+        with torch.no_grad():
+            if (epoch - 1) % 10 == 9 and device_id == 0:  # Adjust the frequency of visualization
+                sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
+                                fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
 
         epoch_train_loss /= len(train_loader)
         train_losses.append(epoch_train_loss)
