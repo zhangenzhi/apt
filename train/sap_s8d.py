@@ -180,7 +180,6 @@ def main(args):
             for bi,batch in enumerate(val_loader):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 image, mask, qimages, qmasks, qdt = batch
-                seq_shape = qmasks.shape
                 qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -190,7 +189,10 @@ def main(args):
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
                 break
+                
             if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                # outputs = torch.reshape(outputs, seq_shape)
+                # qmasks = torch.reshape(qmasks, seq_shape)
                 sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
                                         fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
 
