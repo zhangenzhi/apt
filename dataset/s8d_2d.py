@@ -370,7 +370,7 @@ class S8DFinetune2DAP(Dataset):
         
         img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1e-4)
         
-        dem = qdt.deserialize(seq_mask.permute(1,2,0).numpy(), 8, 1)
+        dem = qdt.deserialize(seq_mask.permute(1,2,0).numpy(), 8, 5)
         from dataset.utilz import save_input_as_image
         save_input_as_image(dem, "test_deserialize_pre.png")
         
