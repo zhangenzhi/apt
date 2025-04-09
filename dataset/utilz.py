@@ -133,12 +133,11 @@ def save_pred_as_mask(pred_tensor, filename):
     elif not isinstance(pred_tensor, np.ndarray):
         raise TypeError(f"Input must be torch.Tensor or np.ndarray, got {type(pred_tensor)}")
     
-    # Validate input shape
-    if pred_tensor.ndim != 3 or pred_tensor.shape[0] != 5:
-        raise ValueError(f"Expected shape [5, H, W], got {pred_tensor.shape}")
-    
-    # Convert to class indices (argmax along channel dimension)
-    pred_mask = pred_tensor.argmax(axis=0)  # (H, W)
+    if pred_tensor.ndim == 2:
+        pred_mask = pred_tensor
+    else:
+        # Convert to class indices (argmax along channel dimension)
+        pred_mask = pred_tensor.argmax(axis=0)  # (H, W)
     
     # Create color palette (5 classes + background)
     palette = np.array([
