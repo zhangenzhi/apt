@@ -344,7 +344,7 @@ class S8DFinetune2DAP(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         img = (img / 65535 * 255).astype(np.uint8)
         img = np.expand_dims(img, axis=-1) 
