@@ -29,7 +29,8 @@ class Rect:
         # patch = np.resize(patch, patch_size)
         patch = patch.astype('float32')
         patch = cv.resize(patch, interpolation=cv.INTER_CUBIC , dsize=patch_size)
-        patch = np.expand_dims(patch, axis=-1)
+        if len(patch.shape)==2:
+            patch = np.expand_dims(patch, axis=-1)
 
         mask[self.y1:self.y2, self.x1:self.x2, :] = patch
         return mask
