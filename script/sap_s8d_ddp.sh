@@ -27,5 +27,5 @@ srun -N 32 -n 256 --ntasks-per-node 8 python ./train/sap_s8d_ddp.py \
         --pretrain=sam-b \
         --epoch=1000 \
         --batch_size=1 \
-        --savefile=./sap_s8d_n32-dce
+        --savefile=./sap_s8d_n32-dem
 # 8281
