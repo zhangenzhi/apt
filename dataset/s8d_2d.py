@@ -351,11 +351,8 @@ class S8DFinetune2DAP(Dataset):
         label = np.expand_dims(label, axis=-1) 
         seq_mask, _, _ = qdt.serialize(label, size=(self.patch_size, self.patch_size, self.num_channels))
         seq_mask = np.asarray(seq_mask)
-        dem = qdt.deserialize(seq_mask,8,1)
-        from dataset.utilz import save_input_as_image
-        save_input_as_image(dem, "test_deserialize.png")
         
-        seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
+        # seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
         
         # Convert to tensors
         seq_img = torch.from_numpy(seq_img).permute(2, 0, 1).float()  # Add channel dim
@@ -370,6 +367,10 @@ class S8DFinetune2DAP(Dataset):
         label_tensor = torch.from_numpy(label).long()
         
         img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min()+1e-4)
+        
+        dem = qdt.deserialize(seq_mask.permute(1,2,0).numpy(), 8, 1)
+        from dataset.utilz import save_input_as_image
+        save_input_as_image(dem, "test_deserialize_pre.png")
         
         return img_tensor, label_tensor, seq_img, seq_mask, [qdt]
     
