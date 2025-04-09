@@ -162,7 +162,7 @@ def main(args, device_id):
         logging.info("epoch cost:{}, sec/img:{}, lr:{}".format(end_time-start_time, (end_time-start_time)/train_size, optimizer.param_groups[0]['lr']))
         logging.info("train step loss:{}, train step score:{}, sec/step:{}".format(loss, score, (time.time()-start_time)/step))
         if (epoch - 1) % 10 == 9 and device_id == 0:  # Adjust the frequency of visualization
-            sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt_info=qdt, 
+            sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
                             fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
 
         epoch_train_loss /= len(train_loader)
@@ -193,7 +193,7 @@ def main(args, device_id):
 
             # # Visualize
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt_info=qdt, 
+                sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
                                 fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
 
             epoch_qdt_score /= len(val_loader)
@@ -238,12 +238,25 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     # only one sample
     
     image = image[0]
+    image = image.squeeze().cpu().numpy()
+    
     true_mask = mask[0]
+    true_mask = true_mask.squeeze().cpu().numpy()
+    
     true_seq_mask = qmasks[0]
+    true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
+    
     pred_seq_mask = pred[0]
+    pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
+    
+    qdt = qdt[0]
+    # import pdb;pdb.set_trace()
     
     decoded_true_mask = qdt.deserialize(seq=true_seq_mask, patch_size=8, channel=5)
+    decoded_true_mask = np.transpose(decoded_true_mask, (2, 1, 0))
     decoded_pred_mask = qdt.deserialize(seq=pred_seq_mask, patch_size=8, channel=5)
+    decoded_pred_mask = np.transpose(decoded_pred_mask, (2, 1, 0)) 
+    # import pdb;pdb.set_trace()
     
     filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
     filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
@@ -254,7 +267,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     from dataset.utilz import save_input_as_image, save_pred_as_mask
     
     save_input_as_image(image, os.path.join(output_dir, filename_image))
-    save_input_as_image(true_mask, os.path.join(output_dir, filename_mask))
+    save_pred_as_mask(true_mask, os.path.join(output_dir, filename_mask))
     save_pred_as_mask(decoded_true_mask, os.path.join(output_dir, filename_decoded_mask))
     save_pred_as_mask(decoded_pred_mask, os.path.join(output_dir, filename_decoded_pred))
     print(f"Visualized for {epoch}-{bi}, Done!")
