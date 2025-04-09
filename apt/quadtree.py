@@ -23,7 +23,7 @@ class Rect:
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         patch_size = self.get_size()
         # patch = np.resize(patch, patch_size)
@@ -181,7 +181,7 @@ class FixedQuadTree:
         mask = np.zeros(shape=(H, W, channel))
         print("demask:", mask.shape)
         
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
             pred_mask = seq[idx, ...]
