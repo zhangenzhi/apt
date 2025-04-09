@@ -351,6 +351,10 @@ class S8DFinetune2DAP(Dataset):
         label = np.expand_dims(label, axis=-1) 
         seq_mask, _, _ = qdt.serialize(label, size=(self.patch_size, self.patch_size, self.num_channels))
         seq_mask = np.asarray(seq_mask)
+        dem = qdt.deserialize(seq_mask,8,1)
+        from dataset.utilz import save_input_as_image
+        save_input_as_image(dem, "test_deserialize.png")
+        
         seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
         
         # Convert to tensors
