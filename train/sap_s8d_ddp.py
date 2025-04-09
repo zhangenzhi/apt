@@ -108,7 +108,7 @@ def main(args, device_id):
     
     # Split the dataset into train, validation, and test sets
     data_path = args.data_dir
-    dataset = S8DFinetune2DAP(data_path, num_classes=num_classes, fixed_length=args.fixed_length, patch_size=patch_size, collate_fn=collate_fn)
+    dataset = S8DFinetune2DAP(data_path, num_classes=num_classes, fixed_length=args.fixed_length, patch_size=patch_size)
     
     dataset_size = len(dataset)
     train_size = int(0.85 * dataset_size)
@@ -124,8 +124,8 @@ def main(args, device_id):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
 
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler, collate_fn=collate_fn)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler, collate_fn=collate_fn)
     test_loader = val_loader
 
     # Training loop
