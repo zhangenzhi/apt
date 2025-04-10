@@ -191,9 +191,20 @@ def main(args, device_id):
                 for bi,batch in enumerate(val_loader):
                     # with torch.autocast(device_type='cuda', dtype=torch.float16):
                     image, mask, qimages, qmasks, qdt = batch
-                    qimages = torch.reshape(qimages, shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
-                    qmasks = torch.reshape(qmasks, shape=(-1, num_classes, patch_size*sqrt_len, patch_size*sqrt_len))
+                    # qimages = torch.reshape(qimages, shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
+                    # qmasks = torch.reshape(qmasks, shape=(-1, num_classes, patch_size*sqrt_len, patch_size*sqrt_len))
                     qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+                    
+                    qimages = qimages.view(1, 1, 101, 101, 64)
+                    qimages = qimages.view(1, 1, 101, 101, 8, 8)
+                    qimages = qimages.permute(0, 1, 2, 4, 3, 5)
+                    qimages = qimages.reshape(1, 1, 101 * 8, 101 * 8)
+                    
+                    qmasks = qmasks.view(1, 5, 101, 101, 64)
+                    qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+                    qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+                    qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
+            
                     outputs = model(qimages)
                     loss = criterion(outputs, qmasks)
                     score = dice_score(outputs, qmasks)
@@ -235,8 +246,19 @@ def main(args, device_id):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 image, mask, qimages, qmasks, qdt = batch
                 qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
-                qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
-                qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
+                # qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+                # qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
+                
+                qimages = qimages.view(1, 1, 101, 101, 64)
+                qimages = qimages.view(1, 1, 101, 101, 8, 8)
+                qimages = qimages.permute(0, 1, 2, 4, 3, 5)
+                qimages = qimages.reshape(1, 1, 101 * 8, 101 * 8)
+            
+                qmasks = qmasks.view(1, 5, 101, 101, 64)
+                qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+                qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+                qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
+            
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
                 test_loss += loss.item()
@@ -255,11 +277,21 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = true_mask.squeeze().cpu().numpy()
     
     true_seq_mask = qmasks[0]
-    true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
+    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 8, 101, 8)
+    true_seq_mask = true_seq_mask.permute(0, 1, 2, 4, 3, 5)
+    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 101, 8*8)
+    true_seq_mask = true_seq_mask.reshape(1, 5, 101*101, 64)
+    true_seq_mask = true_seq_mask.permute(0, 2, 3, 1)
+    true_seq_mask = true_seq_mask.reshape(1, 101*101, 64*5)
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
-    pred_seq_mask = torch.reshape(pred_seq_mask, (fixed_length, 8*8*5))
+    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 8, 101, 8)
+    pred_seq_mask = pred_seq_mask.permute(0, 1, 2, 4, 3, 5)
+    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 101, 8*8)
+    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101*101, 64)
+    pred_seq_mask = pred_seq_mask.permute(0, 2, 3, 1)
+    pred_seq_mask = pred_seq_mask.reshape(1, 101*101, 64*5)
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
