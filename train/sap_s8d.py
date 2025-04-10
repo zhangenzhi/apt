@@ -141,8 +141,8 @@ def main(args):
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             image, mask, qimages, qmasks, qdt = batch
-            qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
-            qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+            qimages = torch.reshape(qimages,shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
+            qmasks = torch.reshape(qmasks,shape=(-1, num_class, patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
         
             outputs = model(qimages)
@@ -246,9 +246,11 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = true_mask.squeeze().cpu().numpy()
     
     true_seq_mask = qmasks[0]
+    true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
+    pred_seq_mask = torch.reshape(pred_seq_mask, (fixed_length, 8*8*5))
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
