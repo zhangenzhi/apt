@@ -141,7 +141,7 @@ def main(args):
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             import pdb;pdb.set_trace()
-            image, mask, qimages, qmasks, qdt = batch
+            image, mask, qimages, qmasks, qdt = batch # torch.Size([1, 5, 10201, 64])
             qimages = torch.reshape(qimages,shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks,shape=(-1, num_class, patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU

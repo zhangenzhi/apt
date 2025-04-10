@@ -356,7 +356,7 @@ class S8DFinetune2DAP(Dataset):
         # seq_mask = np.reshape(seq_mask, [self.patch_size*self.patch_size, -1, self.num_channels])
         
         # Convert to tensors
-        seq_img = torch.from_numpy(seq_img).permute(2, 0, 1).float()  # Add channel dim
+        seq_img = torch.from_numpy(seq_img).permute(2, 1, 0).float()  # Add channel dim
         seq_img = (seq_img - seq_img.min()) / (seq_img.max() - seq_img.min()+1e-4)
         
         seq_mask = torch.from_numpy(seq_mask).long()
@@ -375,7 +375,7 @@ class S8DFinetune2DAP(Dataset):
         # from dataset.utilz import save_input_as_image,save_pred_as_mask
         # # save_input_as_image(dem, "test_deserialize_pre.png")
         # save_pred_as_mask(dem, "test_deserialize_pre.png")
-        
+        import pdb;pdb.set_trace()
         return img_tensor, label_tensor, seq_img, seq_mask, [qdt]
     
     def get_volume_ids(self):
