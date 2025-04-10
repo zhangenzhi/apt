@@ -144,9 +144,19 @@ def main(args, device_id):
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             image, mask, qimages, qmasks, qdt = batch
-            qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
-            qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
+            # qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
+            # qmasks = torch.reshape(qmasks, shape=(-1,num_classes,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device_id), qmasks.to(device_id)  # Move data to GPU
+            
+            qimages = qimages.view(1, 1, 101, 101, 64)
+            qimages = qimages.view(1, 1, 101, 101, 8, 8)
+            qimages = qimages.permute(0, 1, 2, 4, 3, 5)
+            qimages = qimages.reshape(1, 1, 101 * 8, 101 * 8)
+            
+            qmasks = qmasks.view(1, 5, 101, 101, 64)
+            qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+            qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+            qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
             
             optimizer.zero_grad()
             outputs = model(qimages)
