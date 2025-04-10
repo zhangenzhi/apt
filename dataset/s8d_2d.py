@@ -454,5 +454,5 @@ if __name__ == "__main__":
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        seq_img, seq_mask, seq_size, seq_pos = batch
+        seq_img, seq_mask, seq_size, seq_pos, qdt = batch
         print(seq_img.shape, seq_mask.shape)
