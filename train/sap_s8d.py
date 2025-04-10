@@ -141,6 +141,7 @@ def main(args):
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             image, mask, qimages, qmasks, qdt = batch
+            seq_shape = qmasks.shape
             qimages = torch.reshape(qimages,shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks,shape=(-1, num_class, patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -160,6 +161,8 @@ def main(args):
         # Visualize
         with torch.no_grad():
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
+                outputs = torch.reshape(outputs, seq_shape)
+                qmasks = torch.reshape(qmasks, seq_shape)
                 sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
                                 fixed_length=args.fixed_length, bi=-1, epoch=epoch, output_dir=args.savefile)
         end_time = time.time()
@@ -180,6 +183,7 @@ def main(args):
             for bi,batch in enumerate(val_loader):
                 # with torch.autocast(device_type='cuda', dtype=torch.float16):
                 image, mask, qimages, qmasks, qdt = batch
+                seq_shape = qmasks.shape
                 qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -191,8 +195,8 @@ def main(args):
                 break
                 
             if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
-                # outputs = torch.reshape(outputs, seq_shape)
-                # qmasks = torch.reshape(qmasks, seq_shape)
+                outputs = torch.reshape(outputs, seq_shape)
+                qmasks = torch.reshape(qmasks, seq_shape)
                 sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
                                         fixed_length=args.fixed_length, bi=bi, epoch=epoch, output_dir=args.savefile)
 
@@ -222,6 +226,7 @@ def main(args):
     with torch.no_grad():
         for batch in test_loader:
             image, mask, qimages, qmasks, qdt = batch
+            seq_shape = qmasks.shape
             qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
             qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
@@ -246,11 +251,11 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = true_mask.squeeze().cpu().numpy()
     
     true_seq_mask = qmasks[0]
-    true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
+    # true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
-    pred_seq_mask = torch.reshape(pred_seq_mask, (fixed_length, 8*8*5))
+    # pred_seq_mask = torch.reshape(pred_seq_mask, (fixed_length, 8*8*5))
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
