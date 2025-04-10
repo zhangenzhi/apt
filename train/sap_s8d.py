@@ -190,10 +190,10 @@ def main(args):
                 qimages = torch.reshape(qimages,shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
                 # qmasks = torch.reshape(qmasks,shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
                 qmasks = qmasks.view(1, 5, 101, 101, 64)
-                qmasks = qmasks.permute(0, 2, 3, 4, 1)
-                qmasks = qmasks.view(1, 101, 101, 8, 8, 5)
-                qmasks = qmasks.permute(0, 1, 3, 2, 4, 5)
-                qmasks = qmasks.reshape(1, 101 * 8, 101 * 8, 5)
+                # qmasks = qmasks.permute(0, 2, 3, 4, 1)
+                qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+                qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+                qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
                 qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
                 outputs = model(qimages)
                 loss = criterion(outputs, qmasks)
@@ -257,11 +257,12 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     
     true_seq_mask = qmasks[0]
     # true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
-    true_seq_mask = true_seq_mask.reshape(1, 101, 8, 101, 8, 5)
-    true_seq_mask = true_seq_mask.permute(0, 1, 3, 2, 4, 5)
-    true_seq_mask = true_seq_mask.reshape(1, 101, 101, 8*8, 5)
-    true_seq_mask = true_seq_mask.permute(0, 4, 1, 2, 3)
+    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 8, 101, 8)
+    true_seq_mask = true_seq_mask.permute(0, 1, 2, 4, 3, 5)
+    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 101, 8*8)
     true_seq_mask = true_seq_mask.reshape(1, 5, 101*101, 64)
+    true_seq_mask = true_seq_mask.permute(0, 2, 3, 1)
+    true_seq_mask = true_seq_mask.reshape(1, 101*101, 64*5)
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
