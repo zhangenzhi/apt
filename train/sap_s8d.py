@@ -147,10 +147,10 @@ def main(args):
             
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             qmasks = qmasks.view(1, 5, 101, 101, 64)
-            qmasks = qmasks.permute(0, 2, 3, 4, 1)
-            qmasks = qmasks.view(1, 101, 101, 8, 8, 5)
-            qmasks = qmasks.permute(0, 1, 3, 2, 4, 5)
-            qmasks = qmasks.reshape(1, 101 * 8, 101 * 8, 5)
+            # qmasks = qmasks.permute(0, 2, 3, 4, 1)
+            qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+            qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+            qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
             
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
