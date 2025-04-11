@@ -122,7 +122,7 @@ def main(args, device_id):
     val_set = Subset(dataset, val_indices)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
-    val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
+    val_sampler = torch.utils.data.distributed.DistributedSampler(val_set, shuffle=False)
 
     train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,  sampler=val_sampler, collate_fn=collate_fn)
