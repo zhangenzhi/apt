@@ -1,13 +1,10 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from functools import partial
-from typing import Any, Dict, List, Tuple, Type
 
 import sys
 sys.path.append("./")
 
-from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 from model.sam2_mod.build_sam2 import build_sam2
 
@@ -148,7 +145,7 @@ class SAM2QDT(nn.Module):
         return x
     
 if __name__ == "__main__":
-    model = SAM2(image_shape=(256, 256), pretrain="sam2-t")
+    model = SAM2QDT(image_shape=(256, 256), pretrain="sam2-t")
     batch_size = 4
     x = torch.rand(size=(batch_size, 1, 256, 256))
     embs = model(x)
