@@ -42,10 +42,10 @@ if __name__ == "__main__":
     for batch in last_40_batches:
         image, mask, qimages, qmasks, qdt = batch
         print(qimages.shape, qmasks.shape)
-        dem,_,_ = qdt[0].deserialize(qmasks.permute(1,2,0).numpy(), 8, 5)
+        dem = qdt[0].deserialize(qmasks[0].permute(1,2,0).numpy(), 8, 5)
         dem = np.transpose(dem, (2, 1, 0))
-        image_list.append(image)
-        mask_list.append(mask)
+        image_list.append(image[0])
+        mask_list.append(mask[0])
         dem_list.append(dem)
     
     # 5. 合并所有 batch 的数据
