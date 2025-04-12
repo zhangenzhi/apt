@@ -20,7 +20,6 @@ from model.unet import Unet
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main():
-    import pdb;pdb.set_trace()
     
     img_name = "/lustre/orion/nro108/world-shared/enzhi/apt/dataset/sample_8192.raw"
     image = np.fromfile(img_name, dtype=np.uint16).reshape([8192, 8192, 1])
@@ -28,7 +27,9 @@ def main():
     image = torch.Tensor(image)
     image = (image - image.min()) / (image.max() - image.min()+1e-4)
     image = image.permute(2,0,1).unsqueeze(0)
-    save_input_as_image(image[0].permute(1,2,0), "real_img.png")
+    # save_input_as_image(image[0].permute(1,2,0), "real_img.png")
+    
+    import pdb;pdb.set_trace()
     
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
     num_class = 5
