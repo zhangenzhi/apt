@@ -49,8 +49,10 @@ if __name__ == "__main__":
         image_np = image[0].numpy()
         mask_np = mask[0].numpy()
         
-        dem_resized = cv2.resize(dem, (512, 512), interpolation=cv2.INTER_LINEAR)
-        image_resized = cv2.resize(image_np, (512, 512), interpolation=cv2.INTER_LINEAR)
+        import pdb;pdb.set_trace()
+        
+        dem_resized = cv2.resize(dem, (512, 512), interpolation=cv2.INTER_NEAREST)
+        image_resized = cv2.resize(image_np, (512, 512), interpolation=cv2.INTER_NEAREST)
         mask_resized = cv2.resize(mask_np, (512, 512), interpolation=cv2.INTER_NEAREST)  # mask 用最近邻
         
         dem = torch.from_numpy(dem_resized)

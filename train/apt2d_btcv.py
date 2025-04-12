@@ -14,7 +14,7 @@ from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
 from monai.metrics import DiceMetric
 from monai.transforms import AsDiscrete
-from monai.data import (
+from monai.data import ( 
     decollate_batch,
 )
 
