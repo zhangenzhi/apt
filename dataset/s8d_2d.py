@@ -450,9 +450,15 @@ if __name__ == "__main__":
     #     print(images.shape, label.shape)
     
     dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
 
+    sample_masks = []
+    seq_masks = []
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        seq_img, seq_mask, seq_size, seq_pos, qdt = batch
-        print(seq_img.shape, seq_mask.shape)
+        image, mask, qimages, qmasks, qdt = batch
+        print(qimages.shape, qmasks.shape)
+        dem = qdt.deserialize(qmasks.permute(1,2,0).numpy(), 8, 5)
+        dem = np.transpose(dem, (2, 1, 0))
+        sample_masks.append()
+        seq_masks.append(dem)
