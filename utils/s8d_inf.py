@@ -34,7 +34,7 @@ def main():
     num_class = 5
     model = Unet(n_class=num_class, in_channels=1, pretrained=False)
     model = model.to(device)
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     model.load_state_dict(torch.load(os.path.join("/lustre/orion/nro108/world-shared/enzhi/apt/unet-s8d-n32-dce", "best_score_model.pth")))
     with torch.no_grad():
         pred = model(image)
