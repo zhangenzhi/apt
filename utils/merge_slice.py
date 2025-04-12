@@ -29,7 +29,8 @@ if __name__ == "__main__":
     # 计算总batch数和要跳过的batch数
     total_batches = len(dataloader)  # 注意：len(dataloader) = ceil(数据集大小 / batch_size)
     skip_batches = max(0, total_batches - 40)  # 要跳过的batch数
-
+    print(f"total_batches:{total_batches}")
+    
     import itertools
     # 使用 islice 跳过前面的batch，只取最后40个
     last_40_batches = itertools.islice(dataloader, skip_batches, None)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     for batch in last_40_batches:
         image, mask, qimages, qmasks, qdt = batch
         print(qimages.shape, qmasks.shape)
-        dem = qdt.deserialize(qmasks.permute(1,2,0).numpy(), 8, 5)
+        dem = qdt[0].deserialize(qmasks.permute(1,2,0).numpy(), 8, 5)
         dem = np.transpose(dem, (2, 1, 0))
         image_list.append(image)
         mask_list.append(mask)
