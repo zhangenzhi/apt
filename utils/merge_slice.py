@@ -23,7 +23,7 @@ if __name__ == "__main__":
                         help='Batch_size for training')
     args = parser.parse_args()
     
-    dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=10201, patch_size=8)
+    dataset = S8DFinetune2DAP(args.data_dir, num_classes=5, fixed_length=8194, patch_size=8)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
 
     import pdb;pdb.set_trace()
