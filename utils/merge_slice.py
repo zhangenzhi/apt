@@ -8,6 +8,7 @@ from PIL import Image, ImageFile
 import torch
 import tifffile
 from torch.utils.data import DataLoader
+import cv2
 
 from dataset.s8d_2d import S8DFinetune2DAP, collate_fn
 
@@ -44,20 +45,24 @@ if __name__ == "__main__":
         print(qimages.shape, qmasks.shape)
         dem = qdt[0].deserialize(qmasks[0].permute(1,2,0).numpy(), 8, 5)
         dem = np.transpose(dem, (2, 1, 0))
-        dem = torch.from_numpy(dem)
-        image_list.append(image[0])
-        mask_list.append(mask[0])
+        # 3. Resize 到 512x512（使用 OpenCV）
+        image_np = image[0].numpy()
+        mask_np = mask[0].numpy()
+        
+        dem_resized = cv2.resize(dem, (512, 512), interpolation=cv2.INTER_LINEAR)
+        image_resized = cv2.resize(image_np, (512, 512), interpolation=cv2.INTER_LINEAR)
+        mask_resized = cv2.resize(mask_np, (512, 512), interpolation=cv2.INTER_NEAREST)  # mask 用最近邻
+        
+        dem = torch.from_numpy(dem_resized)
+        image_list.append(image_resized)
+        mask_list.append(mask_resized)
         dem_list.append(dem)
     
-    # 5. 合并所有 batch 的数据
-    dem_stack = torch.cat(dem_list, dim=0)    # (N, 512, 512)
-    image_stack = torch.cat(image_list, dim=0) # (N, 512, 512)
-    mask_stack = torch.cat(mask_list, dim=0)  # (N, 512, 512)
+    # 5. 转为 3D 数据
+    dem_3d = np.stack(dem_list, axis=0)    # (N, 512, 512)
+    image_3d = np.stack(image_list, axis=0) # (N, 512, 512)
+    mask_3d = np.stack(mask_list, axis=0)  # (N, 512, 512)
 
-    # 6. 保存为 3D 数据（npz 格式）
-    np.savez("output_3d_data.npz", 
-            dem=dem_stack.numpy(),
-            image=image_stack.numpy(),
-            mask=mask_stack.numpy())
-
-    print("Saved as 3D data:", dem_stack.shape, image_stack.shape, mask_stack.shape)
+    # 6. 保存
+    np.savez("output_3d_data.npz", dem=dem_3d, image=image_3d, mask=mask_3d)
+    print("Saved as 3D data:", dem_3d.shape, image_3d.shape, mask_3d.shape)
