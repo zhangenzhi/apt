@@ -93,7 +93,8 @@ class Unet(nn.Module):
         
         # Load base model
         base_model = torchvision.models.resnet18(pretrained=False)
-        base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
+        if pretrained:
+            base_model.load_state_dict(torch.load("./model/resnet18-f37072fd.pth"))
         
         self.encoder1 = nn.Sequential(
             nn.Conv2d(in_channels, 16, kernel_size=7, stride=2, padding=3, bias=False),
