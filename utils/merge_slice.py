@@ -44,6 +44,7 @@ if __name__ == "__main__":
         print(qimages.shape, qmasks.shape)
         dem = qdt[0].deserialize(qmasks[0].permute(1,2,0).numpy(), 8, 5)
         dem = np.transpose(dem, (2, 1, 0))
+        dem = torch.from_numpy(dem)
         image_list.append(image[0])
         mask_list.append(mask[0])
         dem_list.append(dem)
