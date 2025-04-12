@@ -26,7 +26,7 @@ def main():
     image = np.fromfile(img_name, dtype=np.uint16).reshape([8192, 8192, 1])
     image = (image[:] / 255).astype(np.uint8)
     image = torch.Tensor(image)
-    image = (image - image.min()) / (image.max() - image.min()+1e-4)
+    # image = (image - image.min()) / (image.max() - image.min()+1e-4)
     image = image.permute(2,0,1).unsqueeze(0)
     save_input_as_image(image[0].permute(1,2,0), "real_img.png")
     
