@@ -38,6 +38,7 @@ def main():
     # model = nn.DataParallel(model)
     model.load_state_dict(torch.load(os.path.join("/lustre/orion/nro108/world-shared/enzhi/apt/unet-s8d-n32-dce", "best_score_model.pth")))
     with torch.no_grad():
+        image = image.to(device=device)
         pred = model(image)
         save_pred_as_mask(pred[0].permute(1,2,0), "pred.png")
         
