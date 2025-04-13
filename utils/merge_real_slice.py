@@ -76,7 +76,7 @@ def post_process():
 
     # Process DEM according to requirements
     # Step 1: Keep only values == 3, others set to 0
-    dem = np.where(dem == 3, 2048, 0)  # Convert 3 to 2048 directly
+    dem = np.where(dem == 3, 1024, 0)  # Convert 3 to 2048 directly
     
     # # Step 2: Apply the 16000 threshold condition
     # for i in range(dem.shape[0]):  # Iterate through all slices
@@ -85,7 +85,7 @@ def post_process():
     #         dem[i] = 0  # Set entire slice to 0 if sum exceeds threshold
     
     # Step 3: Set all remaining 0 values to -1024
-    dem = np.where(dem == 2048, 2048, -1024)
+    dem = np.where(dem == 1024, 1024, -1024)
 
     # Convert to float32
     dem = dem.astype(np.float32)
@@ -106,7 +106,7 @@ def post_process():
     # Verification print
     unique_values = np.unique(dem)
     print(f"Unique values in processed DEM: {unique_values}")
-    print(f"DEM value counts: 2048: {np.sum(dem == 2048)}, -1024: {np.sum(dem == -1024)}")
+    print(f"DEM value counts: 2048: {np.sum(dem == 1024)}, -1024: {np.sum(dem == -1024)}")
 
 
 if __name__ == "__main__":
