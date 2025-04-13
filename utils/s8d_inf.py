@@ -18,7 +18,7 @@ from model.unet import Unet
 
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
+import cv2
 def main():
     
     # img_name = "/lustre/orion/nro108/world-shared/enzhi/apt/dataset/sample_8192.raw"
