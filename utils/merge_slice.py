@@ -44,7 +44,7 @@ if __name__ == "__main__":
         image, mask, qimages, qmasks, qdt = batch
         print(qimages.shape, qmasks.shape)
         dem = qdt[0].deserialize(qmasks[0].permute(1,2,0).numpy(), 8, 5)
-        dem = np.transpose(dem, (2, 1, 0))
+        # dem = np.transpose(dem, (2, 1, 0))
         # 3. Resize 到 512x512（使用 OpenCV）
         image_np = image[0].numpy()
         mask_np = mask[0].numpy()
@@ -56,9 +56,10 @@ if __name__ == "__main__":
         mask_resized = cv2.resize(mask_np, (512, 512), interpolation=cv2.INTER_NEAREST)  # mask 用最近邻
         
         dem = torch.from_numpy(dem_resized)
+        dem = dem.argmax(axis=-1)
         image_list.append(image_resized)
         mask_list.append(mask_resized)
-        dem_list.append(dem)
+        dem_list.append(dem.numpy())
     
     # 5. 转为 3D 数据
     dem_3d = np.stack(dem_list, axis=0)    # (N, 512, 512)
