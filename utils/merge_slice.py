@@ -88,8 +88,8 @@ if __name__ == "__main__":
     dem = dem*(2048)
     mask = mask*(2048)
     
-    dem = np.where(dem == 0, dem, -1024) 
-    mask = np.where(mask == 0, mask, -1024)
+    dem = np.where(dem == 2048, dem, -1024) 
+    mask = np.where(mask == 2048, mask, -1024)
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
     image = image.astype(np.float32)
