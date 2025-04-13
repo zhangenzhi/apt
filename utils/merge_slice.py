@@ -70,11 +70,14 @@ if __name__ == "__main__":
     # np.savez("output_3d_data.npz", dem=dem_3d, image=image_3d, mask=mask_3d)
     # print("Saved as 3D data:", dem_3d.shape, image_3d.shape, mask_3d.shape)
     
+    import pdb;pdb.set_trace()
+    
     # 1. Load the NPZ file
     data = np.load("output_3d_data.npz")
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
+    dem = np.where(dem == 1, dem, 0)  # Replace non-1 values with 0
     image = data["image"]  # Shape: (N, H, W)
     mask = data["mask"]    # Shape: (N, H, W)
 
