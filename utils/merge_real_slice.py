@@ -52,11 +52,12 @@ def main():
         with torch.no_grad():
             image = image.to(device=device)
             pred = model(image)
-            pred = pred.argmax(axis=0)
             save_pred_as_mask(pred[0], "pred_{img_name}.png")
             
-            pred_resized = cv2.resize(pred.numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
-            image_resized = cv2.resize(image_resized.numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
+            pred = pred[0].argmax(axis=0).permute(1,2,0)
+            image = image[0].permute(1,2,0)
+            pred_resized = cv2.resize(pred.cpu().numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
+            image_resized = cv2.resize(image.cpu().numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
             pred_slices.append(pred_resized)
             image_slices.append(image_resized)
     
