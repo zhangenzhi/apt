@@ -81,9 +81,10 @@ if __name__ == "__main__":
     mask = np.where(mask == 1, mask, 0)
 
     for i in range(40):
-        import pdb;pdb.set_trace()
-        s = dem[i,:,:]
-        print(sum(s))
+        s = dem[i]
+        if np.sum(s)>16000:
+            dem[i] = dem[i]*0
+            mask[i] = mask[i]*0
         
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
