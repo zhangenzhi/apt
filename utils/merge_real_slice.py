@@ -67,30 +67,32 @@ def main():
     print("Saved as 3D data:", pred_slices.shape, image_slices.shape)
 
 def post_process():
-     # 1. Load the NPZ file
+    # 1. Load the NPZ file
     data = np.load("output_3d_data.npz")
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
-    dem = np.where(dem == 3, dem, 0)  # Replace non-1 values with 0
     image = data["image"]  # Shape: (N, H, W)
 
-    for i in range(160):
-        s = dem[i]
-        if np.sum(s)>16000:
-            dem[i] = dem[i]*0
-    dem = dem*(700)
+    # Process DEM according to requirements
+    # Step 1: Keep only values == 3, others set to 0
+    dem = np.where(dem == 3, 2048, 0)  # Convert 3 to 2048 directly
     
-    dem = np.where(dem == 2100, dem, -1024) 
+    # # Step 2: Apply the 16000 threshold condition
+    # for i in range(dem.shape[0]):  # Iterate through all slices
+    #     s = dem[i]
+    #     if np.sum(s) > 16000:
+    #         dem[i] = 0  # Set entire slice to 0 if sum exceeds threshold
+    
+    # Step 3: Set all remaining 0 values to -1024
+    dem = np.where(dem == 2048, 2048, -1024)
 
-    # import pdb;pdb.set_trace()
+    # Convert to float32
     dem = dem.astype(np.float32)
     image = image.astype(np.float32)
 
-    
     # 3. Save each array as raw binary file
     def save_as_raw(array, filename):
-        # Flatten the array to 1D and write binary
         with open(filename, "wb") as f:
             array.flatten().tofile(f)
 
@@ -100,6 +102,12 @@ def post_process():
     print("Saved raw files:")
     print(f"dem.raw   - Shape: {dem.shape}, Dtype: {dem.dtype}")
     print(f"image.raw - Shape: {image.shape}, Dtype: {image.dtype}")
+    
+    # Verification print
+    unique_values = np.unique(dem)
+    print(f"Unique values in processed DEM: {unique_values}")
+    print(f"DEM value counts: 2048: {np.sum(dem == 2048)}, -1024: {np.sum(dem == -1024)}")
+
 
 if __name__ == "__main__":
     # main()
