@@ -49,7 +49,7 @@ if __name__ == "__main__":
         image_np = image[0].numpy()
         mask_np = mask[0].numpy()
         
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         dem_resized = cv2.resize(dem, (512, 512), interpolation=cv2.INTER_NEAREST)
         image_resized = cv2.resize(image_np, (512, 512), interpolation=cv2.INTER_NEAREST)
