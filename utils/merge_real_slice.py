@@ -54,7 +54,7 @@ def main():
             pred = model(image)
             save_pred_as_mask(pred[0], f"pred_{idx}.png")
             
-            pred = pred[0].argmax(axis=0).permute(1,2,0)
+            pred = pred[0].argmax(axis=0).unsqueeze(-1)
             image = image[0].permute(1,2,0)
             pred_resized = cv2.resize(pred.cpu().numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
             image_resized = cv2.resize(image.cpu().numpy(), (512, 512), interpolation=cv2.INTER_NEAREST)
