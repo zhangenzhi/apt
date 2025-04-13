@@ -85,8 +85,11 @@ if __name__ == "__main__":
         if np.sum(s)>16000:
             dem[i] = dem[i]*0
             mask[i] = mask[i]*0
-    dem = dem*(-1024)
-    mask = mask*(-1024)
+    dem = dem*(2048)
+    mask = mask*(2048)
+    
+    dem = np.where(dem == 0, dem, -1024) 
+    mask = np.where(mask == 0, mask, -1024)
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
     image = image.astype(np.float32)
