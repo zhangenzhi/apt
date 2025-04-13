@@ -79,16 +79,14 @@ def post_process():
         s = dem[i]
         if np.sum(s)>16000:
             dem[i] = dem[i]*0
-            mask[i] = mask[i]*0
     dem = dem*(2048)
-    mask = mask*(2048)
     
     dem = np.where(dem == 2048, dem, -1024) 
-    mask = np.where(mask == 2048, mask, -1024)
+
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
     image = image.astype(np.float32)
-    mask = mask.astype(np.float32)
+
     
     # 3. Save each array as raw binary file
     def save_as_raw(array, filename):
