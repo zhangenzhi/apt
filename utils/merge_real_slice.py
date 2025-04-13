@@ -47,12 +47,12 @@ def main():
         image = torch.Tensor(image)
         image = (image - image.min()) / (image.max() - image.min()+1e-4)
         image = image.permute(2,0,1).unsqueeze(0)
-        save_input_as_image(image[0].permute(1,2,0), "real_img_{img_name}.png")
+        save_input_as_image(image[0].permute(1,2,0), f"real_img_{img_name}.png")
         
         with torch.no_grad():
             image = image.to(device=device)
             pred = model(image)
-            save_pred_as_mask(pred[0], "pred_{img_name}.png")
+            save_pred_as_mask(pred[0], f"pred_{img_name}.png")
             
             pred = pred[0].argmax(axis=0).permute(1,2,0)
             image = image[0].permute(1,2,0)
