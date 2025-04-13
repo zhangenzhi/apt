@@ -80,7 +80,12 @@ if __name__ == "__main__":
     dem = np.where(dem == 1, dem, 0)  # Replace non-1 values with 0
     image = data["image"]  # Shape: (N, H, W)
     mask = data["mask"]    # Shape: (N, H, W)
+    mask = np.where(mask == 1, mask, 0)
 
+    for i in range(40):
+        s = dem[i]
+        print(sum(s))
+        
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
     image = image.astype(np.float32)
