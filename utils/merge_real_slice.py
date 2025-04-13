@@ -37,7 +37,7 @@ def main():
     model = model.to(device)
     model.load_state_dict(torch.load(os.path.join("/lustre/orion/nro108/world-shared/enzhi/apt/unet-s8d-n32-dce", "best_score_model.pth")))
     
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     
     pred_slices = []
     image_slices = []
