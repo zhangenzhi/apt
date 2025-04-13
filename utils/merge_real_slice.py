@@ -72,16 +72,16 @@ def post_process():
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
-    dem = np.where(dem == 1, dem, 0)  # Replace non-1 values with 0
+    dem = np.where(dem == 3, dem, 0)  # Replace non-1 values with 0
     image = data["image"]  # Shape: (N, H, W)
 
     for i in range(160):
         s = dem[i]
         if np.sum(s)>16000:
             dem[i] = dem[i]*0
-    dem = dem*(2048)
+    dem = dem*(700)
     
-    dem = np.where(dem == 2048, dem, -1024) 
+    dem = np.where(dem == 2100, dem, -1024) 
 
     # import pdb;pdb.set_trace()
     dem = dem.astype(np.float32)
