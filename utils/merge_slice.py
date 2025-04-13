@@ -78,7 +78,10 @@ if __name__ == "__main__":
     image = data["image"]  # Shape: (N, H, W)
     mask = data["mask"]    # Shape: (N, H, W)
 
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
+    dem = dem.astype(np.float32)
+    image = image.astype(np.float32)
+    mask = mask.astype(np.float32)
     
     # 3. Save each array as raw binary file
     def save_as_raw(array, filename):
