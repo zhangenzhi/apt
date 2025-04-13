@@ -21,7 +21,7 @@ import cv2
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main():
-    sample_slice_path =  "/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/035"
+    sample_slice_path =  "/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/034"
     num_sample_slice = len(os.listdir(sample_slice_path))
     image_filenames = []
     for i in range(num_sample_slice):
@@ -110,5 +110,5 @@ def post_process():
 
 
 if __name__ == "__main__":
-    # main()
-    post_process()
+    main()
+    # post_process()
