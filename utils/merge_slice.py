@@ -70,8 +70,6 @@ if __name__ == "__main__":
     # np.savez("output_3d_data.npz", dem=dem_3d, image=image_3d, mask=mask_3d)
     # print("Saved as 3D data:", dem_3d.shape, image_3d.shape, mask_3d.shape)
     
-    import pdb;pdb.set_trace()
-    
     # 1. Load the NPZ file
     data = np.load("output_3d_data.npz")
 
@@ -83,7 +81,8 @@ if __name__ == "__main__":
     mask = np.where(mask == 1, mask, 0)
 
     for i in range(40):
-        s = dem[i]
+        import pdb;pdb.set_trace()
+        s = dem[i,:,:]
         print(sum(s))
         
     # import pdb;pdb.set_trace()
