@@ -86,6 +86,11 @@ def post_process():
     # Convert to float32
     masked_image = masked_image.astype(np.float32)
     
+    # Handle empty frames by interpolating
+    for idx in range(160):
+        if np.sum(masked_image[idx]) <= 100:
+            masked_image[idx] = masked_image[idx-1]
+            
     # Fill small holes in the mask using morphological closing
     # This will connect nearby regions and fill small gaps
     for idx in range(mask.shape[0]):
@@ -99,11 +104,6 @@ def post_process():
         masked_image[idx] = masked_image[idx] * slice_mask  # Keep original masked areas
         filled_values = image[idx] * (closed_mask - slice_mask)  # Get values from newly filled areas
         masked_image[idx] = masked_image[idx] + filled_values  # Combine them
-    
-    # Handle empty frames by interpolating
-    for idx in range(160):
-        if np.sum(masked_image[idx]) <= 100:
-            masked_image[idx] = masked_image[idx-1]
     
     masked_image = masked_image * 1024
     
