@@ -21,7 +21,7 @@ import cv2
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main():
-    sample_slice_path =  "/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/035"
+    sample_slice_path =  "/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/033"
     num_sample_slice = len(os.listdir(sample_slice_path))
     image_filenames = []
     for i in range(num_sample_slice):
@@ -68,7 +68,7 @@ def main():
 
 def post_process():
     # 1. Load the NPZ file
-    data = np.load("output_3d_data.npz")
+    data = np.load("output_3d_data_33.npz")
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
@@ -110,5 +110,5 @@ def post_process():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
     post_process()
