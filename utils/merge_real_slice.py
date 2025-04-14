@@ -21,7 +21,7 @@ import cv2
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main(id=32):
-    sample_slice_path =  f"/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/0{id}"
+    sample_slice_path =  f"/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/00{id}"
     num_sample_slice = len(os.listdir(sample_slice_path))
     image_filenames = []
     for i in range(num_sample_slice):
@@ -126,6 +126,6 @@ def post_process(sample_id):
     print(f"Mask value counts: 1: {np.sum(mask == 1)}, 0: {np.sum(mask == 0)}")
 
 if __name__ == "__main__":
-    for i in range(27,32):
+    for i in range(1,10):
         main(id=i)
     # post_process(sample_id=34)
