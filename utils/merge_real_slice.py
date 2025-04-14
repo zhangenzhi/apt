@@ -20,8 +20,8 @@ import cv2
 # Set the flag to load truncated images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-def main():
-    sample_slice_path =  "/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/033"
+def main(id=32):
+    sample_slice_path =  f"/lustre/orion/nro108/world-shared/enzhi/spring8data/8192_output_2/No_020/0{id}"
     num_sample_slice = len(os.listdir(sample_slice_path))
     image_filenames = []
     for i in range(num_sample_slice):
@@ -47,12 +47,12 @@ def main():
         image = torch.Tensor(image)
         image = (image - image.min()) / (image.max() - image.min()+1e-4)
         image = image.permute(2,0,1).unsqueeze(0)
-        save_input_as_image(image[0].permute(1,2,0), f"real_img_{idx}.png")
+        # save_input_as_image(image[0].permute(1,2,0), f"real_img_{idx}.png")
         
         with torch.no_grad():
             image = image.to(device=device)
             pred = model(image)
-            save_pred_as_mask(pred[0], f"pred_{idx}.png")
+            # save_pred_as_mask(pred[0], f"pred_{idx}.png")
             
             pred = pred[0].argmax(axis=0).unsqueeze(-1)
             image = image[0].permute(1,2,0)
@@ -63,7 +63,7 @@ def main():
     
     pred_slices = np.stack(pred_slices, axis=0)    # (N, 512, 512)
     image_slices = np.stack(image_slices, axis=0) # (N, 512, 512)
-    np.savez("output_3d_data_0.npz", dem=pred_slices, image=image_slices)
+    np.savez(f"output_3d_data_{id}.npz", dem=pred_slices, image=image_slices)
     print("Saved as 3D data:", pred_slices.shape, image_slices.shape)
 
 import numpy as np
@@ -126,5 +126,5 @@ def post_process(sample_id):
     print(f"Mask value counts: 1: {np.sum(mask == 1)}, 0: {np.sum(mask == 0)}")
 
 if __name__ == "__main__":
-    # main()
-    post_process(sample_id=34)
+    main()
+    # post_process(sample_id=34)
