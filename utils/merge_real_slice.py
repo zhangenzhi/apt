@@ -77,6 +77,8 @@ def post_process():
     # Process DEM to create binary mask (3 -> 1, others -> 0)
     mask = np.where(dem == 3, 1, 0).astype(np.float32)
     
+    import pdb;pdb.set_trace()
+    
     # Apply mask to image (element-wise multiplication)
     # This will keep image values where mask=1 and set to 0 where mask=0
     masked_image = image * mask
