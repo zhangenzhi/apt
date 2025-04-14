@@ -69,9 +69,9 @@ def main():
 import numpy as np
 from scipy.ndimage import binary_closing, binary_dilation
 
-def post_process():
+def post_process(sample_id):
     # 1. Load the NPZ file
-    data = np.load("output_3d_data_35.npz")
+    data = np.load(f"output_3d_data_{sample_id}.npz")
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
@@ -113,8 +113,8 @@ def post_process():
         with open(filename, "wb") as f:
             array.flatten().tofile(f)
 
-    save_as_raw(mask, "dem_mask.raw")
-    save_as_raw(masked_image, "masked_image.raw")
+    save_as_raw(mask, f"dem_mask_{sample_id}.raw")
+    save_as_raw(masked_image, f"masked_image_{sample_id}.raw")
 
     print("Saved raw files:")
     print(f"dem_mask.raw     - Shape: {mask.shape}, Dtype: {mask.dtype}")
@@ -127,4 +127,4 @@ def post_process():
 
 if __name__ == "__main__":
     # main()
-    post_process()
+    post_process(sample_id=33)
