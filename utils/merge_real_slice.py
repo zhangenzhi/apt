@@ -85,6 +85,10 @@ def post_process():
     
     # Convert to float32
     masked_image = masked_image.astype(np.float32)
+    
+    for idx in range(160):
+        if  np.sum(masked_image[idx]) <= 100:
+            masked_image[idx] = (masked_image[idx+1] + masked_image[idx-1])/2
 
     # 3. Save each array as raw binary file
     def save_as_raw(array, filename):
