@@ -71,7 +71,7 @@ from scipy.ndimage import binary_closing, binary_dilation
 
 def post_process():
     # 1. Load the NPZ file
-    data = np.load("output_3d_data_33.npz")
+    data = np.load("output_3d_data_35.npz")
 
     # 2. Extract arrays
     dem = data["dem"]      # Shape: (N, H, W)
@@ -125,5 +125,5 @@ def post_process():
     print(f"Mask value counts: 1: {np.sum(mask == 1)}, 0: {np.sum(mask == 0)}")
 
 if __name__ == "__main__":
-    main()
+    # main()
     post_process()
