@@ -66,6 +66,9 @@ def main():
     np.savez("output_3d_data_0.npz", dem=pred_slices, image=image_slices)
     print("Saved as 3D data:", pred_slices.shape, image_slices.shape)
 
+import numpy as np
+from scipy.ndimage import binary_closing, binary_dilation
+
 def post_process():
     # 1. Load the NPZ file
     data = np.load("output_3d_data_33.npz")
@@ -77,18 +80,31 @@ def post_process():
     # Process DEM to create binary mask (3 -> 1, others -> 0)
     mask = np.where(dem == 3, 1, 0).astype(np.float32)
     
-    import pdb;pdb.set_trace()
-    
     # Apply mask to image (element-wise multiplication)
-    # This will keep image values where mask=1 and set to 0 where mask=0
     masked_image = image * mask
     
     # Convert to float32
     masked_image = masked_image.astype(np.float32)
     
+    # Fill small holes in the mask using morphological closing
+    # This will connect nearby regions and fill small gaps
+    for idx in range(mask.shape[0]):
+        # Create a binary mask for this slice
+        slice_mask = mask[idx]
+        
+        # Use binary closing to fill small holes
+        closed_mask = binary_closing(slice_mask, structure=np.ones((3,3)), iterations=1)
+        
+        # Apply the closed mask to the image
+        masked_image[idx] = masked_image[idx] * slice_mask  # Keep original masked areas
+        filled_values = image[idx] * (closed_mask - slice_mask)  # Get values from newly filled areas
+        masked_image[idx] = masked_image[idx] + filled_values  # Combine them
+    
+    # Handle empty frames by interpolating
     for idx in range(160):
-        if  np.sum(masked_image[idx]) <= 100:
+        if np.sum(masked_image[idx]) <= 100:
             masked_image[idx] = (masked_image[idx+1] + masked_image[idx-1])/2
+    
     masked_image = masked_image * 1024
     
     # 3. Save each array as raw binary file
@@ -107,7 +123,6 @@ def post_process():
     unique_values = np.unique(mask)
     print(f"Unique values in mask: {unique_values}")
     print(f"Mask value counts: 1: {np.sum(mask == 1)}, 0: {np.sum(mask == 0)}")
-
 
 if __name__ == "__main__":
     main()
