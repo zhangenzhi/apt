@@ -89,7 +89,8 @@ def post_process():
     for idx in range(160):
         if  np.sum(masked_image[idx]) <= 100:
             masked_image[idx] = (masked_image[idx+1] + masked_image[idx-1])/2
-
+    masked_image = masked_image * 1024
+    
     # 3. Save each array as raw binary file
     def save_as_raw(array, filename):
         with open(filename, "wb") as f:
