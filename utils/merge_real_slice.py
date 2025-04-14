@@ -102,7 +102,8 @@ def post_process():
         
         # Apply the closed mask to the image
         masked_image[idx] = masked_image[idx] * slice_mask  # Keep original masked areas
-        filled_values = image[idx] * (closed_mask - slice_mask)  # Get values from newly filled areas
+        # filled_values = image[idx] * (closed_mask - slice_mask)  # Get values from newly filled areas
+        filled_values = closed_mask - slice_mask  # Get values from newly filled areas
         masked_image[idx] = masked_image[idx] + filled_values  # Combine them
     
     masked_image = masked_image * 1024
