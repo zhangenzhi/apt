@@ -128,5 +128,5 @@ def post_process(sample_id):
 if __name__ == "__main__":
     for i in range(10,11):
         main(id=i)
-    for i in range(11,36):
+    for i in range(10,11):
         post_process(sample_id=i)
