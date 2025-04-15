@@ -126,6 +126,7 @@ def post_process(sample_id):
     print(f"Mask value counts: 1: {np.sum(mask == 1)}, 0: {np.sum(mask == 0)}")
 
 if __name__ == "__main__":
-    for i in range(1,10):
-        main(id=i)
-    # post_process(sample_id=34)
+    # for i in range(1,10):
+    #     main(id=i)
+    for i in range(1,36):
+        post_process(sample_id=i)
