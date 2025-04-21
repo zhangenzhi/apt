@@ -25,6 +25,8 @@ class ImageEncoderViT(nn.Module):
         global_attn_indexes: Tuple[int, ...] = (),
         pretrain = True,
         qdt=False,
+        linear_embed = False,
+        use_qdt_pos=False,
     ) -> None:
         """
         Args:
@@ -48,17 +50,24 @@ class ImageEncoderViT(nn.Module):
         self.img_size = img_size
         
         # with torch.no_grad():
-        self.patch_embed = PatchEmbed(
-            kernel_size=(patch_size, patch_size),
-            stride=(patch_size, patch_size),
-            in_chans=in_chans,
-            embed_dim=embed_dim,
-        )
+        if linear_embed :
+            self.patch_embed = nn.Linear(in_features=in_chans, out_features=embed_dim)
+        else:
+            self.patch_embed = PatchEmbed(
+                kernel_size=(patch_size, patch_size),
+                stride=(patch_size, patch_size),
+                in_chans=in_chans,
+                embed_dim=embed_dim,
+            )
 
         self.pos_embed: Optional[nn.Parameter] = None
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
             # print(img_size, patch_size)
+            self.pos_embed = nn.Parameter(
+                torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
+            )
+        elif use_qdt_pos:
             self.pos_embed = nn.Parameter(
                 torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
             )
@@ -87,7 +96,17 @@ class ImageEncoderViT(nn.Module):
             elif embed_dim==1280:
                 self.blocks = torch.load("./model/vit_blocks_h.pth")
         
-        if not qdt:
+        if qdt:
+            self.neck = nn.Sequential(
+                nn.ConvTranspose2d(
+                    embed_dim,
+                    out_chans,
+                    kernel_size=(patch_size, patch_size),
+                    stride=(patch_size, patch_size),
+                    bias=False,
+                )
+            )
+        else:
             self.neck = nn.Sequential(
                 nn.Conv2d(
                     embed_dim,
@@ -104,16 +123,6 @@ class ImageEncoderViT(nn.Module):
                     bias=False,
                 ),
                 LayerNorm2d(out_chans),
-            )
-        else:
-            self.neck = nn.Sequential(
-                nn.ConvTranspose2d(
-                    embed_dim,
-                    out_chans,
-                    kernel_size=(patch_size, patch_size),
-                    stride=(patch_size, patch_size),
-                    bias=False,
-                )
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

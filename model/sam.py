@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Type
 from model.vit import ImageEncoderViT
 from model.vit import LayerNorm2d
 
-def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False, in_chans=3,):
+def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False, in_chans=3, use_qdt_pos = False, linear_embed = False):
     return _build_sam_vit(
         encoder_embed_dim=768,
         encoder_depth=12,
@@ -18,6 +18,8 @@ def build_sam_vit_b(patch_size=8, image_size=[512, 512], pretrain=True, qdt=Fals
         pretrain=pretrain,
         in_chans=in_chans,
         qdt=qdt,
+        use_qdt_pos = use_qdt_pos,
+        linear_embed = linear_embed
     )
 
 def build_sam_vit_l(patch_size=8, image_size=[512, 512], pretrain=True, qdt=False,):
@@ -52,9 +54,11 @@ def _build_sam_vit(
     encoder_global_attn_indexes,
     patch_size,
     image_size,
-    pretrain =True,
+    pretrain = True,
     in_chans=3,
     qdt=False,
+    use_qdt_pos = False,
+    linear_embed = False
 ):
     prompt_embed_dim = 256
     image_size = image_size
@@ -77,6 +81,8 @@ def _build_sam_vit(
             out_chans=prompt_embed_dim,
             pretrain=pretrain,
             qdt=qdt,
+            use_qdt_pos= use_qdt_pos,
+            linear_embed= linear_embed,
         )
     
     return image_encoder
@@ -130,11 +136,14 @@ class SAMQDT(nn.Module):
                  in_chans=3,
                  output_dim=1, 
                  pretrain="sam-b",
-                 qdt=False):
+                 qdt=True,
+                 use_qdt_pos = True, 
+                 linear_embed = True):
         super().__init__()
         self.patch_size = patch_size
         if pretrain== "sam-b":
-            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, qdt=qdt, in_chans=in_chans)
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, 
+                                               qdt=qdt, in_chans=patch_size*patch_size*in_chans,use_qdt_pos=use_qdt_pos,linear_embed=linear_embed)
         elif pretrain== "sam-l":
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain=="sam-h":

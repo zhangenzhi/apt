@@ -86,12 +86,12 @@ def main(args):
     sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 5
     
-    model = SAMQDT(image_shape=(patch_size*sqrt_len, patch_size*sqrt_len),
+    model = SAMQDT(image_shape=(args.fixed_length, patch_size*patch_size),
             patch_size=args.patch_size,
             output_dim=num_class,
             in_chans = 1, 
             pretrain=args.pretrain,
-            qdt=True)
+            qdt=True, use_qdt_pos=True, linear_embed=True)
     criterion = DiceCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps")
@@ -140,22 +140,22 @@ def main(args):
         step=1
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
-            # import pdb;pdb.set_trace()
+            import pdb;pdb.set_trace()
             image, mask, qimages, qmasks, qdt = batch # torch.Size([1, 5, 10201, 64])
             # qimages = torch.reshape(qimages,shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
             # qmasks = torch.reshape(qmasks,shape=(-1, num_class, patch_size*sqrt_len, patch_size*sqrt_len))
             
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             
-            qimages = qimages.view(1, 1, 101, 101, 64)
-            qimages = qimages.view(1, 1, 101, 101, 8, 8)
-            qimages = qimages.permute(0, 1, 2, 4, 3, 5)
-            qimages = qimages.reshape(1, 1, 101 * 8, 101 * 8)
+            # qimages = qimages.view(1, 1, 101, 101, 64)
+            # qimages = qimages.view(1, 1, 101, 101, 8, 8)
+            # qimages = qimages.permute(0, 1, 2, 4, 3, 5)
+            # qimages = qimages.reshape(1, 1, 101 * 8, 101 * 8)
             
-            qmasks = qmasks.view(1, 5, 101, 101, 64)
-            qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
-            qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
-            qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
+            # qmasks = qmasks.view(1, 5, 101, 101, 64)
+            # qmasks = qmasks.view(1, 5, 101, 101, 8, 8)
+            # qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
+            # qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
             
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
