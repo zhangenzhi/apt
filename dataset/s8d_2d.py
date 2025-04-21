@@ -376,7 +376,7 @@ class S8DFinetune2DAP(Dataset):
         # # save_input_as_image(dem, "test_deserialize_pre.png")
         # save_pred_as_mask(dem, "test_deserialize_pre.png")
 
-        return img_tensor, label_tensor, seq_img, seq_mask, [qdt], seq_size, seq_pos,
+        return img_tensor, label_tensor, seq_img, seq_mask, [qdt], seq_size, seq_pos
     
     def get_volume_ids(self):
         """Get list of all unique volume IDs"""
@@ -395,9 +395,11 @@ def collate_fn(batch):
     - seq_img: stack into batch tensor
     - seq_mask: stack into batch tensor
     - qdt: keep as list of FixedQuadTree objects
+    - seq_size: stack into batch tensor if consistent, otherwise keep as list
+    - seq_pos: stack into batch tensor if consistent, otherwise keep as list
     """
     # Unzip the batch (list of tuples → tuple of lists)
-    img_tensors, label_tensors, seq_imgs, seq_masks, qdts = zip(*batch)
+    img_tensors, label_tensors, seq_imgs, seq_masks, qdts, seq_sizes, seq_poss = zip(*batch)
     
     # Stack tensors that can be batched normally
     batch_img_tensor = torch.stack(img_tensors)
@@ -409,12 +411,25 @@ def collate_fn(batch):
     # We had [qdt] per sample, now we concatenate those single-item lists
     batch_qdts = [qdt[0] for qdt in qdts]
     
+    # Handle seq_size and seq_pos - check if they can be stacked
+    try:
+        batch_seq_size = torch.stack(seq_sizes)
+    except:
+        batch_seq_size = list(seq_sizes)
+    
+    try:
+        batch_seq_pos = torch.stack(seq_poss)
+    except:
+        batch_seq_pos = list(seq_poss)
+    
     return (
         batch_img_tensor,
         batch_label_tensor,
         batch_seq_img,
         batch_seq_mask,
-        batch_qdts  # Now a list of FixedQuadTree objects
+        batch_qdts,
+        batch_seq_size,
+        batch_seq_pos
     )
     
 if __name__ == "__main__":
