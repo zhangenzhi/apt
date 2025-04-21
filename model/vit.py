@@ -133,7 +133,7 @@ class ImageEncoderViT(nn.Module):
             )
 
     def forward(self, x: torch.Tensor, seq_ps=None) -> torch.Tensor:
-        # import pdb;pdb.set_trace()
+        import pdb;pdb.set_trace()
         
         x = self.patch_embed(x)
             
