@@ -80,6 +80,7 @@ def _build_sam_vit(
             window_size=14,
             out_chans=prompt_embed_dim,
             pretrain=pretrain,
+            use_abs_pos=False,
             qdt=qdt,
             use_qdt_pos= use_qdt_pos,
             linear_embed= linear_embed,
