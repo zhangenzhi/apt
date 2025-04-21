@@ -148,7 +148,7 @@ def main(args):
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             seq_size, seq_pos = seq_size.to(device), seq_pos.to(device)
             seq_size= seq_size.unsqueeze(-1)
-            seq_ps = torch.concat([seq_size, seq_pos])
+            seq_ps = torch.concat([seq_size, seq_pos],dim=-1)
             # qimages = qimages.view(1, 1, 101, 101, 64)
             # qimages = qimages.view(1, 1, 101, 101, 8, 8)
             # qimages = qimages.permute(0, 1, 2, 4, 3, 5)
