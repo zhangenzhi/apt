@@ -167,12 +167,8 @@ class SAMQDT(nn.Module):
                 nn.Conv2d(128, output_dim, 1)
             )
         else:
-            if pretrain== "sam-b":
-                self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
-            elif pretrain== "sam-l":
-                self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
-            elif pretrain== "sam-h":
-                self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
+            self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
+
                 
     def forward(self, x, seq_ps=None):
         # print(x.shape)

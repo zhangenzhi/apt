@@ -272,22 +272,21 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     true_mask = true_mask.squeeze().cpu().numpy()
     
     true_seq_mask = qmasks[0]
-    # true_seq_mask = torch.reshape(true_seq_mask, (fixed_length, 8*8*5))
-    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 8, 101, 8)
-    true_seq_mask = true_seq_mask.permute(0, 1, 2, 4, 3, 5)
-    true_seq_mask = true_seq_mask.reshape(1, 5, 101, 101, 8*8)
-    true_seq_mask = true_seq_mask.reshape(1, 5, 101*101, 64)
-    true_seq_mask = true_seq_mask.permute(0, 2, 3, 1)
-    true_seq_mask = true_seq_mask.reshape(1, 101*101, 64*5)
+    # true_seq_mask = true_seq_mask.reshape(1, 5, 101, 8, 101, 8)
+    # true_seq_mask = true_seq_mask.permute(0, 1, 2, 4, 3, 5)
+    # true_seq_mask = true_seq_mask.reshape(1, 5, 101, 101, 8*8)
+    # true_seq_mask = true_seq_mask.reshape(1, 5, 101*101, 64)
+    # true_seq_mask = true_seq_mask.permute(0, 2, 3, 1)
+    # true_seq_mask = true_seq_mask.reshape(1, 101*101, 64*5)
     true_seq_mask = true_seq_mask.squeeze().cpu().numpy()
     
     pred_seq_mask = pred[0]
-    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 8, 101, 8)
-    pred_seq_mask = pred_seq_mask.permute(0, 1, 2, 4, 3, 5)
-    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 101, 8*8)
-    pred_seq_mask = pred_seq_mask.reshape(1, 5, 101*101, 64)
-    pred_seq_mask = pred_seq_mask.permute(0, 2, 3, 1)
-    pred_seq_mask = pred_seq_mask.reshape(1, 101*101, 64*5)
+    # pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 8, 101, 8)
+    # pred_seq_mask = pred_seq_mask.permute(0, 1, 2, 4, 3, 5)
+    # pred_seq_mask = pred_seq_mask.reshape(1, 5, 101, 101, 8*8)
+    # pred_seq_mask = pred_seq_mask.reshape(1, 5, 101*101, 64)
+    # pred_seq_mask = pred_seq_mask.permute(0, 2, 3, 1)
+    # pred_seq_mask = pred_seq_mask.reshape(1, 101*101, 64*5)
     pred_seq_mask = pred_seq_mask.squeeze().cpu().numpy()
     
     qdt = qdt[0]
@@ -299,7 +298,7 @@ def sub_trans_plot(image, mask, qmasks, pred, qdt, fixed_length, bi, epoch, outp
     decoded_pred_mask = np.transpose(decoded_pred_mask, (2, 1, 0)) 
     # import pdb;pdb.set_trace()
     
-    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.tiff"
+    filename_image = f"image_epoch_{epoch + 1}_sample_{bi + 1}.png"
     filename_mask = f"mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
     # filename_pred = f"pred_epoch_{epoch + 1}_sample_{bi + 1}.png"
     filename_decoded_mask = f"decoded_mask_epoch_{epoch + 1}_sample_{bi + 1}.png"
