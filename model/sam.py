@@ -167,7 +167,7 @@ class SAMQDT(nn.Module):
                 nn.Conv2d(128, output_dim, 1)
             )
         else:
-            self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
+            self.mask_header = nn.Sequential(nn.Conv2d(patch_size*patch_size*in_chans, output_dim, 1))
 
                 
     def forward(self, x, seq_ps=None):
