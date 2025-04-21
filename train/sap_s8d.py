@@ -162,7 +162,7 @@ def main(args):
             outputs = model(qimages, seq_ps)
             loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
-            
+            import pdb;pdb.set_trace()
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
