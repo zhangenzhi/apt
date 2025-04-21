@@ -27,7 +27,6 @@ class ImageEncoderViT(nn.Module):
         qdt=False,
         linear_embed = False,
         use_qdt_pos=False,
-        fixed_length = 10201,
     ) -> None:
         """
         Args:
@@ -127,7 +126,7 @@ class ImageEncoderViT(nn.Module):
             )
 
     def forward(self, x: torch.Tensor, seq_ps=None) -> torch.Tensor:
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         x = self.patch_embed(x)
             
@@ -251,7 +250,7 @@ class Attention(nn.Module):
             self.rel_pos_w = nn.Parameter(torch.zeros(2 * input_size[1] - 1, head_dim))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         B, H, W, _ = x.shape
         # qkv with shape (3, B, nHead, H * W, C)
