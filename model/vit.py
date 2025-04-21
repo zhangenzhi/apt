@@ -97,14 +97,21 @@ class ImageEncoderViT(nn.Module):
                 self.blocks = torch.load("./model/vit_blocks_h.pth")
         
         if qdt:
+            # self.neck = nn.Sequential(
+            #     nn.ConvTranspose2d(
+            #         embed_dim,
+            #         out_chans,
+            #         kernel_size=(patch_size, patch_size),
+            #         stride=(patch_size, patch_size),
+            #         bias=False,
+            #     )
+            # )
             self.neck = nn.Sequential(
-                nn.ConvTranspose2d(
+                nn.Linear(
                     embed_dim,
                     out_chans,
-                    kernel_size=(patch_size, patch_size),
-                    stride=(patch_size, patch_size),
-                    bias=False,
-                )
+                ),
+                LayerNorm2d(out_chans),
             )
         else:
             self.neck = nn.Sequential(
