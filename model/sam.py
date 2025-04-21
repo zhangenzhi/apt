@@ -63,7 +63,6 @@ def _build_sam_vit(
     prompt_embed_dim = 256
     image_size = image_size
     vit_patch_size = patch_size
-    tokens = image_size[0]//patch_size * image_size[1]//patch_size
     
     image_encoder=ImageEncoderViT(
             in_chans=in_chans,
