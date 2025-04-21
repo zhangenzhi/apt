@@ -109,9 +109,9 @@ class ImageEncoderViT(nn.Module):
             self.neck = nn.Sequential(
                 nn.Linear(
                     embed_dim,
-                    out_chans,
+                    patch_size*patch_size,
                 ),
-                LayerNorm2d(out_chans),
+                LayerNorm2d(patch_size*patch_size),
             )
         else:
             self.neck = nn.Sequential(
@@ -133,7 +133,7 @@ class ImageEncoderViT(nn.Module):
             )
 
     def forward(self, x: torch.Tensor, seq_ps=None) -> torch.Tensor:
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         x = self.patch_embed(x)
             
