@@ -326,7 +326,7 @@ if __name__ == '__main__':
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./sap_s8d",
+    parser.add_argument('--savefile', default="./sap_s8d-lp",
                         help='save visualized and loss filename')
     args = parser.parse_args()
 
