@@ -11,8 +11,6 @@ export MIOPEN_DISABLE_CACHE=1
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
 export HOME="/tmp/srun"
 
-source export_ddp_envs.sh
-
 module load PrgEnv-gnu/8.5.0
 module load gcc/12.2.0
 module load rocm/6.2.0

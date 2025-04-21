@@ -160,9 +160,12 @@ def main(args):
             # qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
             
             outputs = model(qimages, seq_ps)
+            
+            import pdb;pdb.set_trace()
+             
             loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
-            import pdb;pdb.set_trace()
+           
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
