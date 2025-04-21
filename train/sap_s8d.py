@@ -86,7 +86,7 @@ def main(args):
     sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 5
     
-    model = SAMQDT(image_shape=(args.fixed_length, patch_size*patch_size),
+    model = SAMQDT(image_shape=(1, args.fixed_length),
             patch_size=args.patch_size,
             output_dim=num_class,
             in_chans = 1, 

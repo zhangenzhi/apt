@@ -85,7 +85,7 @@ class ImageEncoderViT(nn.Module):
                 use_rel_pos=use_rel_pos,
                 rel_pos_zero_init=rel_pos_zero_init,
                 window_size=window_size if i not in global_attn_indexes else 0,
-                input_size=(img_size[0] // patch_size, img_size[1] // patch_size),
+                input_size=(img_size[0], img_size[1]),
             )
             self.blocks.append(block)
             
