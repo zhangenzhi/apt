@@ -375,6 +375,10 @@ class S8DFinetune2DAP(Dataset):
         # from dataset.utilz import save_input_as_image,save_pred_as_mask
         # # save_input_as_image(dem, "test_deserialize_pre.png")
         # save_pred_as_mask(dem, "test_deserialize_pre.png")
+        
+        # Convert seq_size and seq_pos to tensors
+        seq_size = torch.tensor(seq_size, dtype=torch.float32)  # From serialize: seq_size is list of sizes (numbers)
+        seq_pos = torch.tensor(seq_pos, dtype=torch.float32)    # From serialize: seq_pos is list of (x,y) tuples
 
         return img_tensor, label_tensor, seq_img, seq_mask, [qdt], seq_size, seq_pos
     
@@ -389,47 +393,18 @@ class S8DFinetune2DAP(Dataset):
 def collate_fn(batch):
     """
     Custom collate function for S8DFinetune2DAP dataset.
-    Handles:
-    - img_tensor: stack into batch tensor
-    - label_tensor: stack into batch tensor
-    - seq_img: stack into batch tensor
-    - seq_mask: stack into batch tensor
-    - qdt: keep as list of FixedQuadTree objects
-    - seq_size: stack into batch tensor if consistent, otherwise keep as list
-    - seq_pos: stack into batch tensor if consistent, otherwise keep as list
+    Now all sequence elements are tensors and can be stacked.
     """
-    # Unzip the batch (list of tuples → tuple of lists)
     img_tensors, label_tensors, seq_imgs, seq_masks, qdts, seq_sizes, seq_poss = zip(*batch)
     
-    # Stack tensors that can be batched normally
-    batch_img_tensor = torch.stack(img_tensors)
-    batch_label_tensor = torch.stack(label_tensors)
-    batch_seq_img = torch.stack(seq_imgs)
-    batch_seq_mask = torch.stack(seq_masks)
-    
-    # For the quadtrees, we just keep them as a list (since they're custom objects)
-    # We had [qdt] per sample, now we concatenate those single-item lists
-    batch_qdts = [qdt[0] for qdt in qdts]
-    
-    # Handle seq_size and seq_pos - check if they can be stacked
-    try:
-        batch_seq_size = torch.stack(seq_sizes)
-    except:
-        batch_seq_size = list(seq_sizes)
-    
-    try:
-        batch_seq_pos = torch.stack(seq_poss)
-    except:
-        batch_seq_pos = list(seq_poss)
-    
     return (
-        batch_img_tensor,
-        batch_label_tensor,
-        batch_seq_img,
-        batch_seq_mask,
-        batch_qdts,
-        batch_seq_size,
-        batch_seq_pos
+        torch.stack(img_tensors),
+        torch.stack(label_tensors),
+        torch.stack(seq_imgs),
+        torch.stack(seq_masks),
+        [qdt[0] for qdt in qdts],  # List of FixedQuadTree objects
+        torch.stack(seq_sizes),     # Now guaranteed to be stackable
+        torch.stack(seq_poss)       # Now guaranteed to be stackable
     )
     
 if __name__ == "__main__":
