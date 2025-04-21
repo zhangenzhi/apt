@@ -171,9 +171,9 @@ class SAMQDT(nn.Module):
             elif pretrain== "sam-h":
                 self.mask_header = nn.Sequential(nn.Conv2d(256, output_dim, 1))
                 
-    def forward(self, x, seq_qs=None):
+    def forward(self, x, seq_ps=None):
         # print(x.shape)
-        x = self.transformer(x, seq_qs=seq_qs) 
+        x = self.transformer(x, seq_ps=seq_ps) 
         # print("vit shape:",x.shape)
         x = self.mask_header(x)
         # print("mask shape:",x.shape)
