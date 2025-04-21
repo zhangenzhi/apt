@@ -376,7 +376,7 @@ class S8DFinetune2DAP(Dataset):
         # # save_input_as_image(dem, "test_deserialize_pre.png")
         # save_pred_as_mask(dem, "test_deserialize_pre.png")
 
-        return img_tensor, label_tensor, seq_img, seq_mask, [qdt]
+        return img_tensor, label_tensor, seq_img, seq_mask, [qdt], seq_size, seq_pos,
     
     def get_volume_ids(self):
         """Get list of all unique volume IDs"""

@@ -27,6 +27,7 @@ class ImageEncoderViT(nn.Module):
         qdt=False,
         linear_embed = False,
         use_qdt_pos=False,
+        fixed_length = 10201,
     ) -> None:
         """
         Args:
@@ -63,13 +64,13 @@ class ImageEncoderViT(nn.Module):
         self.pos_embed: Optional[nn.Parameter] = None
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
-            # print(img_size, patch_size)
             self.pos_embed = nn.Parameter(
                 torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
             )
         elif use_qdt_pos:
-            self.pos_embed = nn.Parameter(
-                torch.zeros(1, img_size[0] // patch_size, img_size[1] // patch_size, embed_dim)
+            self.qdt_pos_dep_embed = nn.Sequential(
+                nn.Linear(in_features=in_chans, out_features=embed_dim,),
+                nn.ReLU()
             )
 
         self.blocks = nn.ModuleList()
@@ -125,21 +126,25 @@ class ImageEncoderViT(nn.Module):
                 LayerNorm2d(out_chans),
             )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # print(x.shape)
-        # with torch.no_grad():
+    def forward(self, x: torch.Tensor, seq_ps=None) -> torch.Tensor:
+        import pdb;pdb.set_trace()
+        
         x = self.patch_embed(x)
             
-        # print(x.shape)
         if self.pos_embed is not None:
             x = x + self.pos_embed
-
+            
+        if self.qdt_pos_dep_embed is not None:
+            qdt_embed = self.qdt_pos_dep_embed(seq_ps)
+            x = x + qdt_embed
+            
         for blk in self.blocks:
             x = blk(x)
 
         x = self.neck(x.permute(0, 3, 1, 2))
 
         return x
+    
 class Block(nn.Module):
     """Transformer blocks with support of window attention and residual propagation blocks"""
 

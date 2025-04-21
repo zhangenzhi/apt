@@ -141,12 +141,13 @@ def main(args):
         for batch in train_loader:
             # with torch.autocast(device_type='cuda', dtype=torch.float16):
             import pdb;pdb.set_trace()
-            image, mask, qimages, qmasks, qdt = batch # torch.Size([1, 5, 10201, 64])
+            image, mask, qimages, qmasks, qdt, seq_size, seq_pos = batch # torch.Size([1, 5, 10201, 64])
             # qimages = torch.reshape(qimages,shape=(-1, 1, patch_size*sqrt_len, patch_size*sqrt_len))
             # qmasks = torch.reshape(qmasks,shape=(-1, num_class, patch_size*sqrt_len, patch_size*sqrt_len))
             
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
-            
+            seq_size, seq_pos = seq_size.to(device), seq_pos.to(device)
+            seq_ps = torch.concat([seq_size, seq_pos])
             # qimages = qimages.view(1, 1, 101, 101, 64)
             # qimages = qimages.view(1, 1, 101, 101, 8, 8)
             # qimages = qimages.permute(0, 1, 2, 4, 3, 5)
@@ -157,7 +158,7 @@ def main(args):
             # qmasks = qmasks.permute(0, 1, 2, 4, 3, 5)
             # qmasks = qmasks.reshape(1, 5, 101 * 8, 101 * 8)
             
-            outputs = model(qimages)
+            outputs = model(qimages, seq_ps)
             loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
             
@@ -242,9 +243,7 @@ def main(args):
     epoch_test_score = 0
     with torch.no_grad():
         for batch in test_loader:
-            image, mask, qimages, qmasks, qdt = batch
-            qimages = torch.reshape(qimages, shape=(-1,1,patch_size*sqrt_len, patch_size*sqrt_len))
-            qmasks = torch.reshape(qmasks, shape=(-1,num_class,patch_size*sqrt_len, patch_size*sqrt_len))
+            image, mask, qimages, qmasks, qdt, seq_size, seq_pos, = batch
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
             outputs = model(qimages)
             loss = criterion(outputs, qmasks)
