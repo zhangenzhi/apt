@@ -146,8 +146,10 @@ class ImageEncoderViT(nn.Module):
             
         for blk in self.blocks:
             x = blk(x)
-
-        x = self.neck(x.permute(0, 3, 1, 2))
+        if self.qdt_pos_dep_embed is not None: 
+            x = self.neck(x)
+        else:
+            x = self.neck(x.permute(0, 3, 1, 2))
 
         return x
     
