@@ -69,7 +69,7 @@ class ImageEncoderViT(nn.Module):
             )
         elif use_qdt_pos:
             self.qdt_pos_dep_embed = nn.Sequential(
-                nn.Linear(in_features=in_chans, out_features=embed_dim,),
+                nn.Linear(in_features=3, out_features=embed_dim,),
                 nn.ReLU()
             )
 
