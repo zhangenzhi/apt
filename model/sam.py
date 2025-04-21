@@ -147,7 +147,10 @@ class SAMQDT(nn.Module):
         elif pretrain== "sam-l":
             self.transformer = build_sam_vit_l(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
         elif pretrain=="sam-h":
-             self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
+            self.transformer = build_sam_vit_h(patch_size=self.patch_size, image_size=image_shape, qdt=qdt)
+        else:
+            self.transformer = build_sam_vit_b(patch_size=self.patch_size, image_size=image_shape, pretrain=False,
+                                               qdt=qdt, in_chans=patch_size*patch_size*in_chans,use_qdt_pos=use_qdt_pos,linear_embed=linear_embed)
              
         if not qdt:
             self.mask_header = \

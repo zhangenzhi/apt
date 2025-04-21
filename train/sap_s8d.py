@@ -90,7 +90,8 @@ def main(args):
             patch_size=args.patch_size,
             output_dim=num_class,
             in_chans = 1, 
-            pretrain=args.pretrain,
+            # pretrain=args.pretrain,
+            pretrain=False,
             qdt=True, use_qdt_pos=True, linear_embed=True)
     criterion = DiceCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
