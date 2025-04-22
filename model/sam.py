@@ -76,7 +76,7 @@ def _build_sam_vit(
             qkv_bias=True,
             use_rel_pos=False,
             global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
+            window_size=0,
             out_chans=prompt_embed_dim,
             pretrain=pretrain,
             use_abs_pos=False,

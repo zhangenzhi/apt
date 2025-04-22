@@ -203,6 +203,8 @@ class Block(nn.Module):
         self.window_size = window_size
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        import pdb;pdb.set_trace()
+        
         shortcut = x
         x = self.norm1(x)
         # Window partition
