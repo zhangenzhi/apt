@@ -173,7 +173,7 @@ def main(args):
             epoch_train_loss += loss.item()
             step+=1
             break
-        
+        print(torch.cuda.memory_summary())
         # Visualize
         with torch.no_grad():
             if (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
@@ -222,8 +222,6 @@ def main(args):
                 epoch_val_loss += loss.item()
                 epoch_val_score += score.item()
                 break
-            
-            print(torch.cuda.memory_summary())
             
             if  (epoch - 1) % 10 == 9:  # Adjust the frequency of visualization
                 sub_trans_plot(image, mask, qmasks=qmasks, pred=outputs, qdt=qdt, 
