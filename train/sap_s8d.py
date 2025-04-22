@@ -161,7 +161,7 @@ def main(args):
             
             outputs = model(qimages, seq_ps)
             
-            import pdb;pdb.set_trace()
+            # import pdb;pdb.set_trace()
              
             loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
@@ -254,7 +254,7 @@ def main(args):
         for batch in test_loader:
             image, mask, qimages, qmasks, qdt, seq_size, seq_pos, = batch
             qimages, qmasks = qimages.to(device), qmasks.to(device)  # Move data to GPU
-            outputs = model(qimages)
+            outputs = model(qimages,)
             loss = criterion(outputs, qmasks)
             score = dice_score(outputs, qmasks)
             test_loss += loss.item()
