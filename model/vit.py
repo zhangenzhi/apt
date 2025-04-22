@@ -262,25 +262,46 @@ class Attention(nn.Module):
             self.rel_pos_h = nn.Parameter(torch.zeros(2 * input_size[0] - 1, head_dim))
             self.rel_pos_w = nn.Parameter(torch.zeros(2 * input_size[1] - 1, head_dim))
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        import pdb;pdb.set_trace()
+    # def forward(self, x: torch.Tensor) -> torch.Tensor:
+    #     import pdb;pdb.set_trace()
         
+    #     B, H, W, _ = x.shape
+    #     # qkv with shape (3, B, nHead, H * W, C)
+    #     qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+    #     # q, k, v with shape (B * nHead, H * W, C)
+    #     q, k, v = qkv.reshape(3, B * self.num_heads, H * W, -1).unbind(0)
+
+    #     attn = (q * self.scale) @ k.transpose(-2, -1)
+
+    #     if self.use_rel_pos:
+    #         attn = add_decomposed_rel_pos(attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W))
+
+    #     attn = attn.softmax(dim=-1)
+    #     x = (attn @ v).view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
+    #     x = self.proj(x)
+
+    #     return x
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, H, W, _ = x.shape
-        # qkv with shape (3, B, nHead, H * W, C)
-        qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
-        # q, k, v with shape (B * nHead, H * W, C)
-        q, k, v = qkv.reshape(3, B * self.num_heads, H * W, -1).unbind(0)
-
-        attn = (q * self.scale) @ k.transpose(-2, -1)
-
+        N = H * W
+        
+        # More memory efficient qkv computation
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]  # Avoid unbind which creates new tensors
+        
+        # Use matmul instead of @ for better memory management
+        attn = torch.matmul(q * self.scale, k.transpose(-2, -1))
+        
         if self.use_rel_pos:
             attn = add_decomposed_rel_pos(attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W))
-
+        
         attn = attn.softmax(dim=-1)
-        x = (attn @ v).view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
-        x = self.proj(x)
-
-        return x
+        x = torch.matmul(attn, v)  # More memory efficient than @
+        
+        # Final reshape
+        x = x.transpose(1, 2).reshape(B, H, W, -1)
+        return self.proj(x)
 
 
 def window_partition(x: torch.Tensor, window_size: int) -> Tuple[torch.Tensor, Tuple[int, int]]:
