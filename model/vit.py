@@ -108,15 +108,6 @@ class ImageEncoderViT(nn.Module):
                         param.requires_grad = False
         
         if qdt:
-            # self.neck = nn.Sequential(
-            #     nn.ConvTranspose2d(
-            #         embed_dim,
-            #         out_chans,
-            #         kernel_size=(patch_size, patch_size),
-            #         stride=(patch_size, patch_size),
-            #         bias=False,
-            #     )
-            # )
             self.neck = nn.Sequential(
                 nn.Linear(
                     embed_dim,
@@ -270,7 +261,7 @@ class Attention(nn.Module):
             self.rel_pos_w = nn.Parameter(torch.zeros(2 * input_size[1] - 1, head_dim))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # import pdb;pdb.set_trace()
+        import pdb;pdb.set_trace()
         
         B, H, W, _ = x.shape
         # qkv with shape (3, B, nHead, H * W, C)
