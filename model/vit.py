@@ -87,37 +87,25 @@ class ImageEncoderViT(nn.Module):
                 input_size=(img_size[0], img_size[1]),
             )
             self.blocks.append(block)
-            
+        
+        freeze_blocks = False
         if pretrain:
-            # Load pretrained weights
+            # Load pretrained blocks (ModuleList)
             if embed_dim == 768:
-                state_dict = torch.load("./model/vit_blocks_b.pth")
+                pretrained_blocks = torch.load("./model/vit_blocks_b.pth")
             elif embed_dim == 1024:
-                state_dict = torch.load("./model/vit_blocks_l.pth")
+                pretrained_blocks = torch.load("./model/vit_blocks_l.pth")
             elif embed_dim == 1280:
-                state_dict = torch.load("./model/vit_blocks_h.pth")
-            else:
-                raise ValueError(f"Unsupported embed_dim: {embed_dim}")
+                pretrained_blocks = torch.load("./model/vit_blocks_h.pth")
             
-            for i, block in enumerate(self.blocks):
-                # Construct the prefix for this block's parameters
-                prefix = f"blocks.{i}."
-                block_state_dict = {k[len(prefix):]: v for k, v in state_dict.items() if k.startswith(prefix)}
+            # Transfer weights directly
+            for new_block, pretrained_block in zip(self.blocks, pretrained_blocks):
+                # This copies all compatible parameters automatically
+                new_block.load_state_dict(pretrained_block.state_dict(), strict=False)
                 
-                # Filter out unexpected keys
-                model_state_dict = block.state_dict()
-                filtered_state_dict = {k: v for k, v in block_state_dict.items() 
-                                    if k in model_state_dict and model_state_dict[k].shape == v.shape}
-                
-                # Load the filtered state dict
-                block.load_state_dict(filtered_state_dict, strict=False)
-                
-                # Optional: Print warnings about missing or unexpected keys
-                missing, unexpected = block.load_state_dict(filtered_state_dict, strict=False)
-                if missing:
-                    print(f"Block {i} missing keys: {missing}")
-                if unexpected:
-                    print(f"Block {i} unexpected keys: {unexpected}")
+                if freeze_blocks:
+                    for param in new_block.parameters():
+                        param.requires_grad = False
         
         if qdt:
             # self.neck = nn.Sequential(
