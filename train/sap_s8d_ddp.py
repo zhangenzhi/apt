@@ -83,15 +83,14 @@ def main(args, device_id):
     
     # Create an instance of the U-Net model and other necessary components
     patch_size=args.patch_size
-    sqrt_len=int(math.sqrt(args.fixed_length))
     num_class = 5
     
     model = SAMQDT(image_shape=(1, args.fixed_length),
             patch_size=args.patch_size,
             output_dim=num_class,
             in_chans = 1, 
-            # pretrain=args.pretrain,
-            pretrain=False,
+            pretrain=args.pretrain,
+            # pretrain=False,
             qdt=True, use_qdt_pos=True, linear_embed=True)
     criterion = DiceCELoss()
     best_val_score = 0.0
