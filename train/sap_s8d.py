@@ -321,7 +321,7 @@ if __name__ == '__main__':
                         help='base path of dataset.')
     parser.add_argument('--data_dir', default="/lustre/orion/nro108/world-shared/enzhi/Riken_XCT_Simulated_Data/8192x8192_2d_Simulations/Noise_0.05_Blur_2_sparsity_2_NumAng_3600", 
                         help='base path of dataset.')
-    parser.add_argument('--fixed_length', default=4096, type=int,
+    parser.add_argument('--fixed_length', default=1024, type=int,
                         help='length of sequence.')
     parser.add_argument('--patch_size', default=8, type=int,
                         help='patch size.')
