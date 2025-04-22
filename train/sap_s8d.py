@@ -90,7 +90,7 @@ def main(args):
             output_dim=num_class,
             in_chans = 1, 
             # pretrain=args.pretrain,
-            pretrain=False,
+            pretrain="sam-b",
             qdt=True, use_qdt_pos=True, linear_embed=True)
     criterion = DiceCELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)

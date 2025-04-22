@@ -89,12 +89,29 @@ class ImageEncoderViT(nn.Module):
             self.blocks.append(block)
             
         if pretrain:
-            if embed_dim==768:
-                self.blocks = torch.load("./model/vit_blocks_b.pth")
-            elif embed_dim==1024:
-                self.blocks = torch.load("./model/vit_blocks_l.pth")
-            elif embed_dim==1280:
-                self.blocks = torch.load("./model/vit_blocks_h.pth")
+            # Load pretrained weights
+            if embed_dim == 768:
+                pretrained_blocks = torch.load("./model/vit_blocks_b.pth")
+            elif embed_dim == 1024:
+                pretrained_blocks = torch.load("./model/vit_blocks_l.pth")
+            elif embed_dim == 1280:
+                pretrained_blocks = torch.load("./model/vit_blocks_h.pth")
+            else:
+                raise ValueError(f"Unsupported embed_dim: {embed_dim}")
+            
+            # Verify we have enough pretrained blocks
+            if len(pretrained_blocks) < depth:
+                raise ValueError(f"Pretrained model has {len(pretrained_blocks)} blocks but need {depth}")
+            
+            # Load state dict for each block
+            for i, block in enumerate(self.blocks):
+                # Load state dict for the current block
+                block.load_state_dict(pretrained_blocks[i].state_dict())
+                
+                # Optional: freeze some layers if needed
+                if freeze_blocks:
+                    for param in block.parameters():
+                        param.requires_grad = False
         
         if qdt:
             # self.neck = nn.Sequential(
