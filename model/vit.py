@@ -69,7 +69,7 @@ class ImageEncoderViT(nn.Module):
         elif use_qdt_pos:
             self.qdt_pos_dep_embed = nn.Sequential(
                 nn.Linear(in_features=3, out_features=embed_dim,),
-                nn.ReLU()
+                act_layer()
             )
 
         self.blocks = nn.ModuleList()
@@ -109,6 +109,7 @@ class ImageEncoderViT(nn.Module):
         
         if qdt:
             self.neck = nn.Sequential(
+                norm_layer(embed_dim),
                 nn.Linear(
                     embed_dim,
                     patch_size*patch_size,
@@ -152,7 +153,9 @@ class ImageEncoderViT(nn.Module):
         import pdb;pdb.set_trace()
         
         if self.qdt_pos_dep_embed is not None: 
+            x = x.squeeze(1)
             x = self.neck(x)
+            x = x.unsqueeze(1)
         else:
             x = self.neck(x.permute(0, 3, 1, 2))
 
