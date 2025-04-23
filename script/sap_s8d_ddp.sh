@@ -22,5 +22,5 @@ srun -N 32 -n 256 --ntasks-per-node 8 python ./train/sap_s8d_ddp.py \
         --fixed_length=8194 \
         --patch_size=8 \
         --batch_size=1 \
-        --savefile=./sap_s8d_n32-8k
+        --savefile=./sap_s8d_n32-l8k
 # 8281
