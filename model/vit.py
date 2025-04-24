@@ -150,7 +150,7 @@ class ImageEncoderViT(nn.Module):
         for blk in self.blocks:
             x = blk(x)
         
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         
         if self.qdt_pos_dep_embed is not None: 
             x = x.squeeze(1)
